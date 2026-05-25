@@ -1,0 +1,15 @@
+# 1. Ignore everything by default
+*
+
+# 2. But do not ignore directories, otherwise Git won't look inside them
+!*/
+
+# 3. Explicitly allow the public web asset extensions everywhere
+!*.html
+!*.css
+!*.js
+!*.pdf
+
+# 4. Explicitly allow essential repository files in the root
+!.nojekyll
+!.gitignore
