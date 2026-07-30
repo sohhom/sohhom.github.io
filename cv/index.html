@@ -35,11 +35,25 @@
       <p>
         I studied computer science to understand how computers work. Moved to
         cognitive science to understand how minds work. Now studying financial
-        markets to understand how money works. Based in Kolkata, India.
+        markets to understand how money works. Based in Kolkata, West Bengal, India.
       </p>
 
       <!-- Experience -->
       <h2>Experience</h2>
+
+      <div class="cv-row">
+        <div class="cv-row__when">Jul 2024 &mdash; present</div>
+        <div class="cv-row__what">
+          <h3>Independent Researcher &mdash; Quantitative Trading</h3>
+          <span class="where">Self-directed &mdash; Kolkata, India</span>
+          <ul>
+            <li>Building an end-to-end research and trading system for Indian equities (NSE/BSE): tick and OHLCV data ingestion, feature and label engineering, signal generation, walk-forward backtesting, and execution logic.</li>
+            <li>Reusable components for transaction-cost modelling, strategy evaluation, and risk metrics; every idea is put through a cost-and-survivorship break-even test before anything else.</li>
+            <li>Emphasis on regime awareness and selectivity &mdash; deciding when <em>not</em> to trade is treated as part of the strategy, not an afterthought.</li>
+            <li>Stack: Python, Polars, pandas, NumPy, SciPy, scikit-learn, broker APIs.</li>
+          </ul>
+        </div>
+      </div>
 
       <div class="cv-row">
         <div class="cv-row__when">Oct 2025 &mdash; May 2026</div>
@@ -92,7 +106,7 @@
             <li>Developed psychoacoustic assessment protocols for Active Noise Control headphones, including methods for measuring envelope distortion.</li>
             <li>Conducted human experiments measuring speech perception through ANC headphones.</li>
             <li>Coursework: Computational Neuroscience, Natural Language Processing, Computer Systems, Cognition and Emotion, Artificial Intelligence.</li>
-            <li>Full thesis PDF: <a href="https://tinyurl.com/5n8p86jh">tinyurl.com/5n8p86jh</a></li>
+            <li>Full thesis PDF: <a href="../uploads/PhDThesis_Sohhom_15510011_final.pdf">Psychoacoustic assessment of ANC headphones</a> (3.9&nbsp;MB).</li>
           </ul>
         </div>
       </div>
@@ -126,31 +140,34 @@
 
       <!-- AUTO:projects-start  (managed by tools/sync_cv_projects.py — do not hand-edit) -->
       <div class="cv-row">
-        <div class="cv-row__when">Jul 2024</div>
+        <div class="cv-row__when">Apr 2026</div>
         <div class="cv-row__what">
-          <h3><a href="../project/quant-investigations-nse-bse/">Quant investigations into Indian equities (NSE/BSE)</a></h3>
-          <span class="where">Custom UIs, plots, and statistical studies of Indian equities, started Jul 2024</span>
+          <h3><a href="../project/compression-bits-patterns/">Pattern reuse, from file systems to neural networks</a></h3>
+          <span class="where">Testing a 2018 compressed-filesystem idea against raw binary, and what bit alignment revealed</span>
           <ul>
-            <li>Time-series analysis</li>
-            <li>microstructure studies</li>
-            <li>factor decomposition</li>
-            <li>transaction-cost modelling</li>
-            <li>intraday and EOD backtesting</li>
-            <li>exploratory dashboards</li>
-            <li>Stack: Python data stack (Polars, NumPy, etc.)</li>
+            <li>N-gram frequency analysis over raw binary</li>
+            <li>cross-file pattern overlap</li>
+            <li>dictionary coverage growth curves</li>
+            <li>pointer-overhead compression modelling</li>
+            <li>sub-byte bit-level overlap</li>
+            <li>bit-shift alignment sensitivity</li>
+            <li>Stack: Python 3 (NumPy, mmap for zero-copy binary handling, collections.Counter, struct), JSON result serialisation</li>
           </ul>
         </div>
       </div>
 
       <div class="cv-row">
-        <div class="cv-row__when">2024</div>
+        <div class="cv-row__when">Jul 2024</div>
         <div class="cv-row__what">
-          <h3><a href="../project/lorem-three/">Duis aute irure dolor in reprehenderit</a></h3>
-          <span class="where">In voluptate velit esse cillum dolore eu fugiat nulla</span>
+          <h3><a href="../project/quant-investigations-nse-bse/">Quant investigations into Indian equities (NSE/BSE)</a></h3>
+          <span class="where">Custom UIs, plots, and statistical studies of Indian equities, started Jul 2024</span>
           <ul>
-            <li>Feasibility studies</li>
-            <li>evals</li>
-            <li>Stack: Lorem, Ipsum, Dolor</li>
+            <li>Tick-level data pipelines and feature/label engineering over NSE/BSE equities</li>
+            <li>Exact transaction-cost modelling and break-even analysis as a first-pass filter on every idea</li>
+            <li>Walk-forward backtesting with purge gaps and symbol-day-grouped bootstrap inference</li>
+            <li>An oracle harness that grades exit rules independently of any entry signal</li>
+            <li>A multimodal sequence transformer for intraday cross-sectional direction</li>
+            <li>Stack: Python, Polars, NumPy, PyTorch, LightGBM, scikit-learn</li>
           </ul>
         </div>
       </div>
@@ -161,11 +178,12 @@
           <h3><a href="../project/anc-headphones-problem-formulation/">Characterising ANC headphones through the playback signal</a></h3>
           <span class="where">Reframing ANC evaluation around the playback signal, not the noise</span>
           <ul>
-            <li>Literature synthesis</li>
+            <li>Literature synthesis across four disciplines</li>
             <li>problem scoping</li>
             <li>psychoacoustic framing</li>
             <li>black-box device evaluation design</li>
-            <li>Stack: MATLAB, Python, KU 100 dummy head, USB audio interface, four commercial ANC headphones (Bose QC25, Sennheiser HD 4.50, Sony WH-1000XM3, Sony WH-1000XM4)</li>
+            <li>dummy-head recording rig</li>
+            <li>Stack: MATLAB R2021a, Python, Neumann KU 100 dummy head, Behringer U-PHORIA UMC204HD USB audio interface, four commercial ANC headphones (Bose QuietComfort 25, Sennheiser HD 4.50BTNC, Sony WH-1000XM3, Sony WH-1000XM4)</li>
           </ul>
         </div>
       </div>
@@ -173,26 +191,33 @@
       <div class="cv-row">
         <div class="cv-row__when">Sep 2022</div>
         <div class="cv-row__what">
-          <h3><a href="../project/anc-speech-chimera-method/">Speech-chimera modulation-depth characterisation of ANC headphones</a></h3>
-          <span class="where">Modulation-depth sweeps of speech, judged by listeners and by ten objective metrics</span>
+          <h3><a href="../project/anc-chimera-listener-experiment/">Eighty listeners, 360 degraded sentences each, and a mostly negative result</a></h3>
+          <span class="where">A CRM intelligibility and NASA-TLX effort experiment on shallow-envelope speech chimeras</span>
           <ul>
-            <li>Speech-chimera synthesis</li>
-            <li>modulation-depth manipulation</li>
-            <li>intelligibility test (CRM corpus)</li>
-            <li>NASA-TLX listening-effort survey</li>
+            <li>Speech-chimera synthesis (17-band Hilbert ENV/TFS decomposition with dc-bias depth control)</li>
+            <li>repeated-measures counterbalanced design</li>
+            <li>CRM closed-set intelligibility task</li>
+            <li>rationalised arcsine transform</li>
+            <li>IQR-based outlier rejection</li>
+            <li>NASA-TLX six-dimension effort survey</li>
             <li>two-way ANOVA</li>
-            <li>instrumental audio/speech-quality metrics (FES</li>
-            <li>GPSMq</li>
-            <li>HASPI</li>
-            <li>HASQI</li>
-            <li>PESQ</li>
-            <li>PEMO-Q</li>
-            <li>STOI</li>
-            <li>ViSQOL</li>
-            <li>wSTMI</li>
-            <li>SRMR)</li>
-            <li>rationalised arcsine units</li>
-            <li>Stack: MATLAB, Python, KU 100 dummy head, USB audio interface, CRM corpus, NOIZEUS corpus, human-subject experiment infrastructure</li>
+            <li>Stack: MATLAB with Psychophysics Toolbox 3, Ubuntu 20.04 LTS, M-Audio M-Track 2x2 USB interface, CRM corpus (8 talkers), four commercial ANC headphones</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="cv-row">
+        <div class="cv-row__when">Sep 2022</div>
+        <div class="cv-row__what">
+          <h3><a href="../project/anc-instrumental-metrics-virtual-jury/">Ten instrumental metrics, two corpora, and a jury that cannot agree</a></h3>
+          <span class="where">FES, GPSMq, HASPI, HASQI, PESQ, PEMO-Q, STOI, ViSQOL, wSTMI and SRMR applied to ANC playback signals</span>
+          <ul>
+            <li>Instrumental audio/speech quality evaluation</li>
+            <li>full-reference and no-reference metric application</li>
+            <li>modulation-depth function estimation</li>
+            <li>cross-corpus replication</li>
+            <li>two-way ANOVA with partial eta-squared</li>
+            <li>Stack: MATLAB, reference implementations of ten published metrics used as-is, CRM corpus (260 signals, 26 depths), NOIZEUS corpus (990 signals, 33 depths), KU 100 dummy-head recordings of four commercial ANC headphones</li>
           </ul>
         </div>
       </div>
@@ -201,15 +226,16 @@
         <div class="cv-row__when">Aug 2022</div>
         <div class="cv-row__what">
           <h3><a href="../project/anc-auditory-nerve-model/">A simulated auditory nerve as a virtual listener for ANC headphones</a></h3>
-          <span class="where">Driving the Carney/UR EAR auditory model with real headphone recordings to get a perceptual fingerprint without recruiting people</span>
+          <span class="where">Driving the Zilany/UR EAR auditory cascade with real headphone recordings to get a perceptual fingerprint without recruiting people</span>
           <ul>
             <li>Computational auditory modelling</li>
             <li>characteristic-frequency and best-modulation-frequency tuning</li>
-            <li>rate-MTF and synchrony-MTF</li>
-            <li>vector strength</li>
+            <li>rate-MTF</li>
+            <li>coefficient of variation of inter-spike interval</li>
+            <li>vector strength / synchrony-MTF</li>
             <li>stochastic spike-train averaging</li>
-            <li>two-way ANOVA</li>
-            <li>Stack: Python (custom wrapper scripts), MATLAB, UR EAR toolbox 2020b (SFIE band-enhanced/band-suppressed cells), AMToolbox 1.0.0 (Zilany 2014 auditory-nerve model), KU 100 dummy-head recordings of four commercial ANC headphones</li>
+            <li>two-way ANOVA with partial eta-squared</li>
+            <li>Stack: MATLAB, custom Python wrapper scripts, AMToolbox 1.0.0 (Zilany 2014 auditory-nerve model), UR EAR toolbox 2020b (SFIE band-enhanced/band-suppressed IC cells), KU 100 dummy-head recordings of four commercial ANC headphones</li>
           </ul>
         </div>
       </div>
@@ -217,55 +243,16 @@
       <div class="cv-row">
         <div class="cv-row__when">Aug 2022</div>
         <div class="cv-row__what">
-          <h3><a href="../project/anc-modulation-frequency-method/">Modulation-frequency characterisation of ANC headphones</a></h3>
-          <span class="where">Modulation transfer of ANC headphones, measured physically and through computational neurons</span>
+          <h3><a href="../project/anc-electroacoustic-envelope-metrics/">Building a modulation transfer function for an ANC headphone</a></h3>
+          <span class="where">Eight envelope statistics, swept across modulation frequency, on four real devices</span>
           <ul>
             <li>AM sinusoid synthesis</li>
             <li>Hilbert envelope extraction</li>
-            <li>two-way ANOVA</li>
-            <li>modulation transfer function (MTF) estimation</li>
-            <li>computational neuroscience modelling (UR EAR / Carney auditory pathway)</li>
-            <li>rate-MTF and sync-MTF analysis</li>
-            <li>Stack: MATLAB, Python, KU 100 dummy head, USB audio interface, UR EAR auditory model (inner hair cell, auditory nerve, cochlear nucleus, inferior colliculus), psychoacoustic toolboxes (loudness, sharpness, EDI)</li>
-          </ul>
-        </div>
-      </div>
-
-      <div class="cv-row">
-        <div class="cv-row__when">2022</div>
-        <div class="cv-row__what">
-          <h3><a href="../project/lorem-one/">Lorem ipsum dolor sit amet</a></h3>
-          <span class="where">Consectetur adipiscing elit, sed do eiusmod tempor incididunt</span>
-          <ul>
-            <li>Dolor sit amet</li>
-            <li>consectetur</li>
-            <li>Stack: Adipiscing, Elit, Sed Do</li>
-          </ul>
-        </div>
-      </div>
-
-      <div class="cv-row">
-        <div class="cv-row__when">Jan 2018</div>
-        <div class="cv-row__what">
-          <h3><a href="../project/lorem-four/">Excepteur sint occaecat cupidatat</a></h3>
-          <span class="where">Non proident, sunt in culpa qui officia deserunt mollit</span>
-          <ul>
-            <li>Schema design</li>
-            <li>ingestion</li>
-            <li>Stack: Lorem, Ipsum, Dolor</li>
-          </ul>
-        </div>
-      </div>
-
-      <div class="cv-row">
-        <div class="cv-row__when">2018</div>
-        <div class="cv-row__what">
-          <h3><a href="../project/lorem-two/">Ut enim ad minim veniam</a></h3>
-          <span class="where">Quis nostrud exercitation ullamco laboris nisi ut aliquip</span>
-          <ul>
-            <li>Sit</li>
-            <li>consectetur</li>
-            <li>Stack: Adipiscing, Elit</li>
+            <li>correlation-based time alignment</li>
+            <li>modulation transfer function estimation</li>
+            <li>eight envelope-distortion metrics</li>
+            <li>two-way ANOVA with partial eta-squared effect sizes</li>
+            <li>Stack: MATLAB R2021a (Signal Processing Toolbox, Audio Toolbox — acousticLoudness/acousticSharpness per ISO 532-1), AMToolbox audspace, Neumann KU 100 dummy head, Behringer U-PHORIA UMC204HD</li>
           </ul>
         </div>
       </div>
@@ -276,8 +263,7 @@
           <h3><a href="../project/keystroke-flann-authentication/">Identifying users by how they type — a functional-link neural network for keystroke dynamics</a></h3>
           <span class="where">A from-scratch FLANN classifier for typing-rhythm biometrics, benchmarked against MLP, random forest, k-NN and trees</span>
           <ul>
-            <li>Keystroke feature extraction (dwell and flight times</li>
-            <li>digraphs)</li>
+            <li>Keystroke feature extraction (dwell and flight times, digraphs)</li>
             <li>multi-class classification</li>
             <li>FLANN with trigonometric functional expansion</li>
             <li>ROC/AUROC/EER/FNR@zeroFPR evaluation</li>

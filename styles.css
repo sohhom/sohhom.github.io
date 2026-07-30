@@ -594,6 +594,77 @@ hr {
   padding-left: 0.1rem;
 }
 
+/* ---------- Tables in post bodies ---------- */
+.table-scroll,
+article table {
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+article table {
+  border-collapse: collapse;
+  margin: 1.75rem 0;
+  font-size: 0.86rem;
+  line-height: 1.45;
+  white-space: nowrap;
+}
+
+article th,
+article td {
+  padding: 0.45rem 0.9rem 0.45rem 0;
+  text-align: left;
+  border-bottom: 1px solid var(--rule);
+  vertical-align: top;
+}
+
+article th {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+  font-weight: 500;
+  border-bottom-color: var(--ink-mute);
+}
+
+/* Numeric-looking cells read better in the mono face. */
+article td strong {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+article tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* ---------- Real images in post bodies ---------- */
+article img {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin: 2rem 0 0.5rem;
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  background: #fff;
+}
+
+/* A paragraph holding only an image, followed by an italic caption line. */
+article p > img:only-child {
+  margin-bottom: 0;
+}
+
+article p > img:only-child + em,
+article p > em.caption {
+  display: block;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  font-style: normal;
+  color: var(--ink-mute);
+  letter-spacing: 0.02em;
+  margin-top: 0.5rem;
+}
+
 /* ---------- Pullquote ---------- */
 blockquote {
   margin: 1.75rem 0;

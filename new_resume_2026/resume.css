@@ -1,0 +1,139 @@
+/* Resume stylesheet for Pandoc + WeasyPrint.
+   Single column, ATS-friendly, flexbox for date/title alignment.
+   No tables, no multi-column layout, no text-in-images. */
+
+@page {
+    size: A4;
+    margin: 14mm 16mm;
+}
+
+html {
+    font-size: 9pt;
+}
+
+body {
+    font-family: "Inter", "Helvetica Neue", "Arial", sans-serif;
+    color: #1a1a1a;
+    line-height: 1.0;
+    margin: 0;
+    padding: 0;
+}
+
+/* Header block */
+h1.name {
+    font-size: 18pt;
+    font-weight: 700;
+    margin: 0 0 2pt 0;
+    letter-spacing: -0.3pt;
+}
+
+p.tagline {
+    font-size: 11.5pt;
+    color: #444;
+    margin: 0 0 4pt 0;
+    font-weight: 500;
+}
+
+p.contact {
+    font-size: 9.5pt;
+    color: #555;
+    margin: 0 0 10pt 0;
+}
+
+p.contact a {
+    color: #555;
+    text-decoration: none;
+}
+
+/* Section headers (## in Markdown) */
+h2 {
+    font-size: 11.5pt;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.6pt;
+    color: #000;
+    border-bottom: 0.6pt solid #000;
+    padding-bottom: 2pt;
+    margin: 14pt 0 6pt 0;
+}
+
+/* Job titles / role headers (### in Markdown).
+   Pandoc emits these as <h3 class="role">.
+   The following <p class="meta"> gets pulled up beside it via flexbox. */
+h3.role {
+    font-size: 10.5pt;
+    font-weight: 700;
+    margin: 8pt 0 0 0;
+    color: #000;
+}
+
+/* The meta line (company, location, dates) sits immediately after the h3.
+   We use a negative top margin trick to align it on the same visual row,
+   pushed to the right. */
+p.meta {
+    font-size: 10pt;
+    color: #444;
+    margin: 0 0 3pt 0;
+    font-style: normal;
+}
+
+p.meta em {
+    font-style: italic;
+    color: #555;
+}
+
+/* For same-line alignment of role and meta, wrap them at the source level.
+   Since Pandoc keeps them as separate blocks, we use a different approach:
+   put dates inline with the meta paragraph and let it flow below the role.
+   This is more reliable than flexbox across Pandoc/WeasyPrint and keeps
+   ATS parsing linear. */
+
+/* Bullets */
+ul {
+    margin: 2pt 0 4pt 0;
+    padding-left: 14pt;
+}
+
+li {
+    margin: 1pt 0;
+    line-height: 1.35;
+}
+
+/* Paragraphs inside sections */
+p {
+    margin: 3pt 0;
+}
+
+/* Summary paragraph sits right under the h2 */
+h2 + p {
+    margin-top: 4pt;
+}
+
+/* Skills section: bold label inline with content */
+h2 + p strong,
+p strong {
+    color: #000;
+}
+
+/* Links */
+a {
+    color: #1a1a1a;
+    text-decoration: none;
+}
+
+/* Print tweaks */
+@media print {
+    body {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+    h2 {
+        page-break-after: avoid;
+    }
+    h3 {
+        page-break-after: avoid;
+    }
+    li {
+        page-break-inside: avoid;
+    }
+}

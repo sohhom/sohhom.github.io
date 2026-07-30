@@ -30,18 +30,29 @@
 
           <dl class="project-meta">
             <div><dt>Role</dt><dd>Solo researcher</dd></div>
-            <div><dt>Methods</dt><dd>Time-series analysis, microstructure studies, factor decomposition, transaction-cost modelling, intraday and EOD backtesting, exploratory dashboards</dd></div>
-            <div><dt>Stack</dt><dd>Python data stack (Polars, NumPy, etc.)</dd></div>
-            <div><dt>Output</dt><dd>Internal notebooks, dashboards, backtests, reusable pipelines</dd></div>
+            <div><dt>Methods</dt><dd>Time-series analysis, microstructure studies, factor decomposition, transaction-cost modelling, intraday and EOD backtesting, walk-forward validation, exploratory dashboards</dd></div>
+            <div><dt>Stack</dt><dd>Python data stack (Polars, NumPy, PyTorch, LightGBM, scikit-learn), tick and depth pipelines</dd></div>
+            <div><dt>Output</dt><dd>Internal notebooks, dashboards, backtests, reusable pipelines, written studies</dd></div>
           </dl>
         </header>
 
-        <h2>Why Quant?</h2>
-        <p>TBD.</p>
-        <h2>What has been built so far</h2>
-        <p>TBD.</p>
+        <h2>Why quant</h2>
+        <p>I studied computer science to understand how computers work, then cognitive science to understand how minds work. Markets are the third instance of the same question: a system that produces a number, where the interesting part is working out which of its regularities are real and which are artifacts of how you measured.</p>
+        <p>That framing is not decorative. A backtest is an experiment, and it is an experiment with an unusually motivated way of fooling you — the same instincts that make a psychoacoustics result survive peer review are the ones that keep a strategy from dying on contact with live costs. Most of what follows is measurement discipline applied to price data.</p>
+        <h2>The standing constraints</h2>
+        <p>Two facts shape every study here.</p>
+        <p><strong>Costs are a wall, not a footnote.</strong> Round-trip transaction charges on NSE cash equity run to roughly 4.7 bps of notional on a ₹4L position, before spread. Every P&amp;L figure I report passes through a validated cost library rather than a rule-of-thumb, because the difference between an idea that clears the wall and one that does not is usually smaller than the error in a hand-estimate. Ideas get costed first and modelled second.</p>
+        <p><strong>Intraday equities carry 5× leverage under the MIS product</strong>, so notional exposure is five times the margin committed. Any percentage figure has to name its base or it is meaningless. I report margin and notional separately and say which one a number refers to.</p>
+        <h2>What has been built</h2>
+        <p>The infrastructure is the durable part: tick and depth ingestion over NSE/BSE, bar-grid construction with the time base derived from the data rather than assumed, causal feature engineering with automated leak verification, walk-forward splits with purge gaps, and a backtester whose fills cross the actual quoted spread. On top of that sit exploratory dashboards and a plotting library for excursion geometry — how far a trade ran in your favour and against you, and in which order.</p>
+        <p>The leak verification deserves a specific mention because it is the piece I would carry into any other project. Rather than asserting that features are causal, the check recomputes the entire feature matrix on truncated market data and asserts the prefix is unchanged. It has caught genuine subtleties that eyeballing the code did not.</p>
+        <h2>Two studies, written up</h2>
+        <p>Both of the studies below were built in collaboration with Claude Code CLI: the ideas, framing, and methodological calls are mine, and the implementation was executed by the agent under direction. Both reached negative or unresolved verdicts, and both are written up at the same length they would have received had they worked — a null is a claim requiring evidence, held to the same standard as a positive.</p>
+        <p><strong><a href="../../blog/exit-as-a-standalone-capability/">An exit model that never sees an entry signal</a></strong> — Exit rules are almost always evaluated downstream of an entry, which makes their individual contribution unmeasurable. This builds a harness that grades an exit independently: entries placed on a blind stride with no alpha, then labelled after the fact by what the future did, so the rule is tested against good, bad, and deceptive entries in usable numbers. The harness works — policies separate about four times more cleanly than on random entries. The continuation-value model built to live in it predicts well (0.986 precision on the hardest archetype) and loses to a two-clause heuristic with no model at all, because it expresses everything it knows through a single threshold.</p>
+        <p><strong><a href="../../blog/prediction-improved-money-did-not/">A 5× improvement in prediction bought exactly zero rupees</a></strong> — A multimodal transformer forecasting intraday cross-sectional direction. Doubling the training data fixed the model's prediction entirely and moved the P&amp;L not at all. The diagnosis is that the training objective optimised rank correlation across a thousand names while the book traded eight, and the eight it picked moved +1.3 bps against a 12 bps cost wall. The most useful diagnostic in the project costs one line: median forward move of the top-K against the per-name cost wall.</p>
+        <p>The common thread is worth stating. In both cases the model had genuine information and the decision rule built on top of it could not express that information profitably. That is a different failure from "the signal is not there," and distinguishing the two is most of what the machinery exists to do.</p>
         <h2>Status</h2>
-        <p>Ongoing.</p>
+        <p>Ongoing. Current direction is stacking orthogonal signals into position sizing and entry timing rather than hunting for a single dominant predictor, and treating regime awareness — knowing when <em>not</em> to trade — as part of the strategy rather than a filter applied afterwards.</p>
       </article>
 
     </main>

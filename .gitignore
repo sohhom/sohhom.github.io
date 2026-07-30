@@ -9,6 +9,11 @@
 !*.css
 !*.js
 !*.pdf
+!*.png
+!*.jpg
+!*.jpeg
+!*.svg
+!*.webp
 
 # 4. Explicitly allow essential repository files in the root
 !.nojekyll
