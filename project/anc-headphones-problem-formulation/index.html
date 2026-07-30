@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Characterising ANC headphones through the playback signal — Lorem Ipsum</title>
+  <link rel="stylesheet" href="../../styles.css" />
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="site-header__inner">
+      <a class="brand" href="../../">Lorem Ipsum <small>lorem.github.io</small></a>
+      <nav class="nav" aria-label="primary">
+        <a href="../../cv/">cv</a>
+        <a href="../" aria-current="page">projects</a>
+        <a href="../../blog/">blog</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="page">
+    <main data-screen-label="Project: anc-headphones-problem-formulation">
+
+      <article>
+        <header class="project-hero">
+          <div class="project-hero__kicker">PhD thesis · ch 1 · framing</div>
+          <h1>Characterising ANC headphones through the playback signal</h1>
+          <p class="project-hero__lede">Active noise control headphones are evaluated, almost universally, by how much external noise they remove. That measures the canceller and says nothing about the music or speech the listener actually wants. This project reframes the question around the *playback* signal, narrows it to one dimension of hearing — the amplitude envelope — and lays out the evaluation strategy the rest of the thesis executes.</p>
+
+          <dl class="project-meta">
+            <div><dt>Role</dt><dd>Doctoral researcher (IIT Gandhinagar, supervised by Prof. Nithin V. George)</dd></div>
+            <div><dt>Methods</dt><dd>Literature synthesis across four disciplines, problem scoping, psychoacoustic framing, black-box device evaluation design, dummy-head recording rig</dd></div>
+            <div><dt>Stack</dt><dd>MATLAB R2021a, Python, Neumann KU 100 dummy head, Behringer U-PHORIA UMC204HD USB audio interface, four commercial ANC headphones (Bose QuietComfort 25, Sennheiser HD 4.50BTNC, Sony WH-1000XM3, Sony WH-1000XM4)</dd></div>
+            <div><dt>Output</dt><dd>PhD thesis chapter 1, Indian Institute of Technology Gandhinagar (October 2022)</dd></div>
+          </dl>
+        </header>
+
+        <h2>The gap this project identifies</h2>
+        <p>Active noise control (ANC) headphones electronically generate an "anti-noise" signal that destructively interferes with external sound, creating a zone of quiet at the eardrum. The consumer promise is a superior audio experience: the desired <em>playback</em> signal is less corrupted by ambient noise.</p>
+        <p>Three acoustic signals coexist inside an ANC headphone chamber while the user plays audio. The <strong>playback signal</strong> is the audio the user wants to hear. The <strong>leakage signal</strong> is the part of the external noise that gets through the passive enclosure. The <strong>control signal</strong> is the anti-noise the ANC generates. In theory the leakage and control signals cancel each other exactly and leave the playback signal untouched.</p>
+        <p>In practice, nobody checks. The standard evaluation measures the reduction of external acoustic energy, using pure tones, narrowband noise, white noise or pink noise as the external field. That is a measurement of the cancellation system in isolation. The playback signal sits in the same chamber, travels through the same non-linear electroacoustic path, and is treated as an untouched bystander.</p>
+        <p>Worse, the textbooks disagree about which direction the effect even runs. Howard and Angus prefer purely passive cancellation "because only the wanted sound is being presented to the ear and the sound itself is not being modified in any way", and warn that in an ANC headphone "the wanted signal is having noise added to it — not something one really wants to be doing if one can avoid it. If the phase shift is not absolutely correct, complete noise cancelation will not occur, with the result that the wanted signal is then being further contaminated." Meanwhile the ANC literature's own reviews of "psychoacoustic ANC" optimise loudness, roughness, sharpness or tonality of the <em>residual noise</em>, and skip the playback signal entirely.</p>
+        <p>So the sign of the effect was, at the outset, genuinely unknown. That is what makes it worth measuring rather than asserting.</p>
+        <h2>Three commitments that shape everything downstream</h2>
+        <p><strong>Treat the ANC headphone as a black box.</strong> No modification of the controller, no access to the adaptive filter, no custom firmware. Four commercially available headphones, evaluated as consumers actually buy and use them, spanning four years of product generations (Bose QC25 from 2014, Sennheiser HD 4.50BTNC from 2017, Sony WH-1000XM3 from 2018, Sony WH-1000XM4 from 2020). All four are circumaural. The trade-off is real: black-box evaluation cannot tell you <em>why</em> a device behaves as it does, but it tells you what the device produces — which is what reaches the listener, and what the industry ships.</p>
+        <p><strong>Focus on the amplitude envelope of the playback signal.</strong> A signal can be distorted along many dimensions and the space of psychological outcomes is vast. The thesis narrows to one well-understood aspect of hearing: amplitude modulation. A time-domain acoustic signal decomposes into a fast-varying temporal fine structure (TFS, the carrier) and a slow-varying temporal envelope (ENV, the modulator). The decomposition is mathematically ill-posed — there are many valid solutions — so the thesis adopts the field-standard convention: ENV is the absolute value of the Hilbert transform, TFS is the cosine of its instantaneous phase. The envelope alone is sufficient for high speech intelligibility, drives modulation-tuned neurons at every stage of the auditory pathway, and carries a psychoacoustic literature stretching back five decades.</p>
+        <p><strong>Characterise across both axes of amplitude modulation.</strong> Modulation is parametrised by <em>frequency</em> (how fast the envelope wiggles) and <em>depth</em> (how deep the wiggles are). The thesis splits its empirical work along exactly that seam: chapters 2 and 3 sweep modulation frequency using modulated sinusoids; chapters 4 and 5 sweep modulation depth using speech chimeras. Two axes, two chapters each, and within each pair one physical method and one perceptual method — so that a physical claim and a perceptual claim are never asked to rest on the same measurement.</p>
+        <h2>The common apparatus</h2>
+        <p>Every recording in the thesis comes off one rig. Signals are generated by custom MATLAB scripts, digital-to-analog converted through a full-duplex USB audio interface, played through the ANC headphone under test, and re-recorded through a Neumann KU 100 dummy-head microphone — which approximates the head-related transfer function and so serves as a proxy for the sound pressure waveform available at the eardrum. The recorded signal returns through the same interface for storage, uncompressed.</p>
+        <p>Recording ran in a quiet office at roughly 50 dBA ambient, dominated by air conditioning. The recording script checked for overflow and underflow from clock desynchronisation between the computer and the audio interface; any signal that tripped those errors was discarded and re-recorded. Recorded signals were time-aligned against their sources with a correlation-based method before any envelope was extracted — an unglamorous step that matters enormously, because several of the envelope metrics are sensitive enough that an uncorrected recording delay produces spuriously large distortion values.</p>
+        <h2>What the framing rules out</h2>
+        <p>A clean problem formulation is also a list of what you decided not to do.</p>
+        <ul>
+        <li>No new ANC algorithm is proposed, and no existing one is tuned.</li>
+        <li>Spatial, binaural and localisation effects are out of scope. Every model used is monaural.</li>
+        <li>Frequency-domain colouration is out of scope except where it surfaces in envelope statistics.</li>
+        <li>Hearing-impaired listeners are not tested, though the conclusions argue they are where the effect should be largest.</li>
+        <li>Prolonged-use and after-effects are not studied, though neural plasticity makes them a live question.</li>
+        <li>Frequency modulation is untouched; only amplitude modulation is characterised.</li>
+        </ul>
+        <p>These exclusions are intentional. The price of a tightly scoped thesis is leaving territory on the table; the benefit is that what remains can be evaluated properly.</p>
+        <h2>What the four chapters found</h2>
+        <p>The synthesis is a conjunction, and both halves matter.</p>
+        <p>ANC, when enabled, delivers a <strong>measurably cleaner envelope</strong> in the playback signal. This holds across all four headphones and across a wide battery of measures: eight electroacoustic envelope statistics, simulated-neuron firing patterns at three stages of the auditory brainstem, and most of ten instrumental speech-quality metrics on two speech corpora. Many of these differences are significant at p &lt; 0.001 with sample sizes in the thousands.</p>
+        <p>The differences are also <strong>small, unevenly distributed, and in places absent</strong>. The effect does not appear at every stage of the simulated auditory pathway — the inner hair cell model shows nothing at all, and the inferior colliculus largely discards what the auditory nerve registered. With 80 human listeners, intelligibility improved significantly but with an effect size of 0.0008, and self-reported listening effort did not move at all. The headphones differ from each other more than the ANC condition differs from itself on several measures.</p>
+        <p>The honest claim is the conjunction: <em>ANC does affect the playback envelope favourably, the effect is detectable both physically and in models of the auditory periphery, and its magnitude depends heavily on the device, the metric, and the measurement stage — to the point where the psychological benefit may be limited.</em></p>
+        <h2>Where this opens out</h2>
+        <p>Two directions are concrete. The methods extend naturally to hearing aids and cochlear implants, where modulation processing is clinically load-bearing and where listeners operate closer to the perceptual cliff — so a small effect in normal-hearing subjects may be a large one there. And the validated model-based proxies make it possible to fingerprint a new device without booking a listening panel, which is the real bottleneck in audio-device evaluation.</p>
+        <p>A third thread is stranger and more interesting: because ANC selectively removes low-frequency energy, and because low frequencies mask high ones far more than the reverse, an ANC headphone is a controllable instrument for producing <em>unmasking</em> — the inverse of a phenomenon psychoacoustics has studied for a century. The device under test becomes an experimental tool.</p>
+        <h2>The four projects that grew out of this framing</h2>
+        <ul>
+        <li><a href="/project/anc-electroacoustic-envelope-metrics/">Electroacoustic envelope metrics</a> — chapter 2, the physical fingerprint.</li>
+        <li><a href="/project/anc-auditory-nerve-model/">A simulated auditory nerve as a virtual listener</a> — chapter 3, the neural fingerprint.</li>
+        <li><a href="/project/anc-chimera-listener-experiment/">The chimera listener experiment</a> — chapter 4, 80 human listeners.</li>
+        <li><a href="/project/anc-instrumental-metrics-virtual-jury/">Ten instrumental metrics as a virtual jury</a> — chapter 5, the metric panel.</li>
+        </ul>
+        <h2>Full thesis</h2>
+        <p>The full PhD thesis, with all figures, statistical tables, and references, is available as a PDF: <a href="../../uploads/PhDThesis_Sohhom_15510011_final.pdf">PhDThesis_Sohhom_15510011_final.pdf</a>.</p>
+      </article>
+
+    </main>
+  </div>
+
+</body>
+</html>

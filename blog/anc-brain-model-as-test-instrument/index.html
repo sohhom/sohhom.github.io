@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Using a brain model as a test instrument — Lorem Ipsum</title>
+  <link rel="stylesheet" href="../../styles.css" />
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="site-header__inner">
+      <a class="brand" href="../../">Lorem Ipsum <small>lorem.github.io</small></a>
+      <nav class="nav" aria-label="primary">
+        <a href="../../cv/">cv</a>
+        <a href="../../project/">projects</a>
+        <a href="../" aria-current="page">blog</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="page">
+    <main data-screen-label="Post: anc-brain-model-as-test-instrument">
+
+      <article>
+        <header class="project-hero">
+          <div class="project-hero__kicker">Essay · Sep 2022 · 3 min</div>
+          <h1>Using a brain model as a test instrument</h1>
+          <p class="project-hero__lede">Computational models of the auditory brainstem exist to teach us about hearing. I pointed one at four consumer headphones and used it as a measuring device instead. The inversion is simple, and as far as I can tell it had not been done.</p>
+        </header>
+
+        <p>There is a mature body of computational models of the auditory pathway — decades of work simulating the cascade from cochlea to inner hair cell to auditory nerve to cochlear nucleus to inferior colliculus. Each stage is validated against real physiological recordings from cats and rodents. The models are good, they are public, and they are still in active use: papers from the last two years apply the same model stack to forward masking, tone-in-noise encoding, and timbre representation in the midbrain.</p>
+        <p>In every one of those studies, the model is the object of interest. You feed it a stimulus to learn something about the brain.</p>
+        <h2>Running the arrow backwards</h2>
+        <p>I wanted to know what a Sony WH-1000XM4 does to a signal. Not what the inferior colliculus does — that is the part I was willing to take on faith, because it is what the model was validated on.</p>
+        <p>So the brain model became the <strong>instrument</strong> and the consumer product became the <strong>specimen</strong>. I recorded 4000 amplitude-modulated signals played through four ANC headphones on a dummy head, fed the recordings into the cascade, and read off the simulated neurons' responses: ten carriers, fifty modulation frequencies, ten repetitions (the neurons are stochastic), two ANC conditions, four headphones. <strong>40,000 simulated responses per metric</strong> — a sample size no listening panel will ever give you.</p>
+        <h2>What the fake neurons said</h2>
+        <p>I expected a tidy confirmation of my physical measurements. I got something better.</p>
+        <p><strong>The inner hair cell registered nothing.</strong> Not a weak effect — nothing. p = 0.35 for ANC condition, effect sizes rounding to zero. The very first transduction stage in the cochlea is blind to the difference.</p>
+        <p><strong>At the auditory nerve, firing rate was silent and timing was not.</strong> Mean firing rate showed no ANC effect (p = 0.119). Phase-locking to the envelope showed a clear one. The neuron was not firing <em>more</em> with ANC on; it was firing <em>more accurately at the right moments</em>.</p>
+        <p><strong>The most sensitive measure in the study appeared to point the wrong way.</strong> Coefficient of variation of the inter-spike interval — how irregular the gaps between spikes are — had by far the largest effect of anything I measured, and it <em>increased</em> with ANC on. More irregular firing sounds worse. Read next to the phase-locking result, it is the opposite: a neuron locking tightly to envelope peaks fires in tight bursts with long gaps between them, so the intervals become more spread out. High irregularity was the <em>signature</em> of good synchronisation. Anyone reading that metric alone would have concluded the exact reverse.</p>
+        <p><strong>And then the midbrain threw it all away.</strong> At the inferior colliculus — the obligatory synapse essentially all auditory information passes through — the effect sizes collapsed toward zero and phase-locking showed no significant ANC effect at all (p = 0.118).</p>
+        <h2>Why the disappointing finding is the valuable one</h2>
+        <p>I did not want that last result. I had two chapters showing ANC cleans up the signal, and the midbrain discarded most of it.</p>
+        <p>But it made the inferior colliculus a <strong>falsification stage</strong> — a place to test whether an effect measured at the periphery survives the trip toward cortex. And it made a prediction: if the effect dies at the obligatory synapse, listeners should not report a large conscious benefit.</p>
+        <p>Which is exactly what happened. When I later put 80 people in a chair with degraded speech, intelligibility improved with an effect size of 0.0008 and self-reported listening effort did not move at all.</p>
+        <p>Two independent methods, one silicon and one human, agreeing on a ceiling. That agreement is worth more than either method agreeing with what I was hoping for.</p>
+        <p>Here is the opinion: <strong>a model is more useful as an instrument than as a subject, and the field has this backwards.</strong> Enormous effort goes into making auditory models more biologically faithful, which is the right goal for understanding hearing. But the models we already have are validated enough to <em>measure things with</em> — and using one as a measuring device costs nothing, scales infinitely, and generates falsifiable predictions about human behaviour. The bottleneck in audio-device evaluation is human subjects. We have had a partial substitute sitting in the computational neuroscience literature for twenty years, and we use it to study neurons.</p>
+        <p>The full cascade, the three metrics, and the stage-by-stage effect sizes are in the <a href="/project/anc-auditory-nerve-model/">project write-up</a>.</p>
+      </article>
+
+    </main>
+  </div>
+
+</body>
+</html>

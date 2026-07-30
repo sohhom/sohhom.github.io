@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Identifying users by how they type — a functional-link neural network for keystroke dynamics — Lorem Ipsum</title>
+  <link rel="stylesheet" href="../../styles.css" />
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="site-header__inner">
+      <a class="brand" href="../../">Lorem Ipsum <small>lorem.github.io</small></a>
+      <nav class="nav" aria-label="primary">
+        <a href="../../cv/">cv</a>
+        <a href="../" aria-current="page">projects</a>
+        <a href="../../blog/">blog</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="page">
+    <main data-screen-label="Project: keystroke-flann-authentication">
+
+      <article>
+        <header class="project-hero">
+          <div class="project-hero__kicker">MSc thesis · Apr 2017 · method</div>
+          <h1>Identifying users by how they type — a functional-link neural network for keystroke dynamics</h1>
+          <p class="project-hero__lede">People type with a personal rhythm — the gaps between key presses are stable enough to act as a behavioural biometric. This MSc thesis tests whether a functional-link artificial neural network (FLANN), a low-cost expansion-based classifier, can tell users apart from their typing patterns, benchmarked against the usual classifiers on two large keystroke datasets.</p>
+
+          <dl class="project-meta">
+            <div><dt>Role</dt><dd>Sole researcher (IIT Gandhinagar, supervised by Prof. Nithin V. George)</dd></div>
+            <div><dt>Methods</dt><dd>Keystroke feature extraction (dwell and flight times, digraphs), multi-class classification, FLANN with trigonometric functional expansion, ROC/AUROC/EER/FNR@zeroFPR evaluation, fixed-text vs free-text comparison</dd></div>
+            <div><dt>Stack</dt><dd>Python, NumPy, scikit-learn, Flask (proof-of-concept login portal), CMU password dataset, free-text keystroke dataset</dd></div>
+            <div><dt>Output</dt><dd>MSc thesis, Indian Institute of Technology Gandhinagar (2017)</dd></div>
+          </dl>
+        </header>
+
+        <h2>Why typing rhythm is a biometric</h2>
+        <p>When you type, the timing between your keystrokes is not random. The interval a key is held down (dwell time) and the gap between releasing one key and pressing the next (flight time) settle into a pattern that is surprisingly stable within a person and surprisingly different between people. That pattern is called keystroke dynamics, and it is one of the oldest behavioural biometrics — the idea goes back to a 1975 patent and a 1980 RAND study, with neural-network and fuzzy-logic treatments appearing through the 1990s.</p>
+        <p>The appeal is practical. Unlike a fingerprint reader or an iris scanner, keystroke dynamics needs no extra hardware: the keyboard is already there. It can be used at the password prompt as a second factor — <em>who</em> is typing, not just <em>what</em> they type — and, more ambitiously, it can keep verifying identity continuously while someone works, without ever interrupting them. This thesis is about whether a particular, cheap classifier can do that job well.</p>
+        <h2>The framing decision</h2>
+        <p>The thesis treats user identification as a <strong>multi-class classification</strong> problem: given a short window of timing features, predict which of N enrolled users produced it. This is a deliberate choice. Much of the keystroke literature builds a separate one-versus-the-world detector per user; casting it as one multi-class problem makes the comparison between classifiers cleaner and lets the same evaluation run across every user at once.</p>
+        <p>Two settings are tested, and they are genuinely different problems:</p>
+        <ul>
+        <li><strong>Fixed text</strong> — everyone types the same string (a password). The CMU/Killourhy–Maxion password dataset is the standard benchmark here, collected over eight sessions so that <em>initial</em> typing can be compared against <em>later</em>, more practised typing.</li>
+        <li><strong>Free text</strong> — people type whatever they like, so the features have to be built from whatever characters and character-pairs happen to recur. This is harder, less constrained, and closer to the continuous-verification dream.</li>
+        </ul>
+        <h2>The classifier: FLANN</h2>
+        <p>The novel ingredient — novel <em>for this application area</em>, not in general — is the <strong>Functional Link Artificial Neural Network</strong>. A FLANN is a single-layer network with no hidden layer. Instead of stacking layers to get non-linearity, it expands each input feature through a fixed set of non-linear functions (here, a trigonometric expansion: sines and cosines of the input at increasing multiples) and then learns a linear combination of that expanded set.</p>
+        <p>The trade-off is the whole point. A multilayer perceptron buys its expressive power with hidden layers, more parameters, and slower, fiddlier training. A FLANN front-loads the non-linearity into a deterministic expansion and is left with what is essentially a linear-in-the-weights problem: fast to train, cheap to run, few knobs to tune. The question the thesis asks is whether that cheapness costs you accuracy on keystroke data — or whether, for this kind of structured low-dimensional timing data, it is enough.</p>
+        <p>The FLANN was implemented from scratch in NumPy rather than pulled from a library, which is the part of the project that taught the most: the expansion, the weight update, and the multi-class wiring all had to be built and debugged by hand.</p>
+        <h2>How performance is measured</h2>
+        <p>Biometric evaluation does not reduce to a single accuracy number, and a good chunk of the thesis is about taking that seriously. The metrics used are the ones that respect the asymmetry between the two ways such a system fails — wrongly rejecting the genuine user versus wrongly accepting an impostor:</p>
+        <ul>
+        <li><strong>ROC and AUROC</strong> — the full trade-off curve between true-positive and false-positive rate, and the area under it.</li>
+        <li><strong>Equal Error Rate (EER)</strong> — the operating point where the false-accept and false-reject rates meet; a standard single-number summary.</li>
+        <li><strong>FNR@zeroFPR</strong> — how often the genuine user is rejected if you tune the system to <em>never</em> accept an impostor; the relevant number for security-critical use.</li>
+        </ul>
+        <p>Reporting all of these, rather than one, is itself a small argument: the right threshold depends entirely on what the system is for, and a classifier that wins on one metric need not win on another.</p>
+        <h2>What the experiments found</h2>
+        <p>On the <strong>free-text</strong> dataset — the harder, more realistic setting — the FLANN came out ahead. Using single-character timing features across 56 users, it produced the best area under the ROC curve (about 0.977) and the best equal error rate (about 0.081), edging out a multilayer perceptron, a random forest, k-nearest-neighbours, and a decision tree. The cheap expansion-based network was not merely competitive with the heavier classifiers; on this data it was the most accurate of the lot.</p>
+        <p>That is the headline, and it deserves its caveats. The advantage is clearest in the free-text, single-character-feature regime; the picture is more mixed across the fixed-text sessions and the various digraph feature sets, where no single classifier dominates everywhere. And the thesis is careful to repeat a point made by the field itself: in keystroke dynamics a classifier "does not have <em>an</em> error rate; it has <em>many</em> error rates," depending on the dataset, the users, the features, and the threshold. The numbers above are real and reproducible, but they are statements about <em>these datasets under this protocol</em>, not a universal ranking.</p>
+        <h2>The two honest conclusions</h2>
+        <p>The thesis ends on two notes that have aged well.</p>
+        <p>The first is about <strong>users, not classifiers</strong>. Borrowing the "Doddington zoo" framing, some users are simply easier to recognise than others — the system has different error rates for different people, and a small group of hard-to-separate users can drag down the average for everyone. Evaluating a biometric system honestly means evaluating it per user, not just in aggregate.</p>
+        <p>The second is about <strong>features over models</strong>. The single biggest determinant of success in a project like this is not which classifier you pick but which features you feed it; good features can rescue a weak model, and bad features will sink a strong one. Automating feature engineering is "one of the holy grails of machine learning," and until that is solved you are stuck crafting features with domain knowledge. That conviction — that the measurement matters more than the model — is the thread that runs through everything that came later.</p>
+        <h2>Where it points</h2>
+        <p>The natural extensions, laid out in the thesis, are all about moving from one-shot authentication toward continuous verification: confirming identity quietly and repeatedly as someone types, looking for "prosodic" structure in the timing the way one might in speech, fusing keystroke evidence with other signals, and applying it to concrete cases like verifying the identity of an online test-taker or the author of a piece of code. All of them, the thesis argues, could benefit from the same cheap FLANN classifier that did the best work here.</p>
+        <p>A proof-of-concept multi-user login portal was built in Flask to show the end-to-end path from raw keystrokes to an accept/reject decision — the small, working artefact that turns a classifier study into something you can actually log into.</p>
+      </article>
+
+    </main>
+  </div>
+
+</body>
+</html>

@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>The button I pressed without telling anyone — Lorem Ipsum</title>
+  <link rel="stylesheet" href="../../styles.css" />
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="site-header__inner">
+      <a class="brand" href="../../">Lorem Ipsum <small>lorem.github.io</small></a>
+      <nav class="nav" aria-label="primary">
+        <a href="../../cv/">cv</a>
+        <a href="../../project/">projects</a>
+        <a href="../" aria-current="page">blog</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="page">
+    <main data-screen-label="Post: anc-blinding-the-switch">
+
+      <article>
+        <header class="project-hero">
+          <div class="project-hero__kicker">Note · Dec 2022 · 3 min</div>
+          <h1>The button I pressed without telling anyone</h1>
+          <p class="project-hero__lede">My experiment compared ANC on against ANC off in 80 listeners. ANC is a heavily marketed feature that most participants had opinions about before walking in. So I reached over during the break and toggled it without saying a word.</p>
+        </header>
+
+        <p>The design was straightforward. Eighty people, degraded speech, two blocks: one with the headphone's noise cancelling enabled, one with it disabled. Measure intelligibility and self-reported effort. Compare.</p>
+        <p>The problem is that "active noise cancelling" is not a neutral experimental condition. It is a premium product feature with a marketing budget. A twenty-one-year-old university student in 2022 has almost certainly encountered the claim that ANC makes audio better, possibly owns a pair, and quite likely has a view.</p>
+        <p>If I had announced the blocks — "this next section has noise cancelling on" — I would have measured that view. Participants would have reported less effort in the ANC block because they expected to, and I would have published it as a perceptual finding.</p>
+        <h2>What I actually did</h2>
+        <p>Participants were told there would be a short break between blocks and asked to take the headphones off. During the break, I reached over and pressed the ANC button. Nobody was told this was happening, and nobody was told the two blocks differed in any way. A brief on-screen message marked the transition.</p>
+        <p>Two other pieces made it work. <strong>Order was counterbalanced</strong>: participants were split evenly and randomly between ANC-first and ANC-second, so any practice effect landed on both conditions equally instead of loading onto one. And <strong>each participant appeared exactly once</strong> in the dataset, so nobody could accumulate suspicion across sessions.</p>
+        <p>The result is that neither the intelligibility scores nor the effort ratings could be contaminated by knowing which condition was running. Whatever difference showed up had to come from the audio.</p>
+        <h2>What it cost me</h2>
+        <p>This is where I have to be honest about the trade. The listening-effort measure came back completely flat. Five of the six NASA-TLX dimensions showed no ANC effect at all — mental demand p = 0.43, effort p = 0.94, frustration p = 0.83. Intelligibility was statistically significant and negligible in size. The response times went slightly the <em>wrong</em> way.</p>
+        <p>An unblinded design would almost certainly have produced a warmer result. Expectation effects in audio are large and well documented; that is why the audiophile industry is structured the way it is. I would have had a cleaner story and a more quotable abstract.</p>
+        <p>I would rather have the flat result. It is the one that is true.</p>
+        <p>There is a related detail I like about this design. The blinding also protected against <em>me</em>. I knew which condition was which, but the task was clicking a colour-number cell on a screen and the scoring was automatic — I had no channel through which to nudge a participant toward the answer even unconsciously, because I was not judging their responses. Closed-set scoring is often chosen for statistical tractability. It is also an experimenter-blinding mechanism, and I think that is underrated.</p>
+        <h2>The opinion</h2>
+        <p><strong>A condition that your participant has consumer opinions about is not a condition — it is a prime, and treating it as a condition is a category error.</strong> This generalises well beyond headphones. Any time you are testing something with a brand attached, a price attached, or a public reputation attached, the naive A/B comparison is measuring the reputation. Blinding is not statistical hygiene in that situation; it is the difference between measuring a device and measuring an advertisement.</p>
+        <p>The uncomfortable corollary is that the more commercially important the feature, the more expensive honesty gets. The features with the biggest marketing budgets are exactly the ones where blinding costs you the most effect size — because the marketing has already done work on your participant that you are now deliberately undoing.</p>
+        <p>The full design, the counterbalancing, the outlier handling, and all the numbers including the ones I would rather not report are in the <a href="/project/anc-chimera-listener-experiment/">project write-up</a>.</p>
+      </article>
+
+    </main>
+  </div>
+
+</body>
+</html>

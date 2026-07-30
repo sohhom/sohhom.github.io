@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Eighty listeners, 360 degraded sentences each, and a mostly negative result — Lorem Ipsum</title>
+  <link rel="stylesheet" href="../../styles.css" />
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="site-header__inner">
+      <a class="brand" href="../../">Lorem Ipsum <small>lorem.github.io</small></a>
+      <nav class="nav" aria-label="primary">
+        <a href="../../cv/">cv</a>
+        <a href="../" aria-current="page">projects</a>
+        <a href="../../blog/">blog</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="page">
+    <main data-screen-label="Project: anc-chimera-listener-experiment">
+
+      <article>
+        <header class="project-hero">
+          <div class="project-hero__kicker">PhD thesis · ch 4 · experiment</div>
+          <h1>Eighty listeners, 360 degraded sentences each, and a mostly negative result</h1>
+          <p class="project-hero__lede">The physical measurements said ANC preserves the speech envelope. This experiment put it to 80 people with parametrically hollowed-out speech and measured intelligibility, response time and self-reported effort. Intelligibility improved significantly with an effect size of 0.0008; listening effort did not move at all; and response times went the wrong way. This is the chapter where the thesis stops being able to tell a clean story.</p>
+
+          <dl class="project-meta">
+            <div><dt>Role</dt><dd>Doctoral researcher (IIT Gandhinagar, supervised by Prof. Nithin V. George), ethics approval from institute committee</dd></div>
+            <div><dt>Methods</dt><dd>Speech-chimera synthesis (17-band Hilbert ENV/TFS decomposition with dc-bias depth control), repeated-measures counterbalanced design, CRM closed-set intelligibility task, rationalised arcsine transform, IQR-based outlier rejection, NASA-TLX six-dimension effort survey, two-way ANOVA</dd></div>
+            <div><dt>Stack</dt><dd>MATLAB with Psychophysics Toolbox 3, Ubuntu 20.04 LTS, M-Audio M-Track 2x2 USB interface, CRM corpus (8 talkers), four commercial ANC headphones</dd></div>
+            <div><dt>Output</dt><dd>PhD thesis chapter 4 (IIT Gandhinagar, October 2022)</dd></div>
+          </dl>
+        </header>
+
+        <h2>Why degrade the speech at all</h2>
+        <p>The <a href="/project/anc-electroacoustic-envelope-metrics/">physical</a> and <a href="/project/anc-auditory-nerve-model/">simulated-neuron</a> chapters swept modulation <em>frequency</em> with sinusoids. This chapter turns to the other axis — modulation <em>depth</em> — and switches to real speech and real listeners.</p>
+        <p>The design logic is a selectivity argument. Intelligibility is extremely robust to degradation: speech does not become hard to understand until the signal is quite badly broken. If you play undamaged speech through an ANC headphone and measure intelligibility, everyone scores near ceiling in both conditions and you learn nothing. So the speech has to be pushed toward the edge of intelligibility first, in a controlled way, so that any ANC benefit has room to show up. If ANC really preserves the envelope, it should help most exactly where envelope quality is the binding constraint.</p>
+        <h2>The chimera, and the trick that makes it work</h2>
+        <p>A speech chimera swaps or manipulates the envelope and fine structure of a signal. The version here parametrically removes the envelope while keeping the fine structure intact, in eight steps:</p>
+        <p>The signal is split into <strong>17 non-overlapping bands</strong> between 100 Hz and 9 kHz. In each band, the Hilbert transform separates ENV (absolute value) from TFS (cosine of instantaneous phase). The envelope is multiplied by the modulation-depth scalar <em>m</em>, a <strong>dc bias</strong> <em>d</em> is added, the modified envelope is multiplied back onto the original TFS, and the result is re-filtered by the same bandpass filter that produced the band. The 17 bands are summed, windowed with a 45 ms squared-cosine ramp, and padded with 200 ms of silence.</p>
+        <p>The dc bias is the load-bearing detail. Multiplying an envelope by a constant between 0 and 1 changes its modulation depth, but it also just changes the signal's power — and any RMS normalisation downstream restores the original, undoing the manipulation entirely. Adding a small dc offset before scaling flattens the envelope toward a constant <em>without</em> being reversible by a gain change. That is what makes the depth axis a real perceptual manipulation rather than a volume knob.</p>
+        <p>Sweeping <em>m</em> from 0 dB (untouched) to −45 dB produces speech that visibly transitions from a normal syllabic waveform to an almost uniform band of noise-like energy with the fine structure still present underneath.</p>
+        <h2>The task and the design</h2>
+        <p>Stimuli come from the <strong>Coordinate Response Measure</strong> corpus: sentences of the form "Ready <em>Charlie</em> go to <em>blue seven</em> now", with 8 call-signs, 4 colours and 8 numbers, spoken by 8 talkers (4 male, 4 female). The listener clicks the colour-number cell they heard. Closed-set scoring makes the statistics tractable and lets one subject cover many conditions; the task needs no training.</p>
+        <p><strong>36 modulation depths</strong> from 0 to −45 dB in equal steps, <strong>10 unique sentences at each depth</strong>, randomly ordered: 360 trials per ANC condition, 720 per participant. Sentence variety acts as a proxy for real-world variability while staying uniformly distributed across depths.</p>
+        <p>Three design details are worth naming because they are where this kind of experiment usually leaks:</p>
+        <ul>
+        <li><strong>Counterbalancing.</strong> Participants were split evenly and randomly between ANC-on-first and ANC-off-first, so any learning effect cancels rather than loading onto one condition.</li>
+        <li><strong>Blinding the switch.</strong> Participants removed the headphones during a scripted break, and the experimenter toggled the ANC button <em>discreetly, without telling them</em>. Nobody knew which block was which. Given that ANC is a heavily marketed feature that many participants would have opinions about, an unblinded switch would have measured expectation, not audition.</li>
+        <li><strong>A practice block</strong> at easier settings, which doubled as a screen for colour blindness or task misunderstanding.</li>
+        </ul>
+        <p>80 participants (55 M, 25 F), aged 19–26, mean 21.2 years, no self-reported hearing impairment, 20 per headphone, each participating exactly once. Mean session 74 minutes. Playback at ~75 dBA in a noise-panelled room at ~46 dBA ambient. Ethics approval obtained before collection; informed consent from every participant.</p>
+        <h2>Three dependent measures, handled properly</h2>
+        <p><strong>Intelligibility</strong> is binary per trial, averaged per depth into a proportion. Proportion data clusters near 0 or 1 and violates the equal-variance and normal-residual assumptions of linear models, so the standard fix is applied: the arcsine transform, then Studebaker's <strong>rationalised</strong> arcsine (<code>p_rau = 46.47324337 · p_a − 23</code>) which restores interpretability. Results are reported in RAU.</p>
+        <p><strong>Response time</strong> is milliseconds from end of playback to mouse-down, correct trials only. It can go negative if a participant clicks early and can have wild upper outliers from distraction, so pooled values were trimmed at the 10th percentile minus 1 IQR and the 90th plus 2.5 IQR — yielding a 49 ms lower and 3825 ms upper cutoff, and 46,573 valid trials.</p>
+        <p><strong>Listening effort</strong> is NASA-TLX, administered every 30 trials on 21-point scales across mental demand, physical demand, temporal demand, performance, effort and frustration. Scales with more than 12 points are treated as ordinal, so no transformation was applied.</p>
+        <h2>What 80 people actually showed</h2>
+        <p><strong>Intelligibility.</strong> The ANC effect is statistically significant and practically negligible: F(1,5752) = 4.423, p = 0.035, <strong>effect size η²ₚ = 0.0008</strong>. Headphone type is also significant (p = 0.029, η²ₚ = 0.0016) and the interaction is not significant at all (p = 0.548). The means tell the story better than the p-value: 82.9 versus 82.7 RAU for the HD 4.50, 84.7 versus 83.7 for the QC25, 85.2 versus 82.7 for the WH-1000XM3, and 82.7 versus 81.8 for the WH-1000XM4. A fraction of one RAU unit to two-and-a-half.</p>
+        <p>The depth manipulation itself worked exactly as designed — a clean negative slope in every panel, confirming that removing the envelope removes intelligibility. But the ANC curves cross each other repeatedly rather than sitting cleanly apart, so the benefit is not consistent across degradation levels.</p>
+        <p>There is one genuinely intriguing feature: a <strong>sharp drop and recovery around −28 dB</strong>, present across headphones. The most plausible reading is a strategy switch — the point where the envelope has degraded enough that the brain stops relying on it and starts leaning on the temporal fine structure instead. That ENV-to-TFS rebalancing under stress is documented in the speech-perception literature. It could also be an artefact of which particular sentences landed at that depth, and the experiment as designed cannot separate those.</p>
+        <p><strong>Response time went the wrong way.</strong> ANC condition is significant (p = 0.016) with a significant interaction (p &lt; 0.001), but response times are <em>higher</em> with ANC on for most modulation depths — 1293 ms versus 1257 ms for the QC25, 1382 versus 1339 for the WH-1000XM3. If response time proxies cognitive load, then ANC made the task marginally <em>harder</em> to decide, while making it marginally more intelligible. Reporting this is uncomfortable and non-optional; the honest statement is that whether the small intelligibility gain comes at a cost in decision time is unresolved by this data, and would need a theory that integrates decision-making with sensory processing to interpret.</p>
+        <p><strong>Listening effort did not move.</strong> This is the cleanest null in the thesis. Of the six NASA-TLX dimensions, <strong>five show no ANC effect whatsoever</strong>: mental demand p = 0.434, physical demand p = 0.769, temporal demand p = 0.253, effort p = 0.935, frustration p = 0.834. The only significant one is perceived performance (p = 0.042), which is trivially explained — participants got correct/incorrect feedback after every trial, so they were reporting their score, not their effort.</p>
+        <p>But the headphones differed from each other, significantly, on four of six dimensions: mental demand (p &lt; 0.001), effort (p &lt; 0.001), frustration (p = 0.002), and perceived performance (p = 0.058). <strong>The devices produced different subjective experiences while the ANC function produced none.</strong> That inversion is the most commercially interesting thing in the chapter, and it points at enclosure fit, clamping force, weight and passive isolation rather than at the noise canceller.</p>
+        <h2>The uncomfortable conclusion, stated plainly</h2>
+        <p>The chapter's own verdict: this experiment is <strong>unsuitable</strong> for assessing ANC headphones. Effect sizes are too low and trends too hard to read as a quality index of any kind.</p>
+        <p>Writing that took some discipline. Every incentive pushes toward foregrounding "intelligibility significantly higher with ANC on (p = 0.035)" and letting the reader assume it matters. The number is real and the direction matches three prior chapters. But an effect size of 0.0008 means ANC condition explains about eight hundredths of one percent of the variance in intelligibility, and the listening-effort measure — the one that would have made a human-facing claim — is flat.</p>
+        <p>This is also precisely what the <a href="/project/anc-auditory-nerve-model/">simulated-neuron chapter</a> predicted when the inferior colliculus discarded the peripheral effect. A physical improvement that dies at the obligatory synapse should not produce a large conscious benefit. Two independent methods agreeing on a ceiling is worth more than either one agreeing with my hopes.</p>
+        <h2>Confounds I could not eliminate</h2>
+        <p><strong>Fit variability is the big one.</strong> ANC performance depends on the acoustic seal between device and head, and the transfer function of that gap varies with head shape, hair thickness and eyeglasses. Twenty participants per headphone, each wearing it once, means fit variance is fully entangled with the ANC measurement. It cannot be separated post hoc.</p>
+        <p><strong>Prior familiarity.</strong> Some participants certainly owned ANC headphones and had expectations about them, which could shape listening strategy even under a blinded switch.</p>
+        <p><strong>Single presentation per condition.</strong> Each participant experienced each ANC condition exactly once (A-B or B-A). Counterbalancing cancels the group-level learning effect, but an A-B-A-B or longer design would let learning be measured rather than assumed away.</p>
+        <p><strong>Self-report as the effort measure.</strong> NASA-TLX is a debated construct and an indirect probe. Pupillometry or a dual-task paradigm would measure load more directly, and the flat NASA-TLX result is weaker evidence of no effort difference than a physiological null would be.</p>
+        <p><strong>Noise-free presentation.</strong> The chimeras were degraded, but there was no external noise field during the listening task — so the ANC had little to cancel. This is the sharpest limitation of the whole design: it tests whether ANC preserves an already-degraded playback signal, not whether ANC helps in the noisy environment where people actually use it. A version with a controlled external noise field is the obvious next experiment.</p>
+        <h2>Where it sits</h2>
+        <p>This is the human half of the modulation-depth axis. The <a href="/project/anc-instrumental-metrics-virtual-jury/">instrumental metric panel</a> is the machine half, run on chimeras from this same algorithm. The modulation-frequency axis is covered by the <a href="/project/anc-electroacoustic-envelope-metrics/">electroacoustic metrics</a> and the <a href="/project/anc-auditory-nerve-model/">simulated auditory nerve</a>. All rest on the <a href="/project/anc-headphones-problem-formulation/">problem framing</a>.</p>
+        <h2>Full thesis</h2>
+        <p>The full PhD thesis, with all figures, statistical tables, and references, is available as a PDF: <a href="../../uploads/PhDThesis_Sohhom_15510011_final.pdf">PhDThesis_Sohhom_15510011_final.pdf</a>.</p>
+      </article>
+
+    </main>
+  </div>
+
+</body>
+</html>

@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>The kink at −28 dB — Lorem Ipsum</title>
+  <link rel="stylesheet" href="../../styles.css" />
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="site-header__inner">
+      <a class="brand" href="../../">Lorem Ipsum <small>lorem.github.io</small></a>
+      <nav class="nav" aria-label="primary">
+        <a href="../../cv/">cv</a>
+        <a href="../../project/">projects</a>
+        <a href="../" aria-current="page">blog</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="page">
+    <main data-screen-label="Post: the-kink-at-minus-28-db">
+
+      <article>
+        <header class="project-hero">
+          <div class="project-hero__kicker">Note · Jan 2023 · 3 min</div>
+          <h1>The kink at −28 dB</h1>
+          <p class="project-hero__lede">My intelligibility curves sloped downward as expected, then dropped sharply and recovered at one particular level of degradation, on all four devices. The most interesting explanation is that it marks the moment listeners give up on one cue and switch to another. I could not prove it, and I said so.</p>
+        </header>
+
+        <p>Eighty listeners, speech with its amplitude envelope progressively flattened across 36 steps from untouched down to nearly featureless, intelligibility scored at each step. The expected shape is a downward slope: less envelope, less understanding.</p>
+        <p>That is what I got. But there was also a <strong>sharp drop and recovery at around −28 dB of modulation depth</strong>, showing up across all four headphones. Not a smooth inflection. A notch, followed by scores climbing back to roughly where the trend line said they should be.</p>
+        <h2>The explanation I like</h2>
+        <p>Any sound splits into two complementary parts: the slow <strong>envelope</strong> (ENV) that carries syllabic rhythm, and the fast <strong>temporal fine structure</strong> (TFS) oscillating underneath it. My manipulation attacked only the envelope and left the fine structure completely intact.</p>
+        <p>The literature on ENV versus TFS says listeners do not weight these cues fixedly. The balance shifts with conditions — under noise, masking or distortion, the relative usefulness of the two changes, and the brain adaptively reweights toward whichever is carrying more information.</p>
+        <p>So the reading is that −28 dB is the crossover. Above it, the envelope is degraded but still the better cue, and performance tracks envelope quality. Below it, the envelope has become bad enough that leaning on it is the wrong strategy, and listeners fall back on the fine structure — which my manipulation never touched. The notch is the cost of the transition: the interval where the old cue has stopped working and the new strategy has not yet taken over.</p>
+        <p>I find this genuinely satisfying as an account. It predicts a notch rather than a smooth curve, it predicts recovery afterward, and it predicts the location should depend on the degradation type rather than the device — which is consistent with seeing it at the same place on all four headphones.</p>
+        <h2>Why I did not claim it</h2>
+        <p>The experiment cannot distinguish that story from a much duller one.</p>
+        <p>At each modulation depth, I presented <strong>10 sentences drawn randomly</strong> from the corpus. Different sentences at different depths. Sentences are not equally intelligible — talker, phonetic content, and which colour-number pair happened to be the target all matter. If the ten sentences that landed at −28 dB were harder than average, that alone produces a notch, and it would appear at whatever depth drew the unlucky sample.</p>
+        <p>The randomisation is the same across headphones, which is why the notch could appear consistently in all four panels while being an artefact of stimulus selection rather than a fact about hearing. Consistency across devices does not discriminate between the two explanations — it is exactly what both predict.</p>
+        <p>So the write-up says the drop is "most likely" a strategy shift, names the ENV/TFS reweighting literature, and immediately adds that it could equally be an artefact of the specific sentences at that depth. Then it stops.</p>
+        <h2>How you would settle it</h2>
+        <p>Present <strong>the same sentence set at every modulation depth</strong>, so stimulus difficulty is constant down the axis and any notch has to come from the depth. That trades away the sentence variety I wanted as a proxy for real-world variability — a different experiment, not a strictly better one.</p>
+        <p>A sharper version manipulates the fine structure too. If the notch is a switch <em>to</em> TFS, degrading TFS as well should move it or remove it. That is a real, testable prediction.</p>
+        <h2>The opinion</h2>
+        <p><strong>A mechanism that explains your feature is not evidence for that mechanism, and the gap between "I have a good story" and "I have ruled out the boring story" is where most overclaiming lives.</strong> My story beat the artefact story in every way except the one that counts: it had no test behind it.</p>
+        <p>The temptation was substantial — a cue-switching account of a notch in a psychometric function is a far more interesting sentence than "the sentences at that depth may have been harder", and it would have been the most cited thing in the chapter. But a design decision made months earlier, for good reasons, had put the question permanently out of reach for this dataset. Recognising that a feature in your data is <em>undecidable</em> given your design, and labelling it rather than narrating around it, is the skill I actually acquired. The notch is still in the plots, flagged unresolved.</p>
+        <p>The full experiment, the chimera construction, and the rest of the results are in the <a href="/project/anc-chimera-listener-experiment/">project write-up</a>.</p>
+      </article>
+
+    </main>
+  </div>
+
+</body>
+</html>

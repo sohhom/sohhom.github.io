@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Ten instrumental metrics, two corpora, and a jury that cannot agree — Lorem Ipsum</title>
+  <link rel="stylesheet" href="../../styles.css" />
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="site-header__inner">
+      <a class="brand" href="../../">Lorem Ipsum <small>lorem.github.io</small></a>
+      <nav class="nav" aria-label="primary">
+        <a href="../../cv/">cv</a>
+        <a href="../" aria-current="page">projects</a>
+        <a href="../../blog/">blog</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="page">
+    <main data-screen-label="Project: anc-instrumental-metrics-virtual-jury">
+
+      <article>
+        <header class="project-hero">
+          <div class="project-hero__kicker">PhD thesis · ch 5 · method</div>
+          <h1>Ten instrumental metrics, two corpora, and a jury that cannot agree</h1>
+          <p class="project-hero__lede">Human listening tests are the gold standard and are slow, expensive and recruitment-bound. This project empanels ten published audio-quality models as a virtual jury on the same speech chimeras, across two corpora — and finds that the jurors contradict each other, sometimes on the sign of the effect. The useful result is not a verdict on ANC; it is a map of which metrics can be trusted on this kind of degradation.</p>
+
+          <dl class="project-meta">
+            <div><dt>Role</dt><dd>Doctoral researcher (IIT Gandhinagar, supervised by Prof. Nithin V. George)</dd></div>
+            <div><dt>Methods</dt><dd>Instrumental audio/speech quality evaluation, full-reference and no-reference metric application, modulation-depth function estimation, cross-corpus replication, two-way ANOVA with partial eta-squared</dd></div>
+            <div><dt>Stack</dt><dd>MATLAB, reference implementations of ten published metrics used as-is, CRM corpus (260 signals, 26 depths), NOIZEUS corpus (990 signals, 33 depths), KU 100 dummy-head recordings of four commercial ANC headphones</dd></div>
+            <div><dt>Output</dt><dd>PhD thesis chapter 5 (IIT Gandhinagar, October 2022)</dd></div>
+          </dl>
+        </header>
+
+        <h2>The scaling problem this attacks</h2>
+        <p>The <a href="/project/anc-chimera-listener-experiment/">listener experiment</a> took 80 participants, 74 minutes each, ethics approval and a noise-panelled room, to produce one result. That does not scale to a product-development cycle where a new device or firmware revision needs evaluating every few weeks.</p>
+        <p>The field's response is instrumental metrics: signal-processing algorithms that consume audio and emit a number intended to predict what listeners would have said. <strong>Full-reference</strong> metrics need the original and the degraded signal; <strong>no-reference</strong> metrics need only the degraded one. Most of the good ones compute on the amplitude envelope internally, which makes them a natural fit for a thesis about envelope fidelity.</p>
+        <p>The framing matters here, and the chapter is explicit about it: the goal is <strong>not</strong> to evaluate the metrics' performance, and <strong>not</strong> to declare one headphone better than another. It is to establish whether a curated panel of these models is sensitive enough to register the ANC difference on shallow-envelope speech — and to see what happens when you ask ten of them the same question.</p>
+        <h2>The jury</h2>
+        <p>Ten metrics, each with a different theoretical commitment, deliberately spanning envelope-explicit and envelope-agnostic designs:</p>
+        <ul>
+        <li><strong>FES</strong> (Fidelity of Envelope Shape) — degree to which target envelope shape is preserved per frequency channel, averaged over sub-bands. Built for hearing-aid compression; the direct ancestor of chapter 2's EDI.</li>
+        <li><strong>GPSMq</strong> (Generalized Power Spectrum Model for quality) — modulation-filterbank based; computes envelope power signal-to-noise ratios on internal representations. Validated as more accurate than HASQI, PESQ and PEMO-Q on loudspeaker distortions specifically. A distortion metric, so <em>higher is worse</em>, range 4.0–17.6.</li>
+        <li><strong>HASPI</strong> (Hearing Aid Speech Perception Index, v2) — combined coherence and envelope-fidelity intelligibility measure, with audiogram support; v2 uses a ten-neural-network ensemble auditory model.</li>
+        <li><strong>HASQI</strong> (Hearing Aid Speech Quality Index) — product of a non-linear term sensitive to noise and distortion and a linear term sensitive to long-term spectral change.</li>
+        <li><strong>PESQ</strong> (ITU-T P.862) — the industry workhorse. No overt dependence on amplitude modulation; uses a log-energy envelope only for alignment. Included partly as a control for what happens when the metric is <em>not</em> envelope-based.</li>
+        <li><strong>PEMO-Q</strong> — modulation-filterbank based, correlation of internal representations; its Perceptual Similarity Measure correlates r = 0.97 with listener mean opinion scores.</li>
+        <li><strong>STOI</strong> (Short-Time Objective Intelligibility) — correlation between log-power envelopes over ~384 ms segments; only two free parameters.</li>
+        <li><strong>ViSQOL</strong> — built on a neurogram similarity index, i.e. auditory-nerve responses as the internal representation. Not explicitly envelope-based.</li>
+        <li><strong>wSTMI</strong> (Weighted Spectro-Temporal Modulation Index) — applies a band-importance weighting to the modulation spectrum, fixing STMI's assumption that all modulation frequencies matter equally.</li>
+        <li><strong>SRMR</strong> — the only <strong>no-reference</strong> metric here; a speech-to-reverberation modulation energy ratio built for de-reverberation assessment.</li>
+        </ul>
+        <p>Every implementation was used as published, unmodified.</p>
+        <h2>The two-corpus design</h2>
+        <p>This is the methodological decision I would defend hardest. Chimeras were generated from <strong>two</strong> speech corpora:</p>
+        <ul>
+        <li><strong>CRM</strong> — 10 sentences at each of 26 modulation depths, 260 signals, dc bias 0.008 (matched to the pilot values from the human experiment).</li>
+        <li><strong>NOIZEUS</strong> — 30 samples of ~3 s at each of 33 depths, 990 signals, dc bias 0.0058.</li>
+        </ul>
+        <p>Depths ran 0 to −32 dB, enough range to span easy through difficult. The two dc biases were deliberately set slightly apart to produce different overall degradation, so that trends could be compared rather than a single operating point measured.</p>
+        <p>The reason for two corpora is a specific, unglamorous worry: instrumental metrics are routinely developed and tuned on the same handful of public datasets — NOIZEUS above all. If a metric were quietly overfit to its development corpus, a single-corpus study would report that overfitting as a finding about ANC. Running both is the cheapest available check, and it earned its keep.</p>
+        <h2>What the jury said</h2>
+        <p>On the headline question, most of the panel agrees: the ANC-condition effect is significant for <strong>8 of 10 metrics on CRM</strong> and <strong>10 of 10 on NOIZEUS</strong>, mostly at p &lt; 0.001, and the direction matches the physical chapters — envelope fidelity is better with ANC on. Some effect sizes are enormous by the standards of this thesis: GPSMq at η²ₚ = 0.90 (CRM) and 0.89 (NOIZEUS), HASQI at 0.73 and 0.67, PEMO-Q at 0.63 and 0.18.</p>
+        <p>Then the disagreements start, and they are the actual content.</p>
+        <p><strong>Two metrics report no ANC effect on CRM.</strong> STOI (p = 0.137) and SRMR (p = 0.154) find nothing — while GPSMq on the same signals finds an effect explaining 90% of the variance. On NOIZEUS, STOI is still null (p = 0.0597) but SRMR becomes significant (p &lt; 0.001). A metric whose verdict flips with the corpus is not measuring what its name claims to measure, at least not here.</p>
+        <p><strong>SRMR reports the effect backwards.</strong> Its means run 2.26 (ANC on) against 2.99 (off) on CRM and 2.92 against 3.70 on NOIZEUS — consistently <em>worse</em> with ANC enabled, for a metric where higher is better. Every other metric points the other way. SRMR is the one no-reference metric in the panel and was designed for reverberation, so the most likely reading is that it is out of domain rather than that it has found something the others missed. But "the metric is probably wrong" is a hypothesis, and it is stated as one.</p>
+        <p><strong>Effect sizes are wildly inconsistent across metrics.</strong> For the same recordings and the same question, ANC-condition effect size ranges from 0.001 (SRMR, CRM) to 0.90 (GPSMq, CRM) — three orders of magnitude. PESQ, the least envelope-dependent full-reference metric, lands at 0.42 on CRM but 0.04 on NOIZEUS: a tenfold swing between corpora.</p>
+        <p><strong>Interaction terms are large and pervasive.</strong> GPSMq shows headphone × ANC interaction at 0.75 (CRM) and 0.84 (NOIZEUS); HASQI at 0.56 and 0.48; ViSQOL at 0.10 and 0.40. This reinforces the interaction finding from chapter 2 in a much stronger form: what ANC does to the playback signal is a property of the particular device, and any single-number "ANC quality" figure would be averaging over the thing that matters most.</p>
+        <p><strong>HASPI is saturated and should be discarded here.</strong> Its means sit at 0.99998 with standard deviations around 1e-06. The ANOVA reports significance, but a metric pinned against its ceiling with variance in the sixth decimal place is not measuring this degradation — it is reporting that the speech is intelligible, which nobody disputed.</p>
+        <h2>The inconvenient conclusion</h2>
+        <p>The chapter's own summary: the metrics <strong>do not agree much, even at the level of broad trends</strong> across ANC conditions or headphones, so no one of them can be relied on to characterise ANC headphones. This is a known failure mode — perceptual instrumental models perform well on the degradation types they were validated against and degrade rapidly on novel signal types, and shallow-envelope chimeras are novel for all ten.</p>
+        <p>That is a less satisfying result than "the metrics agree with the listeners, so use the metrics." It is also more useful, because it is actionable. If you wanted to build the "ANC index" the chapter proposes as future work, this data says which jurors to seat: GPSMq, HASQI and PEMO-Q are sensitive and consistent across both corpora; STOI and SRMR are unusable on this degradation; HASPI saturates; PESQ is corpus-dependent. Nobody could have known that in advance, and the only way to find out was to run all ten on two corpora and look at the disagreements instead of averaging them away.</p>
+        <p>Cross-checking against the human data adds one more constraint. Chapter 4's listeners showed an intelligibility effect size of 0.0008 and no effort effect. GPSMq reports 0.90. Whatever GPSMq is exquisitely sensitive to, it is not something the listeners consciously experienced — which is a caution about reading any large instrumental effect size as a perceptual promise, and an argument that these metrics measure <em>signal fidelity</em> well and <em>human benefit</em> only loosely.</p>
+        <h2>Honest limits</h2>
+        <p>Metrics were run as-is, without tuning to this degradation type — deliberately, since tuning them would make the sensitivity finding circular, but it does mean each is being used slightly out of its designed domain. Only two corpora, both English, so accent and language effects are unexamined; the same chimera parameters across corpora with different accents would be a clean follow-up. The no-reference category is represented by exactly one metric, and it is the one that misbehaved, so no general conclusion about no-reference metrics is available. And the fourth question the chapter set out to answer — whether there are meaningful patterns in the scores <em>across</em> modulation depths — resisted statistical treatment entirely: the modulation-depth functions are erratic but not random, hinting at structure in the interaction between headphone, ANC behaviour, chimera and metric that this design cannot resolve.</p>
+        <h2>Where it sits</h2>
+        <p>This is the machine half of the modulation-depth axis; the <a href="/project/anc-chimera-listener-experiment/">80-listener experiment</a> is the human half, on chimeras from the same algorithm. The modulation-frequency axis is covered by the <a href="/project/anc-electroacoustic-envelope-metrics/">electroacoustic metrics</a> and the <a href="/project/anc-auditory-nerve-model/">simulated auditory nerve</a>. All rest on the <a href="/project/anc-headphones-problem-formulation/">problem framing</a>.</p>
+        <h2>Full thesis</h2>
+        <p>The full PhD thesis, with all figures, statistical tables, and references, is available as a PDF: <a href="../../uploads/PhDThesis_Sohhom_15510011_final.pdf">PhDThesis_Sohhom_15510011_final.pdf</a>.</p>
+      </article>
+
+    </main>
+  </div>
+
+</body>
+</html>

@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>The one-line trick that makes a manipulation real — Lorem Ipsum</title>
+  <link rel="stylesheet" href="../../styles.css" />
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="site-header__inner">
+      <a class="brand" href="../../">Lorem Ipsum <small>lorem.github.io</small></a>
+      <nav class="nav" aria-label="primary">
+        <a href="../../cv/">cv</a>
+        <a href="../../project/">projects</a>
+        <a href="../" aria-current="page">blog</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="page">
+    <main data-screen-label="Post: chimera-dc-bias-trick">
+
+      <article>
+        <header class="project-hero">
+          <div class="project-hero__kicker">Note · Nov 2022 · 3 min</div>
+          <h1>The one-line trick that makes a manipulation real</h1>
+          <p class="project-hero__lede">I needed to remove the amplitude envelope from speech by a controlled amount. The obvious method silently does nothing at all, and it took me a while to see why. The fix is adding a small constant in the right place.</p>
+        </header>
+
+        <p>Here is a small methods problem with a satisfying answer, from the middle of my thesis.</p>
+        <p>I wanted to make speech progressively harder to understand by flattening its <strong>amplitude envelope</strong> — the slow loudness contour that carries syllabic rhythm and most of what makes speech intelligible — while leaving the fast carrier underneath completely intact. Not adding noise, not filtering, not cutting bandwidth. Specifically removing envelope depth, in calibrated steps, so I could ask a listener at each step whether they could still hear the words.</p>
+        <p>The standard way to build a signal like this is a <strong>chimera</strong>: split the signal into frequency bands, use the Hilbert transform to separate each band into its envelope and its temporal fine structure, modify one of them, and multiply them back together.</p>
+        <p>So the obvious move: multiply the envelope by a constant between 0 and 1. Smaller constant, shallower envelope, harder speech. Seventeen bands between 100 Hz and 9 kHz, scale every envelope by <em>m</em>, recombine, done.</p>
+        <h2>Except it does nothing</h2>
+        <p>Multiplying an envelope by a constant does reduce its modulation depth, in the sense that the difference between its peaks and troughs shrinks. But it also scales the whole signal down in power — because you have multiplied everything, troughs and peaks alike, by the same number.</p>
+        <p>And the <em>shape</em> is unchanged. A quiet version of a waveform has the same relative structure as a loud one. So the moment anything downstream normalises the level — an RMS normalisation before playback, a listener adjusting the volume, an automatic gain stage — the original signal comes back. Perfectly. Your careful parametric degradation was a volume knob.</p>
+        <p>I do not think I would have caught this from theory alone. I caught it because the pilot signals at supposedly aggressive settings sounded completely normal.</p>
+        <h2>The fix</h2>
+        <p>Add a small dc offset to the envelope <em>before</em> multiplying:</p>
+        <pre><code>modified_envelope = (envelope × m) + d
+        </code></pre>
+        <p>That single addition changes the character of the operation. The offset raises the floor of the envelope without raising its peaks proportionally, so the ratio between peak and trough genuinely collapses toward 1. Push <em>m</em> down and <em>d</em> becomes the dominant term: the envelope converges toward a <strong>constant</strong>, which is an envelope carrying no information at all.</p>
+        <p>And this is not reversible by a gain change. No amount of level normalisation recovers a contour that has been flattened toward a horizontal line, because the information was destroyed rather than scaled.</p>
+        <p>Sweeping <em>m</em> from 0 dB to −45 dB with a fixed small <em>d</em> gives a genuine perceptual axis. At the shallow end the waveform looks like speech. At the deep end it looks like a uniform band of energy — with the fine structure still oscillating away underneath, unmodified, which is the point. Listeners went from near-perfect to badly impaired across that range, so the axis was doing real work.</p>
+        <h2>The reason I am writing this down</h2>
+        <p>The failure mode here is not a bug. Nothing crashes and no assertion fires. You get a signal, it plays, it looks plausible on a plot, and your experiment produces clean-looking data measuring nothing.</p>
+        <p>The opinion I would defend: <strong>the manipulations most likely to fail silently are the ones that are mathematically reversible, and "is my manipulation invertible by something downstream?" deserves to be a standard check.</strong> Multiplication by a scalar is invertible by multiplication by its reciprocal. Any processing stage that might apply a gain — and audio pipelines are full of them — is a candidate inverse. The dc offset works because it makes the operation lossy, and lossy is exactly what you want when your intent is to destroy information.</p>
+        <p>I now ask that question about every preprocessing step. What is the inverse of this operation, and is anything in my pipeline capable of applying it by accident? The dc-bias fix took one line. Noticing it was needed took a week.</p>
+        <p>The chimera algorithm, the 17-band decomposition, and what the resulting signals did to 80 listeners are written up in the <a href="/project/anc-chimera-listener-experiment/">chimera experiment project page</a>.</p>
+      </article>
+
+    </main>
+  </div>
+
+</body>
+</html>

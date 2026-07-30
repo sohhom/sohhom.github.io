@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Why ANC and the cochlea are accidentally well-matched — Lorem Ipsum</title>
+  <link rel="stylesheet" href="../../styles.css" />
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="site-header__inner">
+      <a class="brand" href="../../">Lorem Ipsum <small>lorem.github.io</small></a>
+      <nav class="nav" aria-label="primary">
+        <a href="../../cv/">cv</a>
+        <a href="../../project/">projects</a>
+        <a href="../" aria-current="page">blog</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="page">
+    <main data-screen-label="Post: anc-upward-spread-of-masking">
+
+      <article>
+        <header class="project-hero">
+          <div class="project-hero__kicker">Essay · Nov 2022 · 6 min</div>
+          <h1>Why ANC and the cochlea are accidentally well-matched</h1>
+          <p class="project-hero__lede">ANC works well below about 1 kHz and falls off sharply above it. The cochlea, by a coincidence of biology, lets low-frequency sounds mask high-frequency ones much more than the reverse. These two facts together explain why ANC headphones feel disproportionately effective — and why a 10 dB attenuation number does not capture what is happening.</p>
+        </header>
+
+        <p>If you read the engineering literature on active noise control, you eventually arrive at the same number: useful cancellation tops out around 1 kHz. Above that, the wavelengths get short enough that the controller cannot reliably produce an antiphase signal at the eardrum given the geometry of an earcup and the latency of the digital path. Passive isolation, by contrast, does its best work above 1 kHz, where mass and damping dominate. The two methods are complementary by construction, and a modern ANC headphone is really a hybrid that hands off responsibility somewhere in the speech band.</p>
+        <p>What is less often pointed out is that the cochlea is asymmetric in exactly the right direction to make this hybrid feel better than its dB numbers suggest.</p>
+        <h2>The asymmetry</h2>
+        <p>There is a phenomenon in psychoacoustics called the <strong>upward spread of masking</strong>. If you have a loud low-frequency tone and a quieter high-frequency tone present at the same time, the low tone will mask the high one — you will not hear it. The reverse is much weaker. A loud high tone does not hide a quiet low tone nearly as effectively. Moore's textbook treatment goes into the cochlear mechanics; the short version is that the travelling wave on the basilar membrane peaks at a frequency-dependent location, and the energy that does not get absorbed before that peak continues on toward the higher-frequency end. Low-frequency activity, in a sense, gets to "leak forward" into the high-frequency parts of the cochlea. High-frequency activity does not leak backward to anywhere near the same extent.</p>
+        <p>This means that, in a noisy environment, low-frequency noise is doing more perceptual damage than its spectrum level alone suggests. It is not just adding energy in its own band — it is also raising thresholds in the bands above it. Suppress the low-frequency noise and you have not just removed it; you have also unmasked everything sitting on top of it.</p>
+        <h2>What that does for ANC</h2>
+        <p>Stack the two facts. ANC attenuates the band below 1 kHz. The band below 1 kHz is the band that masks everything above it. So an ANC headphone that knocks 15 to 20 dB off a 200 Hz engine rumble is not just removing 15 to 20 dB of sound; it is also lifting the masking veil off the 1–4 kHz region, which happens to contain almost all the consonant cues in speech, almost all the articulation in music, and most of the cues the auditory system uses for foreground-background separation.</p>
+        <p>You can see this play out indirectly in the speech intelligibility literature on military and aviation ANC headsets. Several of those studies report large drops in measured sound pressure level and large improvements in user opinion scores, but only small or sometimes negligible improvements in objective intelligibility scores. The energy reduction is real, the subjective relief is real, and the intelligibility numbers are a third thing that does not always move in lockstep. The upward-spread account is consistent with that pattern: removing low-frequency masking improves the <em>audibility</em> of the parts of speech that matter, but other factors (signal-to-noise at the actual carrier frequencies, talker style, expectation) bound how much that translates into a comprehension score.</p>
+        <h2>Why the dB number lies</h2>
+        <p>If a manufacturer advertises a headphone as "30 dB of active noise reduction at 100 Hz", you can take that number at face value as a physical measurement of the residual sound pressure at the ear after cancellation. What you cannot do is multiply it by anything and arrive at a perceptual benefit. The dB number tells you about the energy in one band. It does not tell you about the unmasking effect that band's removal has on every higher band.</p>
+        <p>This is part of why the thesis I wrote stopped trying to use spectrum-level attenuation as the lens. The dB-of-cancellation framing is correct as engineering and incomplete as psychoacoustics. The amplitude envelope of the playback signal — what the ANC is doing to the <em>wanted</em> sound, not what it is doing to the unwanted one — turned out to be a cleaner handle on the perceptual question. But even before you get to envelopes, the simple observation that low-frequency removal is overweighted by the cochlea is worth carrying around. It is one of those biology-meets-engineering coincidences that does not get pointed at often enough.</p>
+        <h2>The clean statement</h2>
+        <p>ANC is most effective in exactly the band where masking is most asymmetric. That is not a design achievement; it is luck — or, more charitably, parallel evolution of two systems that happened to be pushed by the same physics (low frequencies are long-wavelength, low frequencies are where mechanical systems put their energy, low frequencies are what the inner ear's mechanics propagate forward). The takeaway for anyone evaluating an ANC headphone: the perceptual win is larger than the dB number, and that gap is not marketing — it is in the cochlea.</p>
+      </article>
+
+    </main>
+  </div>
+
+</body>
+</html>

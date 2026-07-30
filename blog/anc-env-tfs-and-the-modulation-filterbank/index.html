@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>ENV, TFS, and why the modulation filterbank is the right altar to pray at — Lorem Ipsum</title>
+  <link rel="stylesheet" href="../../styles.css" />
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="site-header__inner">
+      <a class="brand" href="../../">Lorem Ipsum <small>lorem.github.io</small></a>
+      <nav class="nav" aria-label="primary">
+        <a href="../../cv/">cv</a>
+        <a href="../../project/">projects</a>
+        <a href="../" aria-current="page">blog</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="page">
+    <main data-screen-label="Post: anc-env-tfs-and-the-modulation-filterbank">
+
+      <article>
+        <header class="project-hero">
+          <div class="project-hero__kicker">Essay · Dec 2022 · 7 min</div>
+          <h1>ENV, TFS, and why the modulation filterbank is the right altar to pray at</h1>
+          <p class="project-hero__lede">Every acoustic signal can be split into a slow envelope and a fast carrier. That split is mathematically ill-posed, biologically real, and the foundation that makes &quot;what does ANC do to the playback signal&quot; a tractable question. A short tour of the theory I had to lean on.</p>
+        </header>
+
+        <p>If you want to characterise what active noise control does to an audio signal, you are immediately confronted with a vocabulary problem. Acoustic signals are high-dimensional. They have a spectrum, a phase response, a non-linear distortion profile, a stereo image, a dynamic range, a noise floor. You can ask "how does ANC change the signal" and get dozens of answers that are all correct and none of which compose into a clean story.</p>
+        <p>The decomposition that does compose into a clean story is the one auditory science settled on roughly forty years ago: every signal can be written as a slowly-varying envelope multiplied by a quickly-varying carrier. The envelope is the temporal envelope, also called ENV; the carrier is the temporal fine structure, or TFS. Once you have that split, the question "what does the system do to the signal" can be split too — into "what does it do to ENV" and "what does it do to TFS" — and each half becomes its own research programme.</p>
+        <h2>The split is ill-posed but useful</h2>
+        <p>There is no unique mathematical decomposition of a signal into envelope and carrier. The standard choice in the field is to take the absolute value of the analytic signal (the Hilbert transform of the original, padded with the original) as the envelope, and the cosine of the instantaneous phase of the analytic signal as the carrier. This is a convention. Other definitions exist, all reasonable, and the choice between them mostly affects the edge cases (signals with sharp transients, very narrowband signals, signals near zero crossings).</p>
+        <p>The reason the field settled on this convention is empirical. It produces envelopes that behave the way intuition expects them to behave when you do experiments on listeners: degrade the envelope in some controlled way, and listener performance drops in the way the model predicts. That is the operational definition of "the right decomposition" — not the one that minimises some abstract error metric, but the one that lets you build a theory that survives contact with a human listener.</p>
+        <h2>Why ENV instead of spectrum</h2>
+        <p>Spectrum is the lingua franca of audio engineering and the wrong lingua franca for auditory perception. A spectrum is averaged over time; an envelope is a function of time. When you listen to speech, the relevant cues are mostly in the <em>changes</em> — how the syllabic energy modulates, how a vowel transitions into a consonant, how the rhythm of a sentence unfolds. All of that lives in the envelope. The spectrum captures what frequencies are present on average, which is necessary but not sufficient.</p>
+        <p>Three results from the auditory science literature are worth carrying around to anchor this. First, Shannon and colleagues showed in 1995 that speech can be made highly intelligible with only ENV information from a handful of frequency bands — the carrier can be replaced with noise of the right spectral shape and the listener still understands. This is the principle that cochlear implants are built on. Second, "chimera" stimuli that put one signal's envelope on another signal's carrier produce identification responses that follow the <em>envelope</em>'s identity, not the carrier's, for everything except pitch and spatial localisation. Third, modulation detection thresholds (the ability to notice an imposed envelope ripple) form a function of modulation frequency that looks like a bandpass filter with a peak around 50–100 Hz — a fact that turns out to drive a lot of downstream theory.</p>
+        <h2>The modulation filterbank</h2>
+        <p>The model that ties this together is the modulation filterbank, most fully developed by Dau and colleagues in the late 1990s. Its architecture has two stages. The first stage is the familiar cochlear filterbank — a bank of overlapping bandpass filters that decomposes the signal into frequency channels mimicking the cochlea's tonotopy. The second stage is the modulation filterbank: after each cochlear channel's signal is half-wave rectified and low-pass filtered to extract its envelope, that envelope is passed through <em>another</em> filterbank, this one tuned to modulation rates rather than carrier frequencies.</p>
+        <p>The picture this gives you is the auditory system as a two-dimensional decomposition: every sound is being analysed simultaneously along the carrier-frequency axis (which the cochlea handles) and the modulation-frequency axis (which the modulation filterbank handles). A vowel's formants live in the first dimension; the syllabic rhythm and the pitch of a speaker lives in the second.</p>
+        <p>The model has been refined since — Jepsen and colleagues swapped out the cochlear stage for a more realistic non-linear version, and various authors have added stages for binaural interaction or for streaming — but the core two-stage structure has held up. It accounts for modulation masking, modulation detection thresholds across carrier frequencies, comodulation masking release, the audibility of envelope cues in noise, and a lot more.</p>
+        <h2>Why this matters for ANC</h2>
+        <p>The reason any of this is on the thesis path: once you accept the modulation filterbank as the right model of how the brain processes signals, the question "what does ANC do to a signal" has a natural form. You probe the system with signals of known modulation properties (amplitude-modulated sinusoids at controlled modulation frequencies, or speech with parametrically degraded envelope depth), record what comes out, and measure the change in envelope properties using the same statistical and computational tools that the modulation filterbank theory has been validated with.</p>
+        <p>The metrics that fall out of this approach — modulation transfer functions, rate-MTFs from simulated auditory-nerve fibres, envelope correlation metrics like FES, the envelope-aware speech intelligibility metrics — are all downstream of the same idea. They are different ways of asking: how much of the envelope information that the brain <em>would have used</em> did the system preserve?</p>
+        <p>This is also why the thesis treats ANC as a black box without trying to peek inside the controller. Once you have committed to ENV as the lens, the relevant question is what the device's output looks like in envelope terms, regardless of which DSP tricks produced it. The internal algorithm is a distraction; the envelope at the eardrum is the thing.</p>
+        <h2>The honest caveat</h2>
+        <p>Everything above is a partial model. TFS is not nothing — pitch perception, spatial localisation, and some aspects of speech-in-noise intelligibility need TFS information that the envelope-only story cannot account for. A complete theory of hearing has to handle both. But for the specific question of "what does ANC do to a music or speech playback signal", and the specific perceptual outcomes that question cares about (intelligibility, listening effort, sound-quality ratings), the envelope is where almost all the action is. The TFS work is a separate thesis.</p>
+        <p>If there is a takeaway here that survives outside the ANC context, it is this: when a domain looks high-dimensional and intractable, the right move is often not a more powerful general-purpose tool but a hard commitment to one well-justified decomposition. The modulation filterbank is forty years of justification packed into one architecture. Standing on top of it lets you ask narrow questions and actually answer them.</p>
+      </article>
+
+    </main>
+  </div>
+
+</body>
+</html>

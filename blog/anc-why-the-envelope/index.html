@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Why the amplitude envelope, and not the spectrum — Lorem Ipsum</title>
+  <link rel="stylesheet" href="../../styles.css" />
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="site-header__inner">
+      <a class="brand" href="../../">Lorem Ipsum <small>lorem.github.io</small></a>
+      <nav class="nav" aria-label="primary">
+        <a href="../../cv/">cv</a>
+        <a href="../../project/">projects</a>
+        <a href="../" aria-current="page">blog</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="page">
+    <main data-screen-label="Post: anc-why-the-envelope">
+
+      <article>
+        <header class="project-hero">
+          <div class="project-hero__kicker">Essay · Oct 2022 · 7 min</div>
+          <h1>Why the amplitude envelope, and not the spectrum</h1>
+          <p class="project-hero__lede">ANC research talks almost exclusively in the language of spectra. The thesis instead picks the amplitude envelope as its lens. The choice is unglamorous, narrow, and — I think — the only one that made the rest of the work tractable.</p>
+        </header>
+
+        <h2>A thesis-shaped problem</h2>
+        <p>If you ask "what does an ANC headphone do to a music signal?", the honest answer is: it does many things. The frequency response is altered. The phase is altered. The dynamic range is altered. Non-linear harmonics are introduced. The stereo image is altered. The noise floor changes. There is no single number — and no single dimension — that captures all of it.</p>
+        <p>A thesis is a thing that has to fit inside a few years of one person's life. So the first real problem in a thesis-shaped project is not "what is the answer", it is "what is the question, and is it small enough to actually answer". I spent a non-trivial fraction of the first year on exactly this scoping problem, and the answer I landed on is: the amplitude envelope, and only the amplitude envelope.</p>
+        <h2>Why the envelope deserves the spotlight</h2>
+        <p>The amplitude envelope is the slow-varying loudness contour of an acoustic signal — the shape you would see if you drew a smooth curve over the absolute value of the waveform. It is one of two complementary ways the auditory system carries information, the other being the temporal fine structure, the fast oscillations underneath the envelope.</p>
+        <p>The envelope is informationally enormous. Decades of psychoacoustic work, much of it driven by the cochlear-implant community, has shown that the envelope alone — re-applied to a noise or tone carrier, with no fine structure preserved — is sufficient for high speech intelligibility in quiet. The brain processes envelope information extensively: there are modulation-tuned neurons at multiple stages of the auditory pathway, from the cochlear nucleus to the inferior colliculus to the cortex, and the tuning is dense enough that there are textbook-level "modulation transfer functions" for each stage.</p>
+        <p>The envelope is also surprisingly well-behaved as an object of study. You can extract it with the Hilbert transform. You can characterise it with a handful of statistics — kurtosis, crest factor, modulation index, EDI. You can model it through computational neuron pipelines. You can manipulate it parametrically with chimera algorithms. It supports both physical and perceptual analysis, and the two literatures speak to each other.</p>
+        <p>The frequency spectrum, by contrast, is well-studied to the point of saturation, and the existing ANC literature already covers it. Picking the spectrum would have meant joining a conversation that does not really have room for a doctoral contribution. Picking the envelope opened a conversation that was barely present in the ANC literature at all.</p>
+        <h2>What you give up by picking one dimension</h2>
+        <p>Spectral colouration is real, and the thesis cannot speak to it. Phase distortion is real, and the thesis cannot speak to it. Stereo-image effects are real, and the thesis cannot speak to them. A reader who wants those answers will have to wait for someone else — or, ideally, will apply the same scoping logic in a different direction and run a parallel thesis.</p>
+        <p>The trade-off is the trade-off all scoping decisions make. You can either say a little about everything or a lot about one thing. The first is what reviews and surveys are for. A PhD is the second.</p>
+        <h2>The structure that fell out of the choice</h2>
+        <p>Once the envelope was the lens, the thesis basically wrote its own table of contents. Amplitude modulation has two natural axes: modulation <em>frequency</em> (how fast does the envelope wiggle) and modulation <em>depth</em> (how deep are the wiggles). So:</p>
+        <ul>
+        <li>Chapters 2 and 3 sweep modulation frequency, using clean modulated sinusoids and analysing the recorded outputs with envelope statistics (ch. 2) and simulated auditory neurons (ch. 3).</li>
+        <li>Chapters 4 and 5 sweep modulation depth, using parametrically degraded speech chimeras and analysing the recorded outputs with human listeners (ch. 4) and instrumental quality metrics (ch. 5).</li>
+        </ul>
+        <p>Two axes, two chapters each, two methods per axis to triangulate physical and perceptual claims. The symmetry was almost suspicious in how cleanly it dropped out of the framing, and it is the structure I would now recommend to anyone trying to scope a measurement-heavy thesis: pick the axis along which the system varies in the way you most care about, and let the table of contents fall out of how many ways you want to slice it.</p>
+        <h2>On the discipline of one dimension</h2>
+        <p>The temptation, all the way through, was to widen the lens. The pilot results showed interesting things in the spectrum. The simulated neurons could be probed with non-AM stimuli. The chimeras could be vocoded. I kept those threads in the future-work sections rather than pulling them into the chapters.</p>
+        <p>That discipline is, I now think, the actual skill a PhD teaches. The substance — the metrics, the experimental rigs, the analysis pipelines — is acquirable in a year if the question is right. The harder thing is staying narrow long enough to finish.</p>
+      </article>
+
+    </main>
+  </div>
+
+</body>
+</html>

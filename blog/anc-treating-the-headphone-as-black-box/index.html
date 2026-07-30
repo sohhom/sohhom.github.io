@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Treating the headphone as a black box — Lorem Ipsum</title>
+  <link rel="stylesheet" href="../../styles.css" />
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="site-header__inner">
+      <a class="brand" href="../../">Lorem Ipsum <small>lorem.github.io</small></a>
+      <nav class="nav" aria-label="primary">
+        <a href="../../cv/">cv</a>
+        <a href="../../project/">projects</a>
+        <a href="../" aria-current="page">blog</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="page">
+    <main data-screen-label="Post: anc-treating-the-headphone-as-black-box">
+
+      <article>
+        <header class="project-hero">
+          <div class="project-hero__kicker">Essay · Oct 2022 · 6 min</div>
+          <h1>Treating the headphone as a black box</h1>
+          <p class="project-hero__lede">When I started the thesis I wanted to crack open the ANC chip and tune the controller. I ended up doing the opposite — buying four headphones off Amazon and treating them as sealed devices — and the work was better for it.</p>
+        </header>
+
+        <h2>The pull toward the inside</h2>
+        <p>The default impulse, for anyone with a signal-processing background, is to want to get inside the ANC controller. The literature is dominated by it. Most published "psychoacoustic ANC" work proposes a new adaptive filter or weighting function and then evaluates it on a benchtop testbed. The figure of merit is usually some perceptual quantity — loudness, sharpness, roughness — and the proposed system wins. It is a generative literature, and joining it is the obvious thing to do.</p>
+        <p>I did not. The thesis treats four commercial ANC headphones as sealed boxes: nothing modified, nothing custom, the same units you would buy from a consumer electronics shop. Three years on, that is the decision I am most glad I made.</p>
+        <h2>Why the inside is the wrong place to stand</h2>
+        <p>There are two problems with controller-side evaluation. First, the population of devices in the wild is not the population of devices in research papers. The four headphones I tested behave noticeably differently from each other on basically every metric I threw at them. There is no "the ANC" — there is a market of implementations, each with its own quirks, each tuned by some product team for some constellation of priorities. Building a new algorithm and evaluating it on a single bench prototype tells you nothing about that market.</p>
+        <p>Second, the listener does not care what is inside. They care what comes out of the driver. If I want to make a claim about how ANC affects the perception of music or speech, then I need to measure the thing the listener actually hears — which is the playback signal after the entire device has finished operating on it, not the playback signal at some intermediate node in a controller I designed myself.</p>
+        <h2>The cost</h2>
+        <p>The black-box stance is not free. It rules out an entire class of useful questions: why does device X behave this way, what would happen if we changed parameter Y, where in the adaptive filter is the kurtosis gain coming from. Some of those questions are exactly the questions a signal-processing department wants its PhD students to answer. The supervisor and I had to negotiate the framing precisely because of this trade-off.</p>
+        <p>It also rules out anything resembling a controlled comparison of <em>algorithms</em>. With four devices that differ in driver, enclosure, controller, and DSP, you cannot attribute an effect to the algorithm alone. The thesis is fully transparent about this — it characterises devices, not algorithms.</p>
+        <h2>What the stance buys</h2>
+        <p>It buys two things that, on reflection, matter more than the things it rules out.</p>
+        <p>First, ecological validity. The conclusions hold for the headphones that people actually own. A claim that "ANC on the Sony WH-1000XM3 measurably improves the temporal envelope of speech material" is a claim someone outside the lab can act on. A claim that "our proposed weighted feedforward filter improves roughness on benchtop pink noise" is harder to translate.</p>
+        <p>Second, methodological transferability. The methods in chapters 2–5 are device-agnostic. They take a headphone, any headphone, and produce a fingerprint. A new device released next year can be characterised by the same pipeline without changing a line of analysis code. That is what evaluation methods are supposed to do: outlive the specific devices they were prototyped on.</p>
+        <h2>The lesson, generalised</h2>
+        <p>There is a tendency, when you have the training to look inside a system, to look inside the system. The training is what gives you the tools, and the tools tell you what is interesting. But for a lot of questions — especially questions about how a system <em>performs in the world</em> — the inside is the wrong place to look. The outside, treated rigorously, is where the answer lives.</p>
+        <p>This is not an argument against algorithm work. It is an argument for picking a stance that matches the question. If the question is "can we build a better ANC?", the inside is right. If the question is "what does the ANC out there do to the playback signal?", the outside is right. The thesis ended up being clearly the second question, and that is what made the black-box stance the correct one.</p>
+      </article>
+
+    </main>
+  </div>
+
+</body>
+</html>

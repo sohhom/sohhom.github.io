@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Pattern reuse, from file systems to neural networks — Lorem Ipsum</title>
+  <link rel="stylesheet" href="../../styles.css" />
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="site-header__inner">
+      <a class="brand" href="../../">Lorem Ipsum <small>lorem.github.io</small></a>
+      <nav class="nav" aria-label="primary">
+        <a href="../../cv/">cv</a>
+        <a href="../" aria-current="page">projects</a>
+        <a href="../../blog/">blog</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="page">
+    <main data-screen-label="Project: compression-bits-patterns">
+
+      <article>
+        <header class="project-hero">
+          <div class="project-hero__kicker">Independent project · 2018 note, 2026 experiments</div>
+          <h1>Pattern reuse, from file systems to neural networks</h1>
+          <p class="project-hero__lede">A note I wrote in 2018 claimed that all data is pattern — that if files are just bit sequences, common patterns should be stored once and every file represented as indexes into a shared dictionary. Seven years later a paper on neural network representations gave me the vocabulary to test it. So I did, on raw binary with no format assumptions, and the interesting result was about byte boundaries being an accident of addressing rather than a property of data.</p>
+
+          <dl class="project-meta">
+            <div><dt>Role</dt><dd>Independent side project — self-directed, unaffiliated with any employer, client, university or degree programme</dd></div>
+            <div><dt>Methods</dt><dd>N-gram frequency analysis over raw binary, cross-file pattern overlap, dictionary coverage growth curves, pointer-overhead compression modelling, sub-byte bit-level overlap, bit-shift alignment sensitivity</dd></div>
+            <div><dt>Stack</dt><dd>Python 3 (NumPy, mmap for zero-copy binary handling, collections.Counter, struct), JSON result serialisation</dd></div>
+            <div><dt>Output</dt><dd>Six-experiment investigation script, serialised results, and a written report connecting the original note to the 2025 Fractured Entangled Representation paper</dd></div>
+          </dl>
+        </header>
+
+        <blockquote>
+        <p><strong>Provenance.</strong> This is a personal side project, done out of curiosity on my own time. It is not connected to any degree, thesis, university, employer or client, and nothing here was funded or commissioned. The 2018 note is my own; the 2025 paper it is compared against is other people's work, cited as such.</p>
+        </blockquote>
+        <h2>When a 2018 note met a 2025 paper</h2>
+        <p>Seven years ago, I scribbled a note on my phone titled "compressed file system idea." It opened with a line that I still find provocative: <em>all data is pattern</em>. The premise was simple but uncomfortable. If every file is just a sequence of bits, and bit sequences of any meaningful length must recur across files, then why are we storing the same patterns over and over again across our disks? Why not store each pattern once and represent every file as a vector of indexes into a shared dictionary?</p>
+        <p>I shelved the idea. Indexing overhead seemed prohibitive, and I had no good framework for thinking about <em>why</em> it might or might not work beyond hand-waving about information theory. Then, in 2025, I read the Fractured Entangled Representation paper by Kumar, Clune, Lehman, and Stanley, and the old note came rushing back. The paper is about neural networks, not file systems, but it is fundamentally about the same question I had been asking: when does pattern reuse produce clean, compressible, generalisable representations, and when does it collapse into a bloated mess?</p>
+        <h2>The Original Idea, Stated Plainly</h2>
+        <p>The compressed file system idea has four moving parts. First, files are bit patterns once you strip away the format conventions we layer on top. Second, those bit patterns recur across files at frequencies that depend on pattern size. Third, a new incoming file can, in principle, be represented as a sequence of pointers into existing data rather than as a fresh allocation. Fourth, if the existing corpus is large enough relative to the incoming file, the probability of finding all needed fragments approaches one, and the marginal storage cost of the new file approaches zero.</p>
+        <p>The catch the note flagged was honest: the indexing and pattern matching machinery would need to be very fancy, and the overhead might eat the savings. This is the question that any serious version of the idea has to answer.</p>
+        <h2>What the FER Paper Adds</h2>
+        <p>The FER paper distinguishes two kinds of internal representation that neural networks can develop. A Unified Factored Representation encodes each regularity once and reuses it everywhere it applies. A Fractured Entangled Representation splits the same concept across redundant pathways and tangles unrelated concepts together. The authors show that conventional SGD training on a fixed objective tends to produce FER, while open-ended evolutionary search through Picbreeder produces UFR. The SGD-trained network can output a pixel-perfect symmetric skull while internally computing the left and right halves through completely separate circuits.</p>
+        <p>The relevance to the file system idea is not metaphorical. Both are claims about the same underlying principle: the structure of how you decompose, share, and index fundamental patterns determines whether the system can generalise, compress, and adapt. The note proposes <em>intentional</em> fragmentation with a clean index. FER is <em>unintentional</em> fragmentation with a tangled one. The difference between them is the difference between compression and bloat.</p>
+        <h2>Running the Experiments</h2>
+        <p>I ran the obvious experiment. Three TTS-generated WAV files, some Python source, markdown, plaintext, a JPEG, and a PDF. For each, count n-gram frequencies. For each pair, measure overlap. Then watch coverage grow as the dictionary grows.</p>
+        <p>The WAV-to-WAV results are the ones that made me sit up. At two-byte granularity, using one WAV file as a dictionary covered between 85 and 91 percent of the byte occurrences in another WAV file. The unique-pattern overlap was lower at 63 to 77 percent, because rare patterns in the target are often missing from the dictionary, but rare patterns by definition contribute little to total occurrences. The common patterns dominate, and the common patterns are shared.</p>
+        <p>At three-byte granularity the coverage collapses to 31 to 37 percent. This is the granularity wall the note implicitly worried about. Patterns large enough to carry meaningful structural information are also large enough to be largely unique to their source.</p>
+        <p>Cross-type overlap is a different story. WAV-to-text coverage at two bytes is 19 to 36 percent, while text-to-text coverage hits 95 to 98 percent. File types occupy genuinely different regions of pattern space. The PDF, being roughly four times larger than every other file combined, single-handedly pushed JPEG reconstruction coverage from 65 to 78 percent. Dictionary size matters enormously, and it matters non-linearly.</p>
+        <h2>The Bit Alignment Surprise</h2>
+        <p>The most interesting finding was about alignment. Byte-aligned two-byte patterns gave 63 percent overlap between two WAV files. Drop down to 12-bit patterns with proper bit-level alignment and overlap jumps to 98.3 percent. The byte boundary is an arbitrary artefact of how we happen to address memory, not a property of the underlying data. Any practical version of this scheme should operate on bit streams, not byte streams. The indexing gets harder but the matching gets dramatically better.</p>
+        <p>The alignment sensitivity experiment confirmed this from the other direction. Shifting the comparison window by a few bits drops overlap by roughly 18 percentage points for WAV files. Audio data is partially robust to bit shifts because adjacent samples have similar values, but for text the same shift destroys overlap almost entirely.</p>
+        <h2>What This Means</h2>
+        <p>The note's hypothesis is correct in its strong form for same-type files and at small pattern sizes. It is correct in a weaker form across types, where coverage is non-trivial but far from complete. The "orders of magnitude larger dictionary" condition the note describes does appear to push coverage toward saturation, but the curve is concave and the last few percent are expensive.</p>
+        <p>The fixed-size n-gram approach used here produces ratios below one, meaning expansion rather than compression, because the pointer overhead dominates. A real implementation needs variable-length longest-match search of the kind LZ77 and its descendants have done for decades. The interesting question is whether cross-file dictionaries trained on large same-type corpora can beat single-file compression. Zstd's dictionary mode is the closest deployed thing to the original idea, and it works well precisely in the regime the note predicted: many small files of similar type.</p>
+        <p>The deeper lesson, the one the FER paper made explicit for me, is that representation quality is everything. A clean factorisation with a well-structured index is compact and powerful. A chaotic factorisation with a tangled index is an imposter that appears to work until you ask it to do anything new. This is true for neural networks. It is true for file systems. It is probably true for any system that decomposes complex things into reusable parts.</p>
+        <p>The 2018 me was reaching for something real. I just did not have the vocabulary for it yet.</p>
+      </article>
+
+    </main>
+  </div>
+
+</body>
+</html>

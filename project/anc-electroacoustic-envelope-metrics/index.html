@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Building a modulation transfer function for an ANC headphone — Lorem Ipsum</title>
+  <link rel="stylesheet" href="../../styles.css" />
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="site-header__inner">
+      <a class="brand" href="../../">Lorem Ipsum <small>lorem.github.io</small></a>
+      <nav class="nav" aria-label="primary">
+        <a href="../../cv/">cv</a>
+        <a href="../" aria-current="page">projects</a>
+        <a href="../../blog/">blog</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="page">
+    <main data-screen-label="Project: anc-electroacoustic-envelope-metrics">
+
+      <article>
+        <header class="project-hero">
+          <div class="project-hero__kicker">PhD thesis · ch 2 · method</div>
+          <h1>Building a modulation transfer function for an ANC headphone</h1>
+          <p class="project-hero__lede">Audio engineers characterise a device with a frequency response. This project builds the missing analogue — a *modulation* transfer function — by playing 1000 amplitude-modulated sinusoids through four commercial ANC headphones, recovering the envelope of each recording, and measuring how faithfully it survived along eight statistics. As far as I can establish, this is still the only envelope-domain characterisation of the ANC playback signal that exists.</p>
+
+          <dl class="project-meta">
+            <div><dt>Role</dt><dd>Doctoral researcher (IIT Gandhinagar, supervised by Prof. Nithin V. George)</dd></div>
+            <div><dt>Methods</dt><dd>AM sinusoid synthesis, Hilbert envelope extraction, correlation-based time alignment, modulation transfer function estimation, eight envelope-distortion metrics, two-way ANOVA with partial eta-squared effect sizes</dd></div>
+            <div><dt>Stack</dt><dd>MATLAB R2021a (Signal Processing Toolbox, Audio Toolbox — acousticLoudness/acousticSharpness per ISO 532-1), AMToolbox audspace, Neumann KU 100 dummy head, Behringer U-PHORIA UMC204HD</dd></div>
+            <div><dt>Output</dt><dd>PhD thesis chapter 2 (IIT Gandhinagar, October 2022)</dd></div>
+          </dl>
+        </header>
+
+        <h2>The measurement that did not exist</h2>
+        <p>Ask an audio engineer to characterise a loudspeaker or a headphone and you get a frequency response: amplitude out over amplitude in, plotted against audio frequency. It is the lingua franca of the field, and the ITU has standardised it several times over for headphones specifically — P.381 for audio fidelity, P.380 for dummy-head positioning, BS.1116-3 for small impairments.</p>
+        <p>None of those standards describe what an ANC headphone does to the amplitude envelope of the signal it is playing. Neither do REAT and MIRE, the two go-to protocols for hearing-protector evaluation, which measure attenuation of unwanted sound and are silent about the wanted sound.</p>
+        <p>The gap is not for lack of people noticing. Ogonowski argued ANC headphones need to be treated as a class of their own and proposed a "mean square deviation" index to track the signal. Ang and colleagues concluded that pink and white noise are insufficient and that transients need attention. Struck measured insertion loss, touched envelope fidelity, and found that a headphone which won on insertion loss told "a different story" once the envelope was examined — and stopped there. Liebich and colleagues reviewed the signal processing and psychoacoustics of ANC headphones and flagged playback-signal corruption as "a largely disregarded subject". Brammer and colleagues got closest, using the speech transmission index — which <em>is</em> built on a modulation-transfer concept — to compare feedforward against feedback architectures, and found feedforward superior at not corrupting the playback signal.</p>
+        <p>So the ingredients were lying around for two decades. What did not exist was the systematic thing: sweep the modulation-frequency axis, compute a family of envelope-fidelity statistics on real devices, and plot the result as a transfer function you can read like a frequency response. That is what this chapter is.</p>
+        <p><strong>On the novelty, stated carefully.</strong> The most recent work I can find attacking the same target is an Audio Engineering Society Headphone Conference paper from August 2025 — three years after this thesis — which asks precisely the right question (what does ANC do to the desired playback signal?) and reaches a compatible headline conclusion: ANC lowers measured THD and IMD while <em>degrading</em> perceived quality, so "traditional electroacoustic measurements alone obscure audible degradations." But its instruments are frequency response, THD, IMD, POLQA and time-domain inspection. No envelope. No modulation transfer function. No kurtosis, crest factor, or modulation depth. The envelope-domain approach in this chapter remains, to the best of my knowledge, unattempted elsewhere — which is a claim about the published record as I can read it, not a claim that it is unattemptable.</p>
+        <h2>The stimulus grid</h2>
+        <p>Test signals are sinusoidally amplitude-modulated sinusoids, generated in the time domain as</p>
+        <p><code>y = [1 + m·sin(2π·f_m·t)] · a · sin(2π·f_c·t)</code></p>
+        <p>Ten carrier frequencies from 200 Hz to 2500 Hz, spaced roughly logarithmically via AMToolbox's <code>audspace</code> so the spacing respects auditory rather than linear intuition: 200, 298, 418, 566, 747, 970, 1244, 1580, 1993, 2500 Hz. Fifty modulation frequencies, 1 Hz to 50 Hz in 1 Hz steps — the band where envelope information dominates speech and music. Modulation depth fixed at 0 dB (m = 1, fully modulated), amplitude scaled to 0.66 to get signal power without clipping. Each signal is 2.0 seconds, cosine-gated 0.1 s at onset and offset to kill transient artefacts.</p>
+        <p>That is 500 base signals, each recorded twice per headphone (ANC on, ANC off) across four headphones: 4000 recordings.</p>
+        <h2>Eight ways to ask "did the envelope survive?"</h2>
+        <p>Envelopes come from the Hilbert transform, via the standard FFT-based algorithm. Seven of the eight metrics are then reported as a <strong>gain</strong> — the metric computed on the recorded envelope divided by the metric computed on the source envelope — so that 1.0 is perfect fidelity and every number lands on a common, readable scale regardless of the metric's native units.</p>
+        <p>The metrics were not invented for this. Each was pulled from a literature where it already does envelope work, which is what makes the panel defensible rather than arbitrary:</p>
+        <ul>
+        <li><strong>Modulation gain</strong> — ratio of output to input modulation depth, where depth is <code>1 − min(env)/max(env)</code>. Known elsewhere as modulation transfer index or modulation index. Notably <em>insensitive</em> to envelope shape, since it sees only the min and max. That insensitivity is a feature: it isolates depth change from shape change.</li>
+        <li><strong>Envelope Difference Index (EDI)</strong> — mean absolute difference between normalised envelopes (Fortune et al.). Extremely sensitive, hence the fuss about time alignment. Used to tune hearing-aid compressor attack and release times; consonant recognition degrades past an EDI of about 0.2.</li>
+        <li><strong>Peak cross-correlation</strong> — the maximum of the cross-correlation between input and output envelopes. Used as a decision device in computational AM-perception models, and inside PEMO-Q.</li>
+        <li><strong>Standard deviation gain</strong> — mean fluctuation of signal power; adapted from Ogonowski's mean-square-deviation proposal. Correlates highly with behavioural sensitivity measures in hearing-aid compression work.</li>
+        <li><strong>Kurtosis gain</strong> — fourth moment of the envelope distribution. A distortion measure in mechanical fault diagnosis, a decision device in AM-perception models, and the basis of noise-exposure protocols where equal-energy assumptions fail.</li>
+        <li><strong>Crest factor gain</strong> — peak-to-RMS of the envelope. Music producers track it as percussiveness; high crest factor makes AM easier to detect than classical models predicted.</li>
+        <li><strong>Loudness gain</strong> — ISO 532-1 loudness model (MATLAB <code>acousticLoudness</code>).</li>
+        <li><strong>Sharpness gain</strong> — ISO 532-1 sharpness (<code>acousticSharpness</code>). A relative reduction in sharpness indicates a relative increase in low-frequency content.</li>
+        </ul>
+        <p>The last two are not purely envelope quantities, which the chapter states plainly rather than hiding. They are included because they are validated against human perception, which lets a physical result be cross-checked against a perceptual one on the same recordings.</p>
+        <p>Averaging each metric across the ten carriers and plotting against modulation frequency gives the modulation transfer function per headphone per ANC condition. The error bars carry information beyond the mean: since modulation frequency should not depend on carrier frequency, a wide error bar is itself a finding about carrier dependence in that device and metric.</p>
+        <h2>What the sweep found</h2>
+        <p>Every one of the eight metrics shows a significant effect of ANC condition, a significant effect of headphone type, <strong>and a significant interaction between the two</strong> — all at p &lt; 0.001, on F-tests with 3992 residual degrees of freedom. The direction is consistent: with ANC on, modulation gain sits closer to 1, EDI is smaller, peak cross-correlation is higher, and the perceptual gains sit nearer unity. The ANC is <em>preserving</em> the envelope better than the passive condition does.</p>
+        <p>Because everything is significant, the p-values stop being the interesting part and the <strong>effect sizes</strong> carry the story:</p>
+        <table>
+        <thead>
+        <tr>
+        <th>Metric</th>
+        <th>ANC-condition effect size (η²ₚ)</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+        <td>Loudness gain</td>
+        <td>0.43</td>
+        </tr>
+        <tr>
+        <td>Standard deviation gain</td>
+        <td>0.29</td>
+        </tr>
+        <tr>
+        <td>Envelope Difference Index</td>
+        <td>0.25</td>
+        </tr>
+        <tr>
+        <td>Crest factor gain</td>
+        <td>0.11</td>
+        </tr>
+        <tr>
+        <td>Sharpness gain</td>
+        <td>0.07</td>
+        </tr>
+        <tr>
+        <td>Peak cross-correlation</td>
+        <td>0.03</td>
+        </tr>
+        <tr>
+        <td>Kurtosis gain</td>
+        <td>0.03</td>
+        </tr>
+        <tr>
+        <td>Modulation gain</td>
+        <td>0.02</td>
+        </tr>
+        </tbody>
+        </table>
+        <p>Two things fall out. <strong>Modulation gain — the most obvious metric, the one you would reach for first — is the least sensitive of the eight.</strong> Its means differ in the fourth decimal place (0.9995 on, 0.9972 off, for the QC25). Anyone characterising an ANC headphone by modulation depth alone would report approximately nothing and might well conclude there is no effect. The metrics that see the effect are the ones sensitive to envelope <em>shape</em> and <em>dispersion</em> rather than depth: loudness, standard deviation, EDI.</p>
+        <p>And <strong>the significant interaction term is the load-bearing result for practice.</strong> It says the ANC effect is not a property of ANC; it is a property of a particular device's implementation. There is no "the ANC effect" to quote in a spec sheet. The four headphones differ, and they differ by metric: on sharpness gain the QC25 sits at 1.009 with ANC on against 0.937 with it off, while the WH-1000XM3 moves the other way, 0.988 against 0.910.</p>
+        <h2>The artefact defence</h2>
+        <p>A result this uniformly significant should attract suspicion before it attracts belief. Three ways it could be an artefact, and what rules each out:</p>
+        <p><strong>Recording delay masquerading as distortion.</strong> EDI and cross-correlation are sensitive enough that a few samples of uncorrected latency would manufacture a large apparent difference. Every recording is time-aligned against its source by a correlation-based method before envelope extraction. If alignment had failed, EDI would be catastrophically large rather than sitting at 0.0008–0.003, and cross-correlation would not peak near its ceiling.</p>
+        <p><strong>Clock drift or dropped samples.</strong> Overflow and underflow between the computer clock and the audio-interface clock silently corrupt a recording. The recording script tested for both and discarded and re-recorded any signal that tripped them.</p>
+        <p><strong>Significance manufactured by sample size.</strong> With n in the thousands, trivial differences reach p &lt; 0.001, and it would be easy to dress that up as a strong finding. This is exactly why the chapter reports partial eta-squared alongside every F, why the effect sizes are the quoted result rather than the p-values, and why the write-up says the effect is small. Modulation gain at η²ₚ = 0.02 is significant and nearly meaningless; loudness gain at 0.43 is neither.</p>
+        <h2>Honest limits</h2>
+        <p>Modulated sinusoids are clean and unnatural. They span the Fourier basis, but ANC interacts non-linearly with the playback signal, so non-sinusoidal modulators and carriers may well behave differently — the chimera chapters step toward realism. The sweep stops at 50 Hz, leaving the 50–500 Hz spectral-envelope regime untouched. Loudness and sharpness are not strictly envelope metrics. Averaging a 2-second signal down to one scalar per metric suppresses transient distortion by construction, which is defensible for a stable-state characterisation and wrong for impulsive material.</p>
+        <p>And the visual-versus-auditory caveat is worth keeping: as Toole put it, "the auditory perceptions of musical sounds are not the same as visual analyses of data from clinical sine waves, impulses, and pink noise." A cleaner plot is not a better-sounding headphone. That gap is what chapters 3, 4 and 5 exist to close.</p>
+        <p>The most attractive unexplored shortcut: Schroeder's method estimates an MTF from the squared Fourier transform of a system's impulse response, which would replace this entire laborious sweep with one measurement. ANC violates its assumptions — the system is neither passive nor linear — but a probabilistic extension that also accounted for envelope phase would make ANC characterisation nearly free.</p>
+        <h2>Where it sits</h2>
+        <p>This is the physical half of the modulation-frequency axis. The <a href="/project/anc-auditory-nerve-model/">simulated auditory nerve</a> is the perceptual half, run on these same recordings. The modulation-<em>depth</em> axis is covered by the <a href="/project/anc-chimera-listener-experiment/">chimera listener experiment</a> and the <a href="/project/anc-instrumental-metrics-virtual-jury/">instrumental metric panel</a>. All four rest on the <a href="/project/anc-headphones-problem-formulation/">problem framing</a>.</p>
+        <h2>Full thesis</h2>
+        <p>The full PhD thesis, with all figures, statistical tables, and references, is available as a PDF: <a href="../../uploads/PhDThesis_Sohhom_15510011_final.pdf">PhDThesis_Sohhom_15510011_final.pdf</a>.</p>
+      </article>
+
+    </main>
+  </div>
+
+</body>
+</html>

@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>The feature didn&#x27;t matter; the headphone did — Lorem Ipsum</title>
+  <link rel="stylesheet" href="../../styles.css" />
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="site-header__inner">
+      <a class="brand" href="../../">Lorem Ipsum <small>lorem.github.io</small></a>
+      <nav class="nav" aria-label="primary">
+        <a href="../../cv/">cv</a>
+        <a href="../../project/">projects</a>
+        <a href="../" aria-current="page">blog</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="page">
+    <main data-screen-label="Post: anc-the-feature-that-didnt-matter">
+
+      <article>
+        <header class="project-hero">
+          <div class="project-hero__kicker">Note · Feb 2023 · 3 min</div>
+          <h1>The feature didn&#x27;t matter; the headphone did</h1>
+          <p class="project-hero__lede">Across four devices and 80 listeners, toggling noise cancellation produced no measurable difference in how hard people found the listening task. Which headphone they were wearing produced a large one. That asymmetry was not what I was looking for and is probably the most commercially useful thing I found.</p>
+        </header>
+
+        <p>My thesis was about active noise cancellation. Naturally, ANC condition was my independent variable, and headphone model was the thing I varied to check that results generalised — a control, essentially, included so I could say the effect held across devices rather than being a quirk of one product.</p>
+        <p>The control won.</p>
+        <h2>The numbers</h2>
+        <p>Eighty listeners, degraded speech, listening effort measured with the NASA Task Load Index — six questions covering mental demand, physical demand, temporal demand, effort, frustration and perceived performance, on 21-point scales, administered every 30 trials.</p>
+        <p><strong>ANC condition affected none of them.</strong> Mental demand p = 0.43. Physical demand p = 0.77. Temporal demand p = 0.25. Effort p = 0.94. Frustration p = 0.83. The only significant result was perceived performance, and that one explains itself: participants received correct/incorrect feedback after every trial, so they were reporting their score, not their exertion.</p>
+        <p><strong>Headphone model affected four of the six.</strong> Mental demand p &lt; 0.001. Effort p &lt; 0.001. Frustration p = 0.002. Perceived performance p = 0.058.</p>
+        <p>Same participants, same task, same speech, same room. The feature I was studying did nothing to how hard the task felt. The plastic around it did a great deal.</p>
+        <h2>What is doing the work</h2>
+        <p>I cannot decompose this from my data — what follows is inference, not measurement. But the candidates are not mysterious: clamping force, weight, earcup depth, whether the pad presses on the pinna, thermal comfort over a 74-minute session, and passive isolation, which for a closed-back circumaural headphone is substantial and entirely mechanical. All of it differs between a Bose QuietComfort 25 and a Sony WH-1000XM4 regardless of the DSP, and all of it is present in <em>both</em> conditions, because the headphone stays on your head when you toggle the button.</p>
+        <p>The physical side of the thesis points the same way: every envelope metric showed a <strong>significant interaction</strong> between headphone model and ANC condition — the statistical statement that there is no "the ANC effect", only what a particular implementation does.</p>
+        <h2>Why I think this is the useful result</h2>
+        <p>The chapter it came from concluded that my experiment was <em>unsuitable</em> for assessing ANC headphones, because the ANC effect sizes were too small to read as a quality index. That is true and I stand by it.</p>
+        <p>But look at what happened to the question. I set out to ask "does noise cancellation help the listener?" and the data answered a different question: "does it matter which noise-cancelling headphone you buy?" Emphatically yes — and not primarily because of the noise cancelling.</p>
+        <p><strong>The opinion: ANC is oversold as the differentiator, and the honest reading of my data is that the mechanical design of the headphone matters more to the listener's experience than the signal processing inside it does.</strong> That is an awkward thing to say about a feature that anchors the marketing of every premium headphone on the market, and I want to state its limits precisely. My listening task had <strong>no external noise field</strong> — participants sat in a quiet room with pre-degraded speech. That is the sharpest limitation of the design: I tested whether ANC protects an already-damaged playback signal, not whether it helps on a plane, which is what people buy it for. In an actual noisy environment the ANC has something to cancel and would almost certainly show a larger effect.</p>
+        <p>So this is not "ANC does nothing." It is narrower and, I think, more interesting: <strong>in the absence of noise, ANC's effect on the listener is unmeasurable, while the physical device's effect is large.</strong> Anyone choosing a headphone for a quiet office is choosing a fit and a weight, not a canceller.</p>
+        <p>The broader methodological point is the one I keep returning to. My control variable outperformed my independent variable, and the only reason I know that is that I had four devices instead of one. A single-device study would have reported a clean null on ANC and never seen the comparison that made the null informative. Including variation you expect to be uninteresting is how you find out what is actually driving your outcome.</p>
+        <p>The full effort data, the intelligibility results, and the design limitations are in the <a href="/project/anc-chimera-listener-experiment/">project write-up</a>.</p>
+      </article>
+
+    </main>
+  </div>
+
+</body>
+</html>

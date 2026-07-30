@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>A simulated auditory nerve as a virtual listener for ANC headphones — Lorem Ipsum</title>
+  <link rel="stylesheet" href="../../styles.css" />
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="site-header__inner">
+      <a class="brand" href="../../">Lorem Ipsum <small>lorem.github.io</small></a>
+      <nav class="nav" aria-label="primary">
+        <a href="../../cv/">cv</a>
+        <a href="../" aria-current="page">projects</a>
+        <a href="../../blog/">blog</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="page">
+    <main data-screen-label="Project: anc-auditory-nerve-model">
+
+      <article>
+        <header class="project-hero">
+          <div class="project-hero__kicker">PhD thesis · ch 3 · method</div>
+          <h1>A simulated auditory nerve as a virtual listener for ANC headphones</h1>
+          <p class="project-hero__lede">Computational models of the auditory brainstem are built to study the brain. This project inverts them: it points a validated inner-hair-cell → auditory-nerve → cochlear-nucleus → inferior-colliculus cascade at four consumer headphones and uses simulated neurons as a measuring instrument for hardware. 40,000 simulated responses per metric later, the ANC effect appears at the auditory nerve, strengthens at the cochlear nucleus, and is largely thrown away by the midbrain.</p>
+
+          <dl class="project-meta">
+            <div><dt>Role</dt><dd>Doctoral researcher (IIT Gandhinagar, supervised by Prof. Nithin V. George)</dd></div>
+            <div><dt>Methods</dt><dd>Computational auditory modelling, characteristic-frequency and best-modulation-frequency tuning, rate-MTF, coefficient of variation of inter-spike interval, vector strength / synchrony-MTF, stochastic spike-train averaging, two-way ANOVA with partial eta-squared</dd></div>
+            <div><dt>Stack</dt><dd>MATLAB, custom Python wrapper scripts, AMToolbox 1.0.0 (Zilany 2014 auditory-nerve model), UR EAR toolbox 2020b (SFIE band-enhanced/band-suppressed IC cells), KU 100 dummy-head recordings of four commercial ANC headphones</dd></div>
+            <div><dt>Output</dt><dd>PhD thesis chapter 3 (IIT Gandhinagar, October 2022)</dd></div>
+          </dl>
+        </header>
+
+        <h2>The inversion</h2>
+        <p>There is a mature literature of computational models of the auditory pathway — decades of work by Carney, Zilany, Nelson, Meddis and colleagues, cascades of stages anchored to the route information actually takes: cochlear non-linearities, basilar membrane, hair-cell electrical properties, synaptic chemistry, nerve potentials. Each stage is validated against physiological recordings from cats and rodents. These models are still in active use — 2024 to 2026 papers apply the same Zilany-plus-SFIE stack to chirp-velocity sensitivity, forward masking, tone-in-noise encoding, timbre encoding in the inferior colliculus.</p>
+        <p>Every one of those studies uses the model to <strong>learn about the brain</strong>. The stimulus is a means; the neural response is the object of interest.</p>
+        <p>This chapter runs the arrow backwards. The brain model is the <em>instrument</em>, and a consumer electronics product is the object of study. The question is not "how does the inferior colliculus encode modulation" — that is assumed, because it is what the model was validated on. The question is "what does this Sony headphone do to a signal, as registered by a system that responds the way an auditory system responds." The thesis states the gap directly: to the best of the author's knowledge, no model of auditory nerve or brainstem neurons had been used to characterise or evaluate ANC headphones. Four years of subsequent literature has not, as far as I can find, changed that.</p>
+        <p>This matters beyond bookkeeping about who was first. The <a href="/project/anc-electroacoustic-envelope-metrics/">electroacoustic chapter</a> established that the physical envelope is cleaner with ANC on. That is an external view of the signal, and it does not license any claim about perception — a change can be physically present and perceptually invisible. The honest way to ask "would a listener notice?" is to ask listeners, and the thesis does that <a href="/project/anc-chimera-listener-experiment/">elsewhere</a>. But human experiments are slow, expensive, and bounded by recruitment. A model listener costs compute instead of subjects, and can be run on every new device without booking a room.</p>
+        <h2>The cascade</h2>
+        <p>Four stages, mirroring the biology: <strong>inner hair cell → auditory nerve → cochlear nucleus → inferior colliculus</strong>.</p>
+        <p>The front end is the Zilany 2014 auditory-nerve model from AMToolbox 1.0.0, developed over two decades by Carney and colleagues. It simulates the auditory periphery including basilar-membrane and cochlear filtering with non-linearities, and internally splits into an inner-hair-cell stage and an auditory-nerve synapse stage, both exposed to the caller. It implements multiple scales of power-law adaptation and is tuned to reproduce simultaneous and forward masking, compression, suppression, level-dependent shifts in characteristic frequency, and AM encoding trends observed in real fibres.</p>
+        <p>The brainstem and midbrain stages come from UR EAR 2020b, using the "same-frequency inhibition and excitation" (SFIE) model of band-enhanced and band-suppressed inferior-colliculus cells. The cochlear nucleus is the first synapse for auditory information and is known to <em>enhance</em> modulation-frequency encoding relative to the auditory nerve. The inferior colliculus is an obligatory synapse — essentially all ascending auditory information passes through it.</p>
+        <p>Both toolboxes are used <strong>as-is</strong>. No attempt was made to improve or extend them, which is the right call when the model is an instrument rather than the object of study. All models are phenomenological: they replicate input-output characteristics without simulating the underlying biochemistry, trading interpretability for simplicity and speed.</p>
+        <p>Two tuning decisions align the neurons to the signal. For auditory-nerve fibres, the <strong>characteristic frequency</strong> is set to the carrier frequency of the test signal, so the fibre listens where the energy is. For inferior-colliculus neurons, the <strong>best modulation frequency</strong> is set to the modulation frequency of the signal, so the midbrain cell is tuned to the envelope rate under test. Other neurons with other characteristic frequencies would also respond — that is how a "neurogram" is built — but the goal here is characterising the device through the best-placed neuron, not mapping a population.</p>
+        <p>The neurons are <strong>stochastic</strong>: identical input yields a different spike train each time. So every condition runs ten times and averages. The full grid is 10 carrier frequencies × 50 modulation frequencies × 10 repetitions × 2 ANC conditions × 4 headphones = <strong>40,000 values per metric</strong>, which is the kind of coverage a simulated listener makes affordable and a human listener makes unthinkable.</p>
+        <p>The connective tissue is a set of custom Python wrapper scripts that read the dummy-head recordings off disk, feed them to the models, and write the responses back as CSV. That glue is the actual engineering: turning a pile of <code>.wav</code> files and two academic MATLAB toolboxes into a pipeline you can point at a new headphone and turn the crank.</p>
+        <h2>Three measures, because rate and timing are different claims</h2>
+        <p>A neuron encodes amplitude modulation two ways: by adjusting mean firing rate, and by firing at specific phases of the envelope. Rate-coding and synchronisation are separable, and a neuron can preserve one while losing the other. So three measures run at each stage:</p>
+        <ul>
+        <li><strong>Mean rate</strong>, giving the rate-MTF (rMTF) when plotted against modulation frequency. The analogue of the loudness metric from chapter 2, but for a single simulated cell. Averaged over a long stimulus it is a <em>blunt</em> instrument — small fluctuations in instantaneous rate get swamped.</li>
+        <li><strong>Coefficient of variation (Cv)</strong> of the inter-spike interval — the standard deviation of the intervals over their mean. A measure of firing irregularity, used to classify cochlear-nucleus cells into transient and sustained choppers. Crucially, Cv is not defined with reference to the stimulus, so it can be computed on any spike train.</li>
+        <li><strong>Vector strength (VS)</strong> — the length of the average spike phase projected onto the unit circle, 0 for random firing and 1 for perfect phase-locking. Because it <em>is</em> defined relative to the stimulus envelope, a change in VS is attributable to the represented envelope rather than to internal noise.</li>
+        </ul>
+        <h2>What the model listener reported</h2>
+        <p>This is where the result stops being a tidy confirmation of chapter 2 and becomes interesting.</p>
+        <p><strong>The inner hair cell shows nothing.</strong> Not a small effect — nothing. Headphone type p = 0.689, ANC condition p = 0.346, interaction p = 0.627, all effect sizes rounding to 0.0000. The first transduction process in the cochlea does not register the ANC difference at all. Part of this is likely a known limitation: the model's authors state they assumed no adaptation in IHC voltage responses, while later evidence suggests there is some. But taken with what follows, it locates where in the cascade the effect enters.</p>
+        <p><strong>At the auditory nerve, mean rate is silent and synchrony speaks.</strong> Mean rate shows no ANC effect (p = 0.119). Vector strength shows a clear one — higher with ANC on, p &lt; 0.001, significant across headphones and in the interaction. The neuron is not firing <em>more</em>; it is firing <em>more accurately at the right moments</em>. The physical envelope improvement translates into better temporal representation, not louder representation.</p>
+        <p><strong>Cv is the most sensitive metric in the whole study, and it goes "the wrong way".</strong> At the auditory nerve, Cv has an ANC-condition effect size of 0.13 and a headphone-type effect size of <strong>0.21</strong> — the largest effect anywhere in the chapter, larger than any vector-strength effect by more than an order of magnitude. And Cv <em>increases</em> with ANC on (2.25 versus 1.83 for the QC25). Naively, more irregular firing sounds worse. Read alongside vector strength, it is the opposite: as the neuron locks more tightly to envelope peaks, it fires in tighter bursts separated by longer gaps, so the inter-spike intervals become more dispersed. Higher Cv here is a <em>signature</em> of better synchronisation, not a defect. Anyone reading Cv in isolation would draw exactly the wrong conclusion — which is the chapter's argument for reading rate and timing together.</p>
+        <p><strong>The cochlear nucleus confirms and amplifies.</strong> Same pattern — mean rate flat (p = 0.165), Cv large (0.17 across headphones), VS significant but smaller. Meanwhile absolute vector strength jumps from roughly 0.70 at the auditory nerve to roughly 0.92 at the cochlear nucleus, consistent with the known enhancement of modulation coding at this stage.</p>
+        <p><strong>The inferior colliculus throws most of it away.</strong> All ANC effect sizes collapse toward zero: IC mean rate 0.0001, IC Cv 0.02, and IC vector strength shows <em>no</em> significant ANC effect at all (p = 0.118). The midbrain has partially or fully discarded the difference the periphery registered.</p>
+        <p>That last finding is the one I would not have predicted and would not have chosen. It is also the most useful, because it makes the inferior colliculus a <strong>falsification stage</strong> — a limit against which more optimistic peripheral findings can be tested to see whether they survive the journey toward cortex. A physical improvement that dies at the obligatory synapse is a physical improvement with a perceptual ceiling. Chapter 4's null on self-reported listening effort is exactly what that prediction looks like when you put real people in the chair.</p>
+        <h2>The null defence</h2>
+        <p>The IHC null and the IC null are claims, and cost the same evidence as the positives. Three ways they could be implementation errors rather than findings:</p>
+        <p><strong>The models could be mis-driven.</strong> If the signals were reaching the models corrupted or at the wrong level, everything would be null. They are not: the identical recordings, through the identical wrapper scripts, produce large, orderly, highly significant effects at the auditory nerve and cochlear nucleus. A pipeline that can resolve η²ₚ = 0.21 at one stage is not failing to deliver signal at another.</p>
+        <p><strong>The neurons could be mistuned.</strong> A neuron tuned away from the signal would report noise. Characteristic frequency is set per-carrier and best modulation frequency per-modulation-rate, so each cell is deliberately placed where the energy is; and the rMTF shapes that come out reproduce the expected non-linear low-frequency structure documented for stellate and bushy cells, which is what a correctly-tuned model should produce.</p>
+        <p><strong>Stochastic variance could be swamping a real effect.</strong> Each condition is averaged over ten runs, and the surviving n is 39,992 residual degrees of freedom — enough that the <em>significant</em> effects at IC mean rate (p = 0.003 for headphone type) come through with effect sizes of 0.0003. The design detects trivially small effects when they exist. The IC vector-strength null is a null at high power, not a null at low power.</p>
+        <p>Symmetrically, the positive findings need their own defence, and the main risk is that 40,000 samples make everything significant. That is precisely why effect size is reported for every row and why the chapter's conclusions are stated in effect-size terms.</p>
+        <h2>Honest limits</h2>
+        <p>The pipeline is only as good as the model behind it, and the Zilany/UR EAR family is one defensible choice among several — Meddis and colleagues offer a different stance on internal detail. Re-running on an alternative model is a real robustness check, not a formality.</p>
+        <p>More fundamentally, the premise is contested. Viemeister — after thirty years on modulation and temporal integration — wrote that physiologically measured AM responses "have provided little insight into the processes underlying the psychophysics, specifically whether there is tuning for AM rate as postulated by the modulation filterbank models." EEG work has produced contradictory evidence on how much envelope representation matters for comprehension, with some concluding envelope information alone predicts neither intelligibility nor phase-locking quality. Envelope representation can therefore account for only part of the ANC effect.</p>
+        <p>Narrower caveats: all signals were presented at a single fixed intensity, though auditory-nerve synchronisation to AM is known to vary with level; all neurons ran at default "medium" spontaneous rate, leaving high- and low-SR fibres unexamined; only fully-modulated (0 dB depth) stimuli were used, where the interesting neural coding questions live near threshold; and every model here is monaural, so nothing is said about whether the two ears receive different treatment.</p>
+        <p>And the deepest one: a model that "could in principle register" a difference is not a person noticing it. Which is why the thesis does not stop here.</p>
+        <h2>Where it sits</h2>
+        <p>This is the perceptual-model half of the modulation-frequency axis; the <a href="/project/anc-electroacoustic-envelope-metrics/">electroacoustic metrics</a> are the physical half, computed on the same recordings. The modulation-depth axis is covered by the <a href="/project/anc-chimera-listener-experiment/">chimera listener experiment</a> and the <a href="/project/anc-instrumental-metrics-virtual-jury/">instrumental metric panel</a>. All rest on the <a href="/project/anc-headphones-problem-formulation/">problem framing</a>.</p>
+        <h2>Full thesis</h2>
+        <p>The full PhD thesis, with all figures, statistical tables, and references, is available as a PDF: <a href="../../uploads/PhDThesis_Sohhom_15510011_final.pdf">PhDThesis_Sohhom_15510011_final.pdf</a>.</p>
+      </article>
+
+    </main>
+  </div>
+
+</body>
+</html>

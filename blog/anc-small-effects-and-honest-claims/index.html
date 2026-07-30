@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Small effects, honestly reported — Lorem Ipsum</title>
+  <link rel="stylesheet" href="../../styles.css" />
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="site-header__inner">
+      <a class="brand" href="../../">Lorem Ipsum <small>lorem.github.io</small></a>
+      <nav class="nav" aria-label="primary">
+        <a href="../../cv/">cv</a>
+        <a href="../../project/">projects</a>
+        <a href="../" aria-current="page">blog</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="page">
+    <main data-screen-label="Post: anc-small-effects-and-honest-claims">
+
+      <article>
+        <header class="project-hero">
+          <div class="project-hero__kicker">Essay · Oct 2022 · 6 min</div>
+          <h1>Small effects, honestly reported</h1>
+          <p class="project-hero__lede">The headline result of the thesis is that ANC measurably preserves the playback envelope — and that the effect is small. Writing up a small effect honestly turned out to be harder, and more important, than producing it in the first place.</p>
+        </header>
+
+        <h2>Two kinds of result</h2>
+        <p>There is the result you wanted, and there is the result the data gave you. Most of the time those overlap enough that the writing is straightforward. Occasionally they do not, and the writing becomes the actual research problem.</p>
+        <p>The thesis is closer to the second case. I went in expecting one of two outcomes. Either ANC would meaningfully clean up the playback signal — in which case the result would be a clear, marketable improvement that listeners feel — or it would do nothing measurable, in which case the result would be the modestly contrarian finding that the manufacturers are overselling. What I got was a third thing: ANC <em>does</em> clean up the envelope, the effect is real, and the effect is <em>small</em>.</p>
+        <p>Small but real is a genre of result that academic writing is bad at.</p>
+        <h2>The temptation in two directions</h2>
+        <p>The temptation in one direction is to oversell the effect. The ANOVAs are full of p-values below 0.05. Several metrics show the effect on all four devices. The simulated neurons agree with the electroacoustic statistics. The listeners agree with the instrumental metrics. The chimera intelligibility scores move in the right direction. Each individual finding is well-supported. It would be easy to write a thesis whose abstract sounded like ANC dramatically improves the listener's experience and then back it up with a long string of statistically significant tables.</p>
+        <p>The temptation in the other direction is to undersell — to treat small effect sizes as if they were no effects at all. That would also be wrong. Effect sizes for these kinds of perceptual measurements are typically small. A 4 % improvement in rationalised arcsine intelligibility units is not a non-result; it is a real, reproducible shift in performance on a difficult listening task, with a sample size that lets you trust it. The same is true for kurtosis gain or peak cross-correlation. The signals are <em>cleaner</em> with ANC on. There is no ambiguity about the direction.</p>
+        <p>Both temptations come from the same place: the desire to deliver a clean story. A clean story is easier to defend, easier to publish, and easier to remember. But the truth in this case is a slightly awkward conjunction, and the work is to write the conjunction without papering over either side.</p>
+        <h2>The shape of the honest claim</h2>
+        <p>What ended up in the conclusions chapter is this:</p>
+        <blockquote>
+        <p>Taken together, this means that although the ANC system when enabled helps deliver a cleaner envelope in the playback signal, the psychological benefits may be limited and depend on various other factors.</p>
+        </blockquote>
+        <p>Two clauses, connected by "although". The first is the positive result: the physical envelope is cleaner. The second is the qualifier: the perceptual consequence is modest, and it interacts with the device, the metric, the listener, and the listening condition. Neither clause can be dropped without distorting the picture.</p>
+        <p>That sentence took several drafts to settle on. The earlier versions either led with the qualifier and buried the result, or led with the result and dropped the qualifier into a footnote. The final version is symmetric: it gives the positive result first, because the positive result is what is new, and then immediately constrains its scope.</p>
+        <h2>Where small results actually matter</h2>
+        <p>Small psychological effects sometimes look like nothing in a single experiment but become important over the population of users and uses. ANC headphones are worn for hours at a time by hundreds of millions of people. A 4 % reduction in listening effort, sustained over an eight-hour work day, is not a 4 % reduction in fatigue at the end of the day; the relationship is non-linear and the integration time is long. The thesis cannot make that case directly — it would need a separate longitudinal study — but it can flag the possibility, and the future-work section does.</p>
+        <p>The same is true clinically. A 4 % shift in the chimera intelligibility curve in normal-hearing subjects might translate into a much larger shift in hearing-impaired or cochlear-implant users, because those listeners are operating closer to the perceptual cliff. Again, the thesis cannot prove that; but it is a plausible follow-on that the small-but-real finding licenses.</p>
+        <h2>The lesson, generalised</h2>
+        <p>The instinct to deliver a clean story is strong, and the academic incentive structure rewards it. But the work that ages best is the work that respects what the data actually said. A small effect, honestly reported and properly contextualised, is more useful to the next researcher than a large effect overclaimed. The honest report tells them what to expect, where to look for amplification, and which conditions might bend the result. The overclaim tells them nothing they can use, and eventually it gets quietly disproved.</p>
+        <p>I did not enjoy writing the qualifier. But I would rather have written it than have it written for me later.</p>
+      </article>
+
+    </main>
+  </div>
+
+</body>
+</html>

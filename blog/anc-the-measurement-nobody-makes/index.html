@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>The measurement nobody makes — Lorem Ipsum</title>
+  <link rel="stylesheet" href="../../styles.css" />
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="site-header__inner">
+      <a class="brand" href="../../">Lorem Ipsum <small>lorem.github.io</small></a>
+      <nav class="nav" aria-label="primary">
+        <a href="../../cv/">cv</a>
+        <a href="../../project/">projects</a>
+        <a href="../" aria-current="page">blog</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="page">
+    <main data-screen-label="Post: anc-the-measurement-nobody-makes">
+
+      <article>
+        <header class="project-hero">
+          <div class="project-hero__kicker">Essay · Sep 2022 · 3 min</div>
+          <h1>The measurement nobody makes</h1>
+          <p class="project-hero__lede">Every ANC headphone review measures how much noise the device removes. Almost nobody measures what it does to the music. I spent a PhD on the second question, and the odd thing is that four years later the gap is still there.</p>
+        </header>
+
+        <p>Three acoustic signals share the inside of an ANC headphone when you are listening to something. The <strong>leakage signal</strong> is the outside noise that gets past the earcup. The <strong>control signal</strong> is the anti-noise the electronics generate to cancel it. And the <strong>playback signal</strong> is the thing you actually wanted — the podcast, the album, the phone call.</p>
+        <p>In theory the first two cancel and the third passes through untouched. Every published ANC evaluation I could find measures the first two. The standard protocol plays pure tones or pink noise at the headphone from outside and measures how much acoustic energy survives at the ear.</p>
+        <p>That is a measurement of the canceller. It says nothing about the music.</p>
+        <h2>The literature knew and moved on</h2>
+        <p>This is not an oversight nobody noticed. Ogonowski argued ANC headphones need their own evaluation class. Ang and colleagues showed pink noise is insufficient and transients deserve attention. Liebich and colleagues, reviewing the whole area, called playback-signal corruption "a largely disregarded subject". Struck measured envelope fidelity, found that a headphone winning on insertion loss told "a different story" once the envelope was examined, and stopped there.</p>
+        <p>Even the textbooks disagree on which direction the effect runs. Howard and Angus prefer passive cancellation outright, on the grounds that in an ANC headphone "the wanted signal is having noise added to it", and that imperfect phase means "the wanted signal is then being further contaminated." Nobody had checked whether that was true.</p>
+        <p>So the sign was unknown. Not small-and-uncertain — genuinely unknown, with respectable people arguing both ways from theory.</p>
+        <h2>What I did instead</h2>
+        <p>I bought four ANC headphones off the shelf, put them on a dummy head, and played 4000 amplitude-modulated sinusoids through them with the ANC on and off. Then I threw out the frequency response entirely and measured what happened to the signal's <strong>amplitude envelope</strong> — its slow loudness contour, the part of a sound that carries most of what speech means.</p>
+        <p>Eight statistics, swept across modulation frequency, plotted as a transfer function you can read the way you read a frequency response. The result: ANC preserves the envelope measurably better than the passive condition, on all four devices, at p &lt; 0.001.</p>
+        <p>The most interesting number was not the headline. It was that <strong>modulation depth — the first metric anyone would reach for — turned out to be the least sensitive of the eight.</strong> Its means differ in the fourth decimal place. Someone characterising these devices the obvious way would have measured almost nothing and reasonably concluded there was no effect. The metrics that saw it were the ones sensitive to envelope <em>shape</em> and <em>spread</em>: loudness, standard deviation, envelope difference index.</p>
+        <h2>The part I did not expect</h2>
+        <p>I checked recently what the state of the art looks like now. The closest current work is an Audio Engineering Society Headphone Conference paper from August 2025 — three years after I submitted — asking exactly my question: what does ANC do to the desired playback signal? It concludes that ANC lowers measured THD and IMD while degrading perceived quality, so "traditional electroacoustic measurements alone obscure audible degradations."</p>
+        <p>Same target. Compatible conclusion. Completely different instruments: frequency response, THD, IMD, POLQA. No envelope, no modulation transfer function, no kurtosis, no crest factor.</p>
+        <p>I want to be careful about what I am claiming. I cannot prove a negative about the entire literature, and "nobody has done this" is a statement about the published record as I can read it. But the envelope-domain characterisation of the ANC playback signal appears to still be unoccupied ground, which is a strange thing to be able to say about a consumer product with hundreds of millions of units in the field.</p>
+        <p>Here is the opinion I will defend: <strong>the reason the gap persists is that the measurement you make is decided by the vocabulary you inherited, not by the question you have.</strong> Audio engineering thinks in spectra, so it reached for THD and frequency response even when asking a question about time-varying structure. The envelope was sitting in the auditory-science literature the whole time, with forty years of validation behind it. Nobody carried it across, because carrying tools between fields requires knowing both, and there is no career incentive to be the person who knows both.</p>
+        <p>The full method, the eight metrics, and the effect sizes are written up as a <a href="/project/anc-electroacoustic-envelope-metrics/">project page</a>.</p>
+      </article>
+
+    </main>
+  </div>
+
+</body>
+</html>
