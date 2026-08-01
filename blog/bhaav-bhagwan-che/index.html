@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Bhaav Bhagwan Che — sixteen months with one phrase — Sohhom Bandyopadhyay</title>
+  <link rel="stylesheet" href="../../styles.css" />
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="site-header__inner">
+      <a class="brand" href="../../">Sohhom Bandyopadhyay <small>sohhom.github.io</small></a>
+      <nav class="nav" aria-label="primary">
+        <a href="../../cv/">cv</a>
+        <a href="../../project/">projects</a>
+        <a href="../" aria-current="page">blog</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="page">
+    <main data-screen-label="Post: bhaav-bhagwan-che">
+
+      <article>
+        <header class="project-hero">
+          <div class="project-hero__kicker">Essay · May 2026 · 11 min</div>
+          <h1>Bhaav Bhagwan Che — sixteen months with one phrase</h1>
+          <p class="project-hero__lede">Bhaav bhagwan che&quot; — the price is god. I started tagging observations with it in January 2025, whenever a model said one thing and the market did another. Sixteen months and sixteen tagged notes later, the phrase means almost the opposite of what I meant by it at the start, and the correction came from people arguing with me on the internet.</p>
+        </header>
+
+        <p>There is a phrase Indian traders use, originally Gujarati, that translates roughly as <em>the price is god</em>. <strong>Bhaav bhagwan che.</strong> It gets deployed when something happens that nobody can explain: an option that doubles while the index falls, a premium that detaches from its underlying, a setup that should have worked and did not. The price did what it did. Stop asking.</p>
+        <p>In January 2025 I started using it as a tag in my research notes, for observations where a model and reality parted company. Sixteen notes carry it now, running from January 2025 to May 2026, plus an index note I keep to collect them — filed, revealingly, under the heading <em>mentions and observations that the price can go to any level, violating any and all assumptions about it</em>. Reading them in sequence is uncomfortable in a useful way, because the phrase does not mean the same thing at the end as at the beginning, and I did not change it on purpose. It got corrected, mostly by strangers arguing with me and with each other.</p>
+        <h2>Where it started: a complaint about the Greeks</h2>
+        <p>The first note is dated 14 January 2025 and it is, frankly, a complaint. I was reading about options Greeks and could not see the point. Delta is the first derivative of the option premium with respect to the underlying price. Gamma is the second. Fine. But the actual premium is set by whatever traders and algorithms happen to do, so — I wrote — <em>what's even the point of calculations like these?</em></p>
+        <p>The proposed fix in that same note is telling: build an ML model that predicts the <em>future values of the Greeks</em>. If the analytic quantities are unreliable, replace them with learned ones.</p>
+        <p>That is the January position. The models are estimates, the market is emergent whims, therefore the models are decoration and should be replaced with something fitted to data.</p>
+        <p>I want to be precise that this is not a strawman I am setting up to demolish. It is what I thought, and there is real observation underneath it. On 17 April 2025 I logged NIFTY call premiums at several strikes behaving in ways that the standard story — <em>IV spiked, gamma, delta, and so on</em> — labels but does not predict. My note says it plainly: none of these models would be able to predict the phenomenon, or even say how long it would last once it started. That complaint is correct, and it stayed correct for the whole sixteen months.</p>
+        <h2>The observations kept accumulating</h2>
+        <p>The tagged notes are a catalogue of things that ought not to happen under a naive reading of the pricing model.</p>
+        <p>A call option doubling while the index dropped 0.69 percent, prompting a trader I quoted to observe that Black-Scholes was not aware of the Indian market. A ₹3 call going to ₹90 and a ₹3 put going to ₹100 <em>on the same day</em>, which somebody described with the magnificent phrase "delta chomufication lublub" — sarcasm aimed at exactly the kind of Greeks-jargon explanation that names a phenomenon without predicting it. Expiry days where theta decay simply failed to show up for the option sellers counting on it, and an iron condor became, in one trader's words, an iron coffin.</p>
+        <p>And a structural one I still find interesting: on 14 October 2025 I asked whether the phrase even applies to instruments with <em>zero trading activity</em>. If a deep ITM strike has no trades at all, what is its premium doing? The answer turns out to be that in India — which has no designated market makers, and where SEBI's order-to-trade rules make aggressive quote-and-cancel expensive — the visible price on an untraded strike is mostly the exchange's own theoretical model recalculating. Which is a strange inversion. On the illiquid strikes, the price <em>is</em> the model. There is no market consensus for it to detach from.</p>
+        <h2>The argument that corrected me</h2>
+        <p>The turn comes on 30 August 2025, and it did not come from me.</p>
+        <p>A trader posted the strong form of my own position: if you think options are governed by Black-Scholes, think again, it is just a retrofitted explanation, price moves because of demand and urgency. I logged it approvingly. Then I logged the replies, and the best of them took the argument apart in a way I could not answer:</p>
+        <blockquote>
+        <p>Black-Scholes is not meant to govern prices. It is a no-arbitrage model to back out implied volatility from observed prices. Prices move from supply, demand, urgency, hedging flows and liquidity constraints — but the model gives a consistent framework to map those moves into implied volatility so market makers can quote spreads without blowing up. If you throw away BSM you are basically saying option surfaces can be drawn arbitrarily, which is not true, because static arbitrage conditions tie calls, puts and forwards together. Demand and urgency explain why vols shift; the model explains how those shifts must stay internally consistent.</p>
+        </blockquote>
+        <p>That is the correction, and it is decisive. The model was never making the claim I was refuting. It is not a <em>forecast</em> of where prices will go. It is a consistency constraint on where they can be <em>simultaneously</em> — a device for ensuring that the call, the put and the forward at a given strike do not imply free money against each other. Attacking it for failing to predict a premium spike is attacking it for not doing a job it never advertised.</p>
+        <p>A related thread in October 2025 sharpened the same point with better vocabulary. Somebody pointed out that pricing models are fitted under the <strong>q-measure</strong> — the risk-neutral pricing world, where the model is <em>required</em> to fit observed prices by construction — while any claim about what will actually happen lives under the <strong>p-measure</strong>, the real world. Models like local volatility and stochastic volatility fit the observed surface, skew and all, essentially perfectly. That fit carries no predictive content whatsoever. The error, as one commenter put it, is using a q-measure as if it were a p-measure. And the deepest version of the objection: "mispricing" may not be a coherent concept at all, because the correct price simply <em>is</em> the price in the order book.</p>
+        <p>That last one cuts against the naive reading of my own slogan. If price is god, then price is by definition correct, and you cannot simultaneously claim the market is mispricing anything. <em>Bhaav bhagwan che</em> and <em>I have found a mispriced option</em> are contradictory statements. I had been holding both.</p>
+        <h2>Not a model — a normalization</h2>
+        <p>The cleanest statement of the whole business is one I had sitting in my notes the entire time, from Benn Eifert, who calls the confusion I was making the big daddy of all elementary confusions in derivatives. His distinction is between a <em>model</em> and a <em>normalization</em>:</p>
+        <blockquote>
+        <p>A model, as I mean it, is a simplified description of truth, of how the world works. We make some assumptions and draw some logical, mathematical conclusions. A normalization is just a different way of describing the same information. The theory of gravity is a model; it describes how fast an apple will accelerate as it drops from a tree.</p>
+        </blockquote>
+        <p>And then the punchline: Black-Scholes and its relatives, Nobel prizes notwithstanding, are used by practitioners <strong>not as models but as normalizations</strong> — a change of variables. Implied volatility and the Greeks convert option prices into a common unit of account that is comparable across different underlyings, strikes and maturities. The unit happens to be annualized volatility of the underlying.</p>
+        <p>Once you see it that way the entire complaint dissolves. Nobody on a derivatives desk believes the assumptions. They are not asserting that returns are lognormal or that hedging is continuous. They are using the formula the way you use a logarithm: to put things on a scale where they can be compared. Asking why Black-Scholes failed to predict a premium spike is like asking why the decibel scale failed to predict a loud noise. It is not that kind of object.</p>
+        <p>This also explains the line from that August thread that I had logged without fully appreciating — that desks no longer use the closed form, but they still speak its language. A shared normalization is a <em>communication protocol</em>. You can replace the pricing machinery underneath entirely and still quote in vol terms, because the vol number is how one desk tells another where it stands.</p>
+        <h2>What the phrase means now</h2>
+        <p>The version that survived is narrower and more useful. It is not "models are wrong." It is a statement about <strong>ontological status</strong>, and I can put it in one sentence:</p>
+        <p>Price is a primary observable — somebody paid it — while implied volatility is a derived quantity, back-solved to make a formula balance. Confusing the two is the error.</p>
+        <p>This matters because of how people talk. The phrase "vol is moving" describes volatility as an independent thing that pushes prices around. The causality runs the other way: prices move, and we update the derived number to match. IV is the residual, the part the model cannot explain, reported in units that make it sound like a cause.</p>
+        <p>My own notes contain the sharpest version of the complaint, written before I had the resolution: implied volatility <em>packages the irrationality into a scientific-sounding name and makes it appear a model-able quantity</em>. I still think that is right about the rhetoric. What I got wrong was the conclusion I drew from it. The fix is not to discard the normalization — it is to stop treating a change of variables as a claim about the future.</p>
+        <p>That reframing had a direct consequence in my code. If IV is downstream of price, a model predicting option movement should not take IV as an input at all — it should work from prices. I built exactly that: a "price-first" classifier taking recent last-traded prices of the near-ATM strikes plus the index, predicting which strike moves most, with no IV anywhere.</p>
+        <p>Then, in February 2026, I took the criticism the same way I had taken the Black-Scholes one, and it did not spare me:</p>
+        <blockquote>
+        <p>You've removed the IV abstraction but replaced it with other abstractions that may be no better. The question isn't "IV vs no IV" but rather which abstractions are load-bearing for prediction.</p>
+        </blockquote>
+        <p>Correct. Standard deviation of returns assumes the second moment captures variability. A regression slope assumes local linearity. Correlation assumes a linear relationship. I had not escaped modelling; I had swapped a well-studied set of assumptions for a homemade set with no literature behind it. There is a further sting: over horizons of thirty seconds to fifteen minutes, the dominant term in an option's price movement is delta times the underlying move — which is to say, the thing I had discarded was the largest single component of the thing I was trying to predict.</p>
+        <h2>The opinion</h2>
+        <p><strong>A slogan that names a real observation is the most dangerous kind, because the observation keeps validating the slogan long after the slogan has stopped being a correct description of what you observed.</strong></p>
+        <p>Every anomaly I logged over sixteen months was real. Premiums do detach. Theta does fail to arrive. Calls do double on down days. I was never wrong about the data. But "the price does what it likes" was doing a second job underneath the first — licensing me to skip the work of understanding what pricing models actually claim, on the grounds that they had been observed to fail at something. That the something was a task they never claimed to perform is precisely what a good slogan prevents you from checking.</p>
+        <p>What broke it was not more data. I had plenty of data and it all pointed the same way. It was a stranger on the internet explaining what a no-arbitrage model is for, and another explaining the difference between a pricing measure and a physical one, in a thread I had originally saved because it agreed with me.</p>
+        <p>The phrase is still in my notes. The most recent entry, May 2026, has it attached to the Breeden-Litzenberger result — the fact that the second derivative of call price with respect to strike recovers the risk-neutral density implied by the market. Which is, when you look at it, the deepest possible statement of the corrected version. The prices are primary; the distribution is <em>extracted from</em> them, not imposed on them. That is what I should have meant in January 2025, and it took me sixteen months and about a dozen people arguing to get there.</p>
+      </article>
+
+    </main>
+  </div>
+
+</body>
+</html>

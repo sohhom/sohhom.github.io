@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>The same metric, twice, disagreeing — Sohhom Bandyopadhyay</title>
+  <link rel="stylesheet" href="../../styles.css" />
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="site-header__inner">
+      <a class="brand" href="../../">Sohhom Bandyopadhyay <small>sohhom.github.io</small></a>
+      <nav class="nav" aria-label="primary">
+        <a href="../../cv/">cv</a>
+        <a href="../../project/">projects</a>
+        <a href="../" aria-current="page">blog</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="page">
+    <main data-screen-label="Post: two-implementations-one-metric">
+
+      <article>
+        <header class="project-hero">
+          <div class="project-hero__kicker">Note · Mar 2023 · 4 min</div>
+          <h1>The same metric, twice, disagreeing</h1>
+          <p class="project-hero__lede">I was running a published auditory quality model on my recordings. There are two public implementations of it. On identical inputs they returned different numbers, and I had already made several months of plots before I checked.</p>
+        </header>
+
+        <p>PEMO-Q is a well-regarded objective audio quality metric. It runs both a reference and a test signal through a model of the auditory periphery, then correlates the two internal representations. The published correlation against human mean opinion scores is 0.97 for its primary output. It is a serious piece of work by a serious group, and it is the sort of tool you reach for precisely so that you do not have to defend a homemade measure.</p>
+        <p>It exists in two public forms. There is the original distribution from the group that developed it, and there is a version bundled inside a larger toolkit for evaluating audio source separation. Both are "PEMO-Q." Both implement the model described in the same paper.</p>
+        <p>On the same input pair they gave me different numbers.</p>
+        <h2>Finding it by accident</h2>
+        <p>I was not auditing anything. I had one of them installed already for an unrelated reason, installed the other because a colleague's script expected it, and at some point ran both on the same file within a few minutes of each other. The outputs did not match.</p>
+        <p>My note from that day records the discovery and, three lines below it, a header I had to write into my own notebook:</p>
+        <blockquote>
+        <p>#### all comparison plots before this may be wrong ####</p>
+        </blockquote>
+        <p>Every plot above that line in the notebook — several months of ANC-on versus ANC-off comparisons across modulation depths, notch filter conditions, and vocoder settings — was now of unknown status. Not wrong, necessarily. Unknown. Which for the purposes of a thesis chapter is the same thing.</p>
+        <h2>The part that was my fault</h2>
+        <p>The metric returns four things, not one. There is PSM, the overall correlation between internal representations. There is PSMt, a percentile of an activity-weighted instantaneous version. There is ODG, a transformed PSMt on the standard difference-grade scale. And there is a time series of instantaneous values.</p>
+        <p>I had been plotting PSM, because it was the first element in the returned tuple and because it has the higher published correlation with subjective ratings. But the paper itself says PSMt is the one that does not depend on the type of input signal. For a study whose entire design sweeps a signal manipulation across a wide range, "does not depend on the type of input signal" is not a footnote. It is the property I needed.</p>
+        <p>So there were two separate problems tangled together: two implementations that disagree, and me reading the wrong output variable out of both of them. Neither would have surfaced from reading the paper alone. Both surfaced from running the thing twice.</p>
+        <h2>What I actually changed</h2>
+        <p>Not much, in code terms. I fixed the output variable, picked one implementation, and stated in the chapter which one — because the two are not interchangeable and a reader trying to reproduce the work needs to know which binary produced the numbers. Then I re-ran everything below the line in my notebook.</p>
+        <p>The larger change was procedural. From that point on, any published metric entering my pipeline had to clear a fixed check before it could produce a figure I would keep: run it on a signal whose answer I already know, from the paper's own reported values or from a degenerate case where the correct output is forced. Feed a metric a signal identical to its own reference and it must return the perfect score. Feed it something the paper published a number for and it must reproduce that number. Two implementations of the same thing must agree, and if they do not, the discrepancy is resolved before either is used, not after.</p>
+        <p>That is a cheap check. It costs an afternoon per metric. I had eight metrics; it would have cost me a working week, spent before the first real plot instead of scattered through the year in the form of re-runs.</p>
+        <h2>The opinion</h2>
+        <p>Here is the thing I would argue with somebody about: <strong>a published algorithm with a reference implementation is not a measurement instrument until you have calibrated it yourself, and treating "it's the standard tool from the original authors" as a substitute for that calibration is the specific form of trust that produces months of quietly wrong plots.</strong></p>
+        <p>The failure mode is seductive because the alternative feels like arrogance. Who am I to verify the output of a validated model from an established lab? But verification here is not a claim that the authors are wrong. Almost always they are right and the discrepancy is a version difference, a preprocessing default, a resampling convention, or — as in my case — a reader taking the wrong element from a tuple of four. None of those are the authors' errors. All of them are mine, and all of them are invisible until the same input goes through two paths and the outputs are compared.</p>
+        <p>The genuinely uncomfortable part is that I found this by accident. There is no version of the story where careful reading of the paper catches it. The only reason I know is that I happened to run both implementations on the same day. Which means the correct response is not "read more carefully" — it is "build the redundant path on purpose, because you will not get the accident twice."</p>
+      </article>
+
+    </main>
+  </div>
+
+</body>
+</html>

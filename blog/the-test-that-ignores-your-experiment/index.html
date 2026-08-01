@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>The test that ignores the logic of your experiment — Sohhom Bandyopadhyay</title>
+  <link rel="stylesheet" href="../../styles.css" />
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="site-header__inner">
+      <a class="brand" href="../../">Sohhom Bandyopadhyay <small>sohhom.github.io</small></a>
+      <nav class="nav" aria-label="primary">
+        <a href="../../cv/">cv</a>
+        <a href="../../project/">projects</a>
+        <a href="../" aria-current="page">blog</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="page">
+    <main data-screen-label="Post: the-test-that-ignores-your-experiment">
+
+      <article>
+        <header class="project-hero">
+          <div class="project-hero__kicker">Essay · Apr 2023 · 7 min</div>
+          <h1>The test that ignores the logic of your experiment</h1>
+          <p class="project-hero__lede">I had curves. Two conditions, a metric measured across a swept parameter, and the question &quot;is the difference real&quot;. The reflex answer is a two-way ANOVA with the swept parameter as a factor. That answer discards the exact structure I had spent two years building into the design.</p>
+        </header>
+
+        <p>Here is the shape of the data. I had a manipulation with a continuous parameter — modulation depth, swept across thirty-three values from untouched speech down to nearly flat. At each value I had a metric computed under two conditions, ANC on and ANC off. So: two curves, thirty-three points each, and the question of whether the condition made a difference.</p>
+        <p>The reflexive move in the psychophysics and psychology literature is a repeated-measures two-way ANOVA. Condition is one factor. The swept parameter is the other, entered as thirty-three levels. Look for a main effect of condition, look for an interaction, report the F and the p, move on. Everyone does this. Reviewers expect it.</p>
+        <p>I ran it. Then I stopped, because something about it was wrong, and it took me a while to name what.</p>
+        <h2>What the factorial model throws away</h2>
+        <p>Entering a continuous swept parameter as a categorical factor tells the model that your thirty-three levels are thirty-three unordered categories. Level 12 and level 13 are, as far as the test is concerned, no more related to each other than level 12 and level 31. The model does not know that the parameter has an order. It does not know the spacing between levels. It certainly does not know that the underlying function is expected to be smooth and monotone.</p>
+        <p>But the order and the smoothness are the whole design. I did not pick thirty-three arbitrary conditions. I picked a range and sampled it, because the <em>shape of the curve across the range</em> is the object of study. Whether the two curves diverge at the shallow end, at the deep end, or uniformly is a different scientific claim in each case, and an interaction term collapses all three into one significant p-value that cannot distinguish them.</p>
+        <p>The clearest statement of this I found was in, of all places, a statistics FAQ page for a commercial plotting package, arguing that you should instead quantify each subject's curve in some meaningful way — area under it, its peak, its time to peak, a fitted rate constant — and compare <em>those</em> values across groups. Then came the line that reorganised my thinking:</p>
+        <blockquote>
+        <p>This kind of analysis follows the scientific logic of the experiment, unlike two-way ANOVA which essentially ignores the entire logic of the experiment.</p>
+        </blockquote>
+        <p>That is a strong sentence and I think it is correct. The factorial test is not wrong in the sense of being invalid. It is wrong in the sense of being <em>uninformative about the thing you set out to learn</em>, while looking exactly like the thing that answers it.</p>
+        <h2>The p-value problem underneath</h2>
+        <p>There is a second issue that the ANOVA route obscures, and it is worse than the first.</p>
+        <p>Active noise control is a closed-loop system reacting to its acoustic environment in real time. Run the identical input signal through the identical headphone twice and the recordings are not identical. There is genuine trial-to-trial variability in the device itself, on top of the recording chain. So statistical treatment is appropriate — this is not a deterministic measurement.</p>
+        <p>But my thirty-three-point curves came from a recording protocol running overnight, and with enough repetitions almost any systematic difference becomes significant. Thirty sentences, thirty-three depths, four offset values, four headphones, two conditions: the effective sample size is large enough that significance stops being informative. The question was never "is the difference distinguishable from zero." It was "is the difference big enough to care about."</p>
+        <p>Which is the standard argument for reporting effect sizes, and I want to put the sharpest version of it on the record because it changed how I wrote the entire thesis:</p>
+        <blockquote>
+        <p>It is possible, and unfortunately quite common, for a result to be statistically significant and trivial. It is also possible for a result to be statistically nonsignificant and important.</p>
+        </blockquote>
+        <p>For my chapter, effect size was not a supplementary courtesy. It was the primary result, because the metrics returned values on eight mutually incompatible scales and a unitless standardised effect was the only representation in which "did ANC matter more for this metric than that one" could even be asked.</p>
+        <h2>What I did instead</h2>
+        <p>Three changes, in order of how much they mattered.</p>
+        <p><strong>I reported effect sizes as the headline and significance as context.</strong> Eta-squared per comparison, computed alongside the existing tables. Unitless, comparable across metrics on different scales, and honest about magnitude in a way an F-ratio at large n is not.</p>
+        <p><strong>I moved to nonparametric tests where the distributional assumptions were doing real work.</strong> Rank-based comparisons — Mann-Whitney and its relatives — preserve more of the raw variability in the data than fitting a parametric model to curves whose functional form I could not defend. I had considered fitting a regression with the swept parameter as a continuous predictor, which at least respects the ordering. I decided against it, on the grounds that I had no principled model for the shape and any parametric fit would be smuggling in an assumption I could not justify. Where a psychometric function was involved, model-free estimation was available and was the better answer for the same reason.</p>
+        <p><strong>I stopped treating the swept axis as a factor and started treating the curve as the unit of analysis.</strong> This is the change that follows the logic of the experiment rather than fighting it.</p>
+        <h2>The opinion</h2>
+        <p><strong>Choosing a statistical test is a modelling decision about what your experiment means, not a lookup from a decision tree keyed on data type — and the standard factorial test is the single most common way that a well-designed experiment gets analysed as though it were a badly-designed one.</strong></p>
+        <p>The reason this happens is that the ANOVA route is enormously convenient. Everything is set up for it. The software wants a long-format table with factor columns, the reporting conventions are fixed, the reviewers recognise the output. Meanwhile the analysis that follows the logic of your experiment usually has to be assembled by hand, has no canonical way to report, and invites questions.</p>
+        <p>I do not think there is a clean way around that cost. I do think the trade is worth naming when you make it: I chose the harder analysis because the easy one would have answered a question I was not asking, with a number that would have looked exactly as authoritative.</p>
+      </article>
+
+    </main>
+  </div>
+
+</body>
+</html>

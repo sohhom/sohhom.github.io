@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Eight metrics, one recording, no ground truth — Sohhom Bandyopadhyay</title>
+  <link rel="stylesheet" href="../../styles.css" />
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="site-header__inner">
+      <a class="brand" href="../../">Sohhom Bandyopadhyay <small>sohhom.github.io</small></a>
+      <nav class="nav" aria-label="primary">
+        <a href="../../cv/">cv</a>
+        <a href="../../project/">projects</a>
+        <a href="../" aria-current="page">blog</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="page">
+    <main data-screen-label="Post: eight-metrics-one-recording">
+
+      <article>
+        <header class="project-hero">
+          <div class="project-hero__kicker">Essay · Mar 2023 · 8 min</div>
+          <h1>Eight metrics, one recording, no ground truth</h1>
+          <p class="project-hero__lede">There are dozens of published algorithms that take an audio file and return a number predicting how good it sounds to a human. I ran eight of them on the same set of headphone recordings. The disagreement between them is not a defect in any one metric — it is a statement about what the whole family of metrics was built to do, and about a signal type it was never built for.</p>
+        </header>
+
+        <p>There is a whole industry of algorithms that promise to replace a listening panel. You give one a reference signal and a degraded version of it; it returns a number that is supposed to predict what a room full of listeners would have said. PESQ and POLQA are the ITU standards used to bill telecom quality. PEMO-Q and CASP-Q run a computational model of the auditory periphery and compare internal representations. STOI predicts intelligibility from short-time envelope correlations. HASPI and HASQI come from the hearing-aid world. SRMR needs no reference at all and works from the modulation spectrum alone.</p>
+        <p>For the objective-evaluation chapter of my thesis I needed to know what four consumer ANC headphones did to a speech signal passing through them. Running the metrics was the obvious move. I assembled eight that had usable public implementations, recorded speech through each headphone in both ANC states, and pushed everything through all eight.</p>
+        <p>The point of this post is what I found on the way, which is more interesting than the results.</p>
+        <h2>Every one of these numbers is a regression on somebody else's listening panel</h2>
+        <p>This is stated openly in the papers and then, in my experience, quietly forgotten by everyone using the tools.</p>
+        <p>An objective quality metric is not a measurement in the way that a sound pressure level is a measurement. It is a model fitted to subjective ratings. Somebody collected mean opinion scores from human listeners on a corpus of degraded signals, then built an algorithm whose output correlates well with those scores. The published correlation coefficient — PEMO-Q's PSM reports r = 0.97 against MOS, PSMt reports 0.88 — is the headline claim, and it is a claim about <em>that corpus</em>.</p>
+        <p>So the first question to ask about any of these numbers is not "what does it say" but "what was it fitted on". GPSMq, for instance, was optimised on speech and music processed by audio codecs, source separation, noise reduction algorithms, and loudspeakers. Those are the distortions it has seen. PESQ was built for telephony: codecs, packet loss, jitter. STOI was built for noise and enhancement algorithms.</p>
+        <p>None of them were fitted on speech that has passed through an active noise control headphone with a deliberately flattened amplitude envelope.</p>
+        <p>I do not think this invalidates using them. I think it changes what the output means. A metric applied outside its training distribution is not returning "quality." It is returning the value of a specific fitted function on an input that function has no experience of. That function may still be sensitive to the thing you care about — the internal machinery of PEMO-Q is a real auditory model, not a lookup table — but the calibration of the output onto a perceptual scale no longer travels with it.</p>
+        <h2>Which is why I stopped reporting the absolute values</h2>
+        <p>If the scale is untrustworthy but the machinery is sound, the usable quantity is not the number, it is the <em>difference</em> between two numbers computed the same way.</p>
+        <p>This is the shape the chapter eventually took. Never "the ANC-on recording scored 12.4 on GPSMq." Always "GPSMq differs by this much between the ANC-on and ANC-off recording of the identical source signal, and here is how that difference behaves as I sweep envelope modulation depth across its full range." Everything upstream of the comparison is held constant — same sentence, same headphone, same recording rig, same session — so whatever miscalibration exists is present in both terms and largely cancels.</p>
+        <p>That reframing also fixed the units problem. The eight metrics return numbers on incompatible scales. GPSMq returns an objective perceptual measure bounded between 4.0 and 17.6, where lower means less distortion. PEMO-Q's PSM is a correlation, so it lives in [0, 1] and higher is better. STOI is also a correlation-like quantity in [0, 1]. PESQ returns something on a MOS-like 1–5 range. You cannot average these, you cannot plot them on shared axes, and a reader who sees eight panels with eight different y-axes has no way to tell which effect is large.</p>
+        <p>Converting every comparison to a unitless effect size solved it. Not because effect sizes are fashionable, but because they were the only representation in which "does ANC matter more for this metric than for that one" was a well-posed question.</p>
+        <h2>The metrics do not agree, and that is the finding</h2>
+        <p>Run eight quality metrics on the same pair of recordings and you get eight answers that do not line up. Some show a clear ANC effect, some show nothing, some show an effect in the direction you did not expect.</p>
+        <p>The temptation is to treat this as a selection problem — find the good metric, discard the rest. I think that is the wrong reading, and here is the opinion I will defend: <strong>the disagreement between objective quality metrics on an out-of-distribution signal is itself the most informative output of the exercise, and collapsing it to a single "best" metric throws away the only honest thing the ensemble told you.</strong></p>
+        <p>The metrics disagree because they weight different cues. A metric built on envelope correlation and a metric built on envelope-power signal-to-noise ratio in a modulation filterbank are asking different questions, and they were only ever observed to agree on the corpus where both were fitted. Take them somewhere new and they separate. The pattern of that separation tells you which cue your manipulation actually moved — which is the thing you wanted to know in the first place, and which no single metric could have told you.</p>
+        <p>This is the same logic as convergent validity in psychometrics, run in reverse. When several instruments that normally agree stop agreeing, you have learned something about the stimulus, not just about the instruments.</p>
+        <h2>What this cost</h2>
+        <p>The honest accounting: getting eight metrics running was most of a year of work that produces no publishable finding of its own. Implementations are in MATLAB, in Python, in obfuscated binaries. Two of them ran only under a licence. One returned errors on every vocoded input and was dropped. One I implemented myself from the paper because no code existed. A single metric over the full recorded corpus took three and a half hours of compute, and there were several.</p>
+        <p>I would still do it. But I would tell an earlier version of myself something specific: decide before you start whether you are using these metrics as <em>measurements</em> or as <em>detectors</em>. If measurements, you owe the reader a calibration argument you probably cannot make. If detectors — instruments sensitive to a change whose absolute reading you never quote — the whole enterprise is defensible, much cheaper to justify, and you can stop worrying about the fact that the number 12.4 means nothing.</p>
+        <p>I got there eventually. I would rather have got there first.</p>
+      </article>
+
+    </main>
+  </div>
+
+</body>
+</html>

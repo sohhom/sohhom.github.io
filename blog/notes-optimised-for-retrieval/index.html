@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Notes are a retrieval problem, not a writing problem — Sohhom Bandyopadhyay</title>
+  <link rel="stylesheet" href="../../styles.css" />
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="site-header__inner">
+      <a class="brand" href="../../">Sohhom Bandyopadhyay <small>sohhom.github.io</small></a>
+      <nav class="nav" aria-label="primary">
+        <a href="../../cv/">cv</a>
+        <a href="../../project/">projects</a>
+        <a href="../" aria-current="page">blog</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="page">
+    <main data-screen-label="Post: notes-optimised-for-retrieval">
+
+      <article>
+        <header class="project-hero">
+          <div class="project-hero__kicker">Essay · Jun 2023 · 6 min</div>
+          <h1>Notes are a retrieval problem, not a writing problem</h1>
+          <p class="project-hero__lede">I have been keeping structured research notes since February 2018 — several hundred of them, one per paper, plus a parallel set of my own questions. The rules that make the corpus usable are all about the moment of retrieval two years later, and most of them are about naming.</p>
+        </header>
+
+        <p>Programmers know a specific feeling: opening your own code from three years ago and understanding none of it. It is common enough to be a genre of joke.</p>
+        <p>Research notes are worse, and the reason is not effort. Code is at least self-documenting in the weak sense that the mechanism is still there on the page — you can read it and reconstruct what it does, even if you cannot reconstruct why. A thought that was not written down does not exist at all. There is nothing to reconstruct from. The half-considered objection you had to a paper's method in 2019 is simply gone, and you will have the same objection again in 2021, and spend the same afternoon on it.</p>
+        <p>I started taking systematic notes in February 2018 and the system changed substantially over the following five years. What follows is what survived, stated as rules, with the reasoning attached. It is deliberately not a tool recommendation. The method matters more than the software, and I say that having switched tools during the period without the method breaking.</p>
+        <h2>The unit is one paper, one note</h2>
+        <p>One note per paper, always, even when the paper is barely worth a paragraph. This is the boring rule that everything else depends on, because it makes the corpus addressable. A note about three papers cannot be linked to, cannot be titled unambiguously, and cannot be found by searching for any one of them.</p>
+        <p>Themed collections then sit on top as their own notes — a list note that gathers every metric I evaluated, say, with links out to the individual ones. The collection is a view over the atoms, never a replacement for them. When my list of objective quality metrics grew to a dozen entries with implementation status marked against each, it worked as a dashboard precisely because every line was a link to a note that held the detail.</p>
+        <h2>Separate what they said from what you thought, and link both ways</h2>
+        <p>This is the rule I would keep if I could keep only one.</p>
+        <p>A summary of somebody else's work and your own commentary on it are different kinds of object with different lifetimes. The summary is stable — the paper is not going to change. Your questions about it evolve, get answered, spawn experiments, or turn out to be misunderstandings. Mixing them into one document means that a year later you cannot tell which claims are the authors' and which are yours, and that ambiguity is corrosive in a way that is hard to repair.</p>
+        <p>So: a note for the paper, a separate note for the question, and bidirectional links. My question notes are titled as questions — how to compare two curves statistically, whether a metric should be plotted against modulation frequency or modulation depth — and each accumulates dated entries as the thinking moves. The paper notes stay clean.</p>
+        <h2>Optimise for search, which means optimise for naming</h2>
+        <p>You will not browse this corpus. With several hundred notes, browsing is not a retrieval strategy. You will search it, which means every retrieval depends on your having chosen, years earlier, the same string you will type today.</p>
+        <p>Consequences, all of them about naming:</p>
+        <p><strong>Name people consistently.</strong> Pick one form and never vary it. The same author appearing as a surname in one note and initials-plus-surname in another is two people as far as search is concerned.</p>
+        <p><strong>Put the retrieval keys in the title.</strong> My paper notes are titled with year, author, and full paper title. My own notes carry a bracketed type marker — a question, an info note, a list, a dataset — so that searching for the marker returns a whole class of notes at once. This is a poor man's tagging system that survives tool migrations, because it is just text in the title.</p>
+        <p><strong>Write link text that names its destination.</strong> Never "this paper" or "see here." The words in the link should be the words you would search for. A link is also a search result, and a page full of "click here" is a page that cannot be found from anywhere else.</p>
+        <h2>Date every entry inside a note</h2>
+        <p>Notes accumulate over years. A note I created in April 2021 was still being edited in March 2022, by which point its early content was written by someone with different assumptions.</p>
+        <p>Every substantive addition gets a date. This turns each note into a small timeline, and the timeline does work that the content alone cannot. It tells you whether a conclusion is current or superseded. It shows you how long a question stayed open. And occasionally it produces a genuinely uncomfortable retrieval — I have a note where, three lines under a date, I recorded that every plot I had made before that day might be wrong. Undated, that entry would be a vague worry. Dated, it is a precise instruction about which figures to re-run.</p>
+        <h2>Read the old notes on purpose</h2>
+        <p>The counterintuitive one. Notes are usually framed as write-only insurance — you record things in case you need them. But the highest-value retrievals I have had were not lookups. They were rereads that surfaced something I was no longer looking for.</p>
+        <p>A speculative idea about pattern reuse across files, scribbled in 2018 and shelved, came back seven years later because a paper in an unrelated field made it live again. That connection is not available to search, because I did not know to search for it. It is only available to periodic rereading.</p>
+        <h2>The opinion</h2>
+        <p><strong>Note-taking advice is almost always framed around capture — what to write down, how to structure it, which tool — and this is the wrong end of the problem. Every rule worth following is a constraint imposed by retrieval, and specifically by retrieval performed by a version of you who has forgotten the context that made the note obvious to write.</strong></p>
+        <p>That framing settles the arguments that otherwise go in circles. Should you tag or use folders? Whichever one you will still be able to guess in two years. Long notes or short? Short enough to be titled unambiguously. Which tool? One whose search is fast and whose export is possible, because the corpus outlives the software.</p>
+        <p>It also explains why the generic version of this advice underperforms. "Take good notes" imagines a diligent writer. The binding constraint is a forgetful reader — the same person, later, with none of the context, running one search and giving up if it fails.</p>
+      </article>
+
+    </main>
+  </div>
+
+</body>
+</html>

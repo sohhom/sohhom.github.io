@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>I spent months on a cost calculator before I had a strategy — Sohhom Bandyopadhyay</title>
+  <link rel="stylesheet" href="../../styles.css" />
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="site-header__inner">
+      <a class="brand" href="../../">Sohhom Bandyopadhyay <small>sohhom.github.io</small></a>
+      <nav class="nav" aria-label="primary">
+        <a href="../../cv/">cv</a>
+        <a href="../../project/">projects</a>
+        <a href="../" aria-current="page">blog</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="page">
+    <main data-screen-label="Post: the-cost-model-is-the-strategy">
+
+      <article>
+        <header class="project-hero">
+          <div class="project-hero__kicker">Essay · Sep 2025 · 9 min</div>
+          <h1>I spent months on a cost calculator before I had a strategy</h1>
+          <p class="project-hero__lede">Indian intraday equity costs are a handful of published formulae. Reconciling them against my broker&#x27;s actual contract notes took far longer than it should have, and the residual discrepancies turned out to be rounding to whole rupees. The exercise looks like accounting. It is not — it silently determines which strategies are permitted to exist.</p>
+        </header>
+
+        <p>For a stretch of 2025 my research notes contain, over and over, the same heading: brokerage, taxes, STT, costs. It recurs across months. At one point I wrote myself an instruction to consider the thing finished and <em>go find some actual useful trading signals</em>.</p>
+        <p>It looks like procrastination — a tractable engineering problem substituted for the hard, ambiguous one. Partly it was. But the exercise changed the research programme more than most of the modelling did, and I want to lay out why, because the reasoning generalises past Indian equities.</p>
+        <h2>The setup</h2>
+        <p>Intraday equity trading in India carries a stack of charges: brokerage, securities transaction tax, exchange turnover charges, GST, SEBI charges, stamp duty. Every one is a published formula. Brokerage is capped per order. STT applies to one side. Stamp duty applies to the buy. GST applies on top of some components and not others.</p>
+        <p>So the calculation is arithmetic. You would expect an afternoon.</p>
+        <p>What actually happened is that my computed figures kept missing the broker's contract note by small amounts, in both directions. One day the actual charges came in <em>below</em> my calculation. Another day above. The differences were rupees, sometimes fractions of a rupee, on trades where the total charge was around eight rupees.</p>
+        <p>Here is a representative reconciliation, my figure against the actual, line by line:</p>
+        <table>
+        <thead>
+        <tr>
+        <th>Expense head</th>
+        <th>Actual</th>
+        <th>Calculated</th>
+        <th>Difference</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+        <td>Stamp duty</td>
+        <td>1</td>
+        <td>0.5999</td>
+        <td>0.4001</td>
+        </tr>
+        <tr>
+        <td>STT</td>
+        <td>5</td>
+        <td>4.9997</td>
+        <td>0.0003</td>
+        </tr>
+        <tr>
+        <td>GST</td>
+        <td>2.39</td>
+        <td>2.3808</td>
+        <td>0.0092</td>
+        </tr>
+        <tr>
+        <td>Exchange turnover</td>
+        <td>1.19</td>
+        <td>1.1879</td>
+        <td>0.0021</td>
+        </tr>
+        <tr>
+        <td>SEBI charges</td>
+        <td>0.04</td>
+        <td>0.0400</td>
+        <td>0.0000</td>
+        </tr>
+        </tbody>
+        </table>
+        <p>Four of those five lines agree to three decimal places. The formulae are right. The stamp duty line is off by forty paise, and the reason is that <strong>STT and stamp duty are rounded to whole rupees</strong> when actually deducted. My 0.60 becomes 1. On another day a 1.40 becomes 1, and the error flips sign.</p>
+        <p>That is the entire discrepancy. It took an embarrassing amount of time to see, because I kept looking for an error in the formulae rather than in the last step.</p>
+        <h2>Why forty paise mattered</h2>
+        <p>On a single trade, forty paise is nothing. Two things make it matter.</p>
+        <p><strong>Rounding is a fixed cost, and fixed costs are regressive in position size.</strong> Round up to a whole rupee on stamp duty and STT and you have added, on average, something like a rupee of cost that does not scale with your notional. On a trade with eight rupees of total charges, that is a material fraction. The smaller you trade, the worse it gets — and the natural instinct when testing a new idea live is to trade small.</p>
+        <p><strong>It compounds with the brokerage cap.</strong> Brokerage is capped at ₹20 per order, so ₹40 for a round trip. This means costs <em>saturate</em>: past a certain trade size the brokerage component stops growing. When I plotted total cost against number of trades, the saturation was clearly visible from about six trades onward.</p>
+        <p>Put those together and you get a non-obvious conclusion. Costs are neither linear in size nor linear in trade count. There is a fixed-cost floor per trade that punishes small positions, a cap that rewards large ones, and a rounding term that adds noise to both. The cost function has <em>structure</em>, and that structure has direct strategic consequences.</p>
+        <p>The one that mattered most to me: <strong>any strategy that trails a stop loss or scales out of a position in parts pays brokerage on every additional order.</strong> Partial profit-taking is not free. It is a feature that must earn its keep against a per-order charge, and in my notes I flagged it in exactly those terms — if a strategy needs to trail a stop and take partial profits, the brokerage will be more, and that has to be budgeted before the strategy is designed rather than discovered afterwards.</p>
+        <h2>Slippage hides in the trade book</h2>
+        <p>A second thing surfaced from the same reconciliation work, and it is the more valuable one.</p>
+        <p>A single order does not necessarily execute at a single price. Looking at the trade book — not the order book, not the position summary, the <em>trade</em> book — I found orders that had been filled in pieces. One sell order for six shares appeared as five separate fills at 710.90, 711.00, 711.00, 710.90, and 711.05.</p>
+        <p>That spread across fills is slippage, and it is <em>observable</em>. It is not something you have to model or assume. It is sitting in a report the broker already gives you, and every backtest that assumes a single fill price is quietly wrong by whatever that spread turns out to be.</p>
+        <p>This changed how I compute realised P&amp;L. The naive route is to take the position endpoint's average price. The correct route is to reconstruct from individual fills, which means a cost function that accepts a list of prices and quantities rather than a single entry and exit.</p>
+        <p>There is a related trap I hit around the same time: the broker's own position endpoint happily reports <em>gross</em> P&amp;L. My positions file cheerfully showed a realised P&amp;L of ₹0.60 on a session whose actual outcome, per the contract note, was ₹−21.07. Nothing was wrong with the API. It was reporting exactly what it said it was reporting. But the number that appears first, in the place you look, is not the number that hits your account.</p>
+        <h2>What this bought</h2>
+        <p>The concrete deliverable was a validated cost library that takes a list of buys, sells and quantities and returns net P&amp;L, total charges, gross P&amp;L, and the break-even exit price — with the whole-rupee rounding applied the way the exchange applies it. Everything downstream calls it. No hand-estimated cost figure enters any report.</p>
+        <p>The strategic deliverable was a threshold. Once you can compute the exact break-even price move for a given entry and size, you can take a universe of candidate trades and delete every one whose expected favourable excursion does not clear it. That is not risk management applied after the fact; it is a filter applied to the candidate set before any model sees it. In my labelling work it does most of the reduction from hundreds of possible trades down to a handful.</p>
+        <h2>The opinion</h2>
+        <p><strong>A precise cost model is not accounting infrastructure that supports the research — it is a constraint that determines which strategies are permitted to exist, and deferring it until after you have a promising signal means you will spend that time falling in love with strategies the cost structure has already disqualified.</strong></p>
+        <p>The standard advice is the opposite in emphasis: find edge first, then check whether it survives costs. That ordering feels efficient and I think it is backwards, for a reason specific to how research attention works. By the time you have a signal you like, you have invested in it, and the cost check becomes a hurdle you are motivated to argue past — with an optimistic fill assumption, a slightly larger position size, a "we'll get better execution live."</p>
+        <p>Run the cost model first and it does something different. It stops being a test that ideas pass or fail and becomes a <em>specification</em>: holding periods must exceed this, per-trade edge must exceed that, partial exits cost this much each, positions below this size are structurally unprofitable regardless of how good the signal is. Those constraints are generative. They rule out whole families of strategy before you waste a month on them, and they tell you which direction to push the ones that remain.</p>
+        <p>The months I spent on this were not efficiently spent — the rounding insight was one afternoon's work hiding inside a long confusion. But the alternative, a research programme built on a cost estimate of "roughly four and a half basis points," would have been worse in a way I would not have detected for a long time.</p>
+      </article>
+
+    </main>
+  </div>
+
+</body>
+</html>

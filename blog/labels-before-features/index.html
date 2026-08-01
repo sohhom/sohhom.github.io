@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>The labels were the hard part — Sohhom Bandyopadhyay</title>
+  <link rel="stylesheet" href="../../styles.css" />
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="site-header__inner">
+      <a class="brand" href="../../">Sohhom Bandyopadhyay <small>sohhom.github.io</small></a>
+      <nav class="nav" aria-label="primary">
+        <a href="../../cv/">cv</a>
+        <a href="../../project/">projects</a>
+        <a href="../" aria-current="page">blog</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="page">
+    <main data-screen-label="Post: labels-before-features">
+
+      <article>
+        <header class="project-hero">
+          <div class="project-hero__kicker">Essay · Dec 2025 · 10 min</div>
+          <h1>The labels were the hard part</h1>
+          <p class="project-hero__lede">I have fifteen billion rows of tick data and spent most of a year on feature engineering before admitting the real problem was upstream. Deciding what a training example should be labelled — given that execution takes most of a second and costs must clear before a trade is worth taking — turned out to be the whole game.</p>
+        </header>
+
+        <p>Here is what I have to work with, by category, from thirteen months of tick collection:</p>
+        <table>
+        <thead>
+        <tr>
+        <th>Category</th>
+        <th style="text-align: right;">Rows</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+        <td>LTP derivatives</td>
+        <td style="text-align: right;">5,788,754,763</td>
+        </tr>
+        <tr>
+        <td>LTP index</td>
+        <td style="text-align: right;">141,084,290</td>
+        </tr>
+        <tr>
+        <td>LTP stocks</td>
+        <td style="text-align: right;">2,220,259,938</td>
+        </tr>
+        <tr>
+        <td>Depth derivatives</td>
+        <td style="text-align: right;">5,168,995,869</td>
+        </tr>
+        <tr>
+        <td>Depth stocks</td>
+        <td style="text-align: right;">1,645,501,733</td>
+        </tr>
+        <tr>
+        <td>Option chain</td>
+        <td style="text-align: right;">13,586,478</td>
+        </tr>
+        <tr>
+        <td>Option chain (all)</td>
+        <td style="text-align: right;">630,406,058</td>
+        </tr>
+        <tr>
+        <td><strong>Total</strong></td>
+        <td style="text-align: right;"><strong>15,608,589,129</strong></td>
+        </tr>
+        </tbody>
+        </table>
+        <p>Fifteen and a half billion rows. The obvious thing to do with a dataset that size is to build features and train something. That is what I did for a long time, and it was the wrong emphasis. The binding constraint was never the features or the architecture. It was the <strong>label</strong> — the question of what number should sit in the target column of a training example, and why.</p>
+        <h2>The label has to survive your execution latency</h2>
+        <p>The first thing that breaks the naive approach is timing.</p>
+        <p>My order round trip is roughly 400 to 900 milliseconds. The data arrives at about one sample per second. So a label like "the price five seconds from now" is not actually available to me — by the time I act on a signal, most of a second has already gone. The realistic version is "the price five seconds from now, minus the half-second to one second I spent getting filled."</p>
+        <p>This is not a rounding detail. It is the difference between a strategy that works in backtest and one that works live, and it disqualifies an entire horizon range. Anything under about ten seconds is noise for a system with my latency. No amount of model quality recovers it, because the information is being consumed by the execution gap rather than by any failure of prediction.</p>
+        <p>That single constraint eliminates most of what makes tick data seem exciting. The sub-second structure is real and it is not mine to trade.</p>
+        <h2>The label has to clear costs before it is worth predicting</h2>
+        <p>The second constraint is the cost floor, and it is the one I find people skip most often.</p>
+        <p>A label of the form "did the price go up" is nearly useless, because the majority of upward moves are smaller than the round trip cost of capturing them. The correct label is not directional. It is: <strong>did the price move far enough, in my favour, within a window I can actually hold, to clear the spread and the full cost stack.</strong> That threshold is computable exactly rather than assumed, which is why the cost work had to come first.</p>
+        <p>This reframes the target from a regression on returns into something closer to a filtered binary event, and it makes the class balance brutal. Most moments are not trade opportunities. A labelling scheme that admits this produces a dataset where the positive class is rare — which is correct, and which most people then "fix" with resampling, destroying the very property that made the label honest.</p>
+        <h2>Excursions, not returns</h2>
+        <p>What eventually worked as a labelling primitive was the excursion pair: for a hypothetical entry at each point, the maximum favourable excursion and maximum adverse excursion over a forward window. How far in your favour did it go, and how far against you, before the window closed.</p>
+        <p>This is a better description of a trade than forward return, for a reason that is obvious once stated: a trade that ends flat after going 2% in your favour and a trade that ends flat after going 2% against you are the same forward return and completely different events. One was an opportunity you mistimed. The other nearly stopped you out. Any label that maps them to the same value has thrown away the information an exit model needs.</p>
+        <p>Generalising this gives a family of labels rather than one: excursion measured over multiple horizons, normalised by prevailing volatility, thresholded against the exact break-even move for the intended position size.</p>
+        <h2>The aggregation question I got wrong</h2>
+        <p>At one point I asked whether the bar aggregation step was necessary at all. Why build minute bars, why not compute excursion labels directly on raw ticks? Surely aggregation throws away information.</p>
+        <p>The answer, which I did not expect, is that skipping aggregation makes things <em>worse in both directions</em>.</p>
+        <p>It is slower, obviously — forward-looking excursion computation means scanning ahead from every row, and doing that on 200 million rows instead of 9.4 million is twenty times the work for no gain. But the conceptual problem is the real one. At one sample per second, consecutive ticks are enormously redundant. The price at second five and second six are usually identical. Labelling both gives you two nearly identical training examples with nearly identical targets. That is not more information. It is the same information repeated, which inflates your apparent sample size while adding correlation to a training set whose independence you were probably already assuming.</p>
+        <p>So aggregation is a compression step, roughly twenty to one in my case, and it is doing real statistical work rather than merely saving compute.</p>
+        <p>The valid form of the question is different, and better: are <em>fixed-time</em> bars the right unit? They are not obviously optimal. You can aggregate by volatility, opening a new bar whenever cumulative absolute movement exceeds a threshold, so each bar represents equal activity rather than equal time. You can aggregate by volume, so each bar represents equal participation. You can sample on events — a spread widening past a threshold, order book imbalance flipping sign. All of these give you bars that are more uniform in information content than clock time does, and clock time is only the default because it is the easiest to implement.</p>
+        <h2>Hindsight labels and the causality trap</h2>
+        <p>The most seductive idea in this whole area, and the one that needs the most care.</p>
+        <p>Given a full day of prices, you can compute the <em>optimal</em> set of trades by dynamic programming — the best k entry-exit pairs, exactly. I built this. It produces beautiful plots. It tells you the theoretical maximum available on that day, which is genuinely useful as a denominator: it tells you what fraction of the available money any real strategy captured.</p>
+        <p>The trap is using it as a label. Those trades are computed with full knowledge of the future. A model trained to reproduce them is being asked to predict something that was defined using information it will never have. It will learn to be confident in exactly the situations where hindsight makes the answer obvious and the present makes it ambiguous.</p>
+        <p>Converting a hindsight-optimised oracle into a <em>causal</em> labelling engine — one that assigns labels using only data available at that moment — is the real problem, and it is not a small modification. It is a different algorithm.</p>
+        <h2>Meta-labelling, and where the human effort goes</h2>
+        <p>The structure I ended up with has two stages. A primary rule proposes candidate trades. A second model then classifies each candidate as worth taking or not.</p>
+        <p>The honest part of this story is where the labour lives. Building the meta-labelling dataset meant hours of manually tweaking heuristics to filter hundreds of candidate trades down to a handful, then applying the cost threshold to cut further. That is not glamorous and it does not automate. It is the part where domain judgement enters, and it is why I no longer believe the framing where you point a large model at raw data and let it discover structure.</p>
+        <h2>The opinion</h2>
+        <p><strong>In applied machine learning on market data, label design is where nearly all the leverage and nearly all the self-deception live — and the reason people work on features and architectures instead is that those have public leaderboards and label design does not.</strong></p>
+        <p>You can tell a model is being asked the wrong question when improving it does not improve anything downstream. That symptom is common and it is almost always diagnosed as a modelling problem, because modelling is where the tools are. But a model can only be as good as the correspondence between its target and the thing you actually want. If the label ignores your latency, the model is predicting moves you cannot reach. If it ignores costs, it is predicting moves that are not worth reaching. If it comes from hindsight optimisation, it is predicting something that does not exist causally.</p>
+        <p>None of those failures show up in validation loss. All of them show up in the P&amp;L, months later, as a model with excellent metrics that makes no money — which is a failure mode I have written about separately, and which I now think is usually a labelling failure wearing a modelling costume.</p>
+      </article>
+
+    </main>
+  </div>
+
+</body>
+</html>

@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>The baseline you skipped is the result you needed — Sohhom Bandyopadhyay</title>
+  <link rel="stylesheet" href="../../styles.css" />
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="site-header__inner">
+      <a class="brand" href="../../">Sohhom Bandyopadhyay <small>sohhom.github.io</small></a>
+      <nav class="nav" aria-label="primary">
+        <a href="../../cv/">cv</a>
+        <a href="../../project/">projects</a>
+        <a href="../" aria-current="page">blog</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="page">
+    <main data-screen-label="Post: simple-beats-complex-until-it-doesnt">
+
+      <article>
+        <header class="project-hero">
+          <div class="project-hero__kicker">Essay · Mar 2026 · 8 min</div>
+          <h1>The baseline you skipped is the result you needed</h1>
+          <p class="project-hero__lede">Everyone in applied ML on market data eventually reports the same thing: they tried hundreds of architectures and a simple model beat all of them. I believe the observation and I think the usual explanation for it is wrong. It is not that markets are too noisy for complex models. It is that the validation was too weak to detect that the complex models never worked.</p>
+        </header>
+
+        <p>There is a genre of confession that appears regularly in the quantitative trading corners of the internet. Someone describes years of work: transformers attending over features then time, then time then features, regime-identification layers, cross-attention, latent representations, variational autoencoders and custom variants of them, memory augmentation, reinforcement learning agents. Hundreds of architectures, dozens of normalisation and transformation schemes, drawn from a pile of papers.</p>
+        <p>And then the conclusion, always the same: simpler and more transparent systems worked best. Minor variations in model config, training window, asset choice or feature set would cause the complex ones to fail terribly.</p>
+        <p>One version of it I find hard to shake: <em>I've spent over a decade wading through petabytes of data, trying every combination of hyperparameters with every known model architecture. And this whole time the solution was a basket of EMAs and a random forest classifier?</em></p>
+        <p>I have collected a lot of these. The observation is robust and I do not doubt it. What I want to argue is that the standard explanation is wrong in a way that matters.</p>
+        <h2>The standard explanation, and why it is not enough</h2>
+        <p>The usual account is a signal-to-noise argument. Market data is overwhelmingly noise. Complex models have the capacity to fit noise. Therefore complex models overfit and simple models, lacking that capacity, generalise better. Occam's razor with a finance accent.</p>
+        <p>This is not false. But it does not explain the specific pattern people report, which is not "the complex model generalised slightly worse." It is "the complex model <em>failed terribly</em> under minor perturbations to configuration, asset, or data window."</p>
+        <p>That is not the signature of mild overfitting. Mild overfitting degrades gracefully. Catastrophic sensitivity to a changed random seed or a shifted training window is the signature of a model that <strong>never had signal in the first place</strong>, and whose apparent validation performance was an artefact of the validation procedure.</p>
+        <p>The distinction matters because the two diagnoses prescribe opposite actions. If it is capacity, the fix is regularisation and simpler models. If it is validation, then simplifying is treating the symptom — you will get a simple model whose apparent performance is also an artefact, just a less volatile one, and you will trust it more because it is simple.</p>
+        <h2>The failure is upstream</h2>
+        <p>Consider the sequence of decisions before a model sees data. Someone picks a labelling scheme, a train/test split, a cross-validation strategy, a feature set, a target horizon. In market data, every one of these has a leakage-shaped failure mode.</p>
+        <p>The split is the obvious one — a random split on time series data lets the model interpolate between points it has effectively seen, and the resulting performance is meaningless. But the subtler ones are worse because they survive scrutiny. Features computed over a window that includes the label period. Normalisation statistics computed over the full dataset before splitting. A universe selected using knowledge of which instruments were liquid across the whole period. Hyperparameters tuned against the test set across dozens of experiments, which is leakage conducted by the researcher rather than the code.</p>
+        <p>None of these produce an error. All of them produce optimistic validation numbers. And here is the part I think is underappreciated: <strong>a complex model exploits this leakage more efficiently than a simple one.</strong> More capacity means more ability to find and use whatever shortcut the leak provides. So under a leaky protocol, the complex model looks better in validation and collapses in deployment, while the simple model looks worse in validation and collapses less. The observed ranking is real, and it reverses the true one.</p>
+        <p>Which is to say: the ranking people report may be an artefact of the same broken validation that produced the numbers being ranked.</p>
+        <h2>The clearest statement of the trap</h2>
+        <p>The most useful thing I have read on this is a piece of ragebait, which I am fairly sure was written as a joke:</p>
+        <blockquote>
+        <p>You train a small model on scikit-learn. It gets 80% accuracy. You fine-tune a transformer. It gets 90%. You build a custom data pipeline. 93%. You ensemble three models. 95%. Feature engineering and SHAP. 96%. Gradient boosting. 97%. Custom loss function. 98%. <strong>You realise the labels were wrong.</strong> Fix them, retrain. <strong>99%.</strong></p>
+        </blockquote>
+        <p>The joke lands because everybody recognises it. Every step in that escalation is a modelling improvement, and every one of them was applied on top of a target definition that was broken. The labels being wrong did not make the model <em>worse</em> — it went from 80% to 98% while the labels were wrong, and the metric rose smoothly the whole way. Nothing in the sequence surfaces the error, because accuracy against a wrong label is a perfectly well-behaved quantity.</p>
+        <p>There is a related failure with better provenance. A team replicated a forecasting approach from a paper published by a large ride-hailing company. The problem: they were not that company, and their data had nothing in common with millions of ride requests — it was small and fragmented. When the copied approach failed they reached for clustering, because dynamic time warping sounded sophisticated. In production, washing machines in Germany got clustered with coffee makers in Ecuador, because the distance metric said they were similar. The forecasts were accordingly ridiculous, clients complained, and much of the team left.</p>
+        <p>The moral offered was: ask why you would cluster at all. What is the logic, what is the value? Do not chase technique for technique's sake. A fancy black box that does not work is still a black box.</p>
+        <h2>What I actually do about it</h2>
+        <p>Three things, in order of how much they have saved me.</p>
+        <p><strong>The simple baseline is a test, not a starting point.</strong> If a moving-average crossover beats the transformer out of sample, the transformer pipeline is decoration — but the useful reading is not "use the crossover." It is that something in the pipeline is broken, and the crossover is the instrument that detected it. Baselines are diagnostic equipment.</p>
+        <p><strong>Treat the backtest as a hostile witness.</strong> The questions are specific: did I leak future data, did I tune hyperparameters against the test set, did I select the universe with hindsight, is the P&amp;L carried by a handful of days or one regime. Each of these needs a test that could come back positive, not a reassurance.</p>
+        <p><strong>Prefer transparency for a reason that is not aesthetic.</strong> The argument I find compelling is not that simple models perform better. It is that when a transparent system breaks, you know where to look. A researcher I read put it as not liking surprises, including the big wins — if you do not know why the model made money and cannot reproduce it, you have not learned anything you can rely on next month.</p>
+        <h2>The opinion</h2>
+        <p><strong>"Simple models beat complex ones on market data" is true as an observation and misleading as an explanation, because it lets you attribute a validation failure to model capacity — and the fix it implies, using simpler models, produces a system that is wrong less dramatically rather than one that is right.</strong></p>
+        <p>The uncomfortable corollary is that the confession genre I opened with may be evidence of something other than what its authors think. Years of architectures failing under minor perturbation is consistent with markets being unpredictable. It is equally consistent with a validation protocol that never had the power to distinguish a working model from a broken one — in which case the years were spent measuring the protocol, not the market.</p>
+        <p>I cannot tell from the outside which of those it was in any given case. I can tell that almost none of these accounts describe the validation setup in enough detail for a reader to judge, and that the ones which do describe it usually reveal a random split.</p>
+      </article>
+
+    </main>
+  </div>
+
+</body>
+</html>
