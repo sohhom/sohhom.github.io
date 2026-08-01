@@ -26,53 +26,10 @@
         <header class="project-hero">
           <div class="project-hero__kicker">Essay · Dec 2025 · 10 min</div>
           <h1>The labels were the hard part</h1>
-          <p class="project-hero__lede">I have fifteen billion rows of tick data and spent most of a year on feature engineering before admitting the real problem was upstream. Deciding what a training example should be labelled — given that execution takes most of a second and costs must clear before a trade is worth taking — turned out to be the whole game.</p>
+          <p class="project-hero__lede">I have a huge number of rows of NSE data and spent most of a year on feature engineering before admitting the real problem was upstream. Deciding what a training example should be labelled — given that execution takes most of a second and costs must clear before a trade is worth taking — turned out to be the whole game.</p>
         </header>
 
-        <p>Here is what I have to work with, by category, from thirteen months of tick collection:</p>
-        <table>
-        <thead>
-        <tr>
-        <th>Category</th>
-        <th style="text-align: right;">Rows</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr>
-        <td>LTP derivatives</td>
-        <td style="text-align: right;">5,788,754,763</td>
-        </tr>
-        <tr>
-        <td>LTP index</td>
-        <td style="text-align: right;">141,084,290</td>
-        </tr>
-        <tr>
-        <td>LTP stocks</td>
-        <td style="text-align: right;">2,220,259,938</td>
-        </tr>
-        <tr>
-        <td>Depth derivatives</td>
-        <td style="text-align: right;">5,168,995,869</td>
-        </tr>
-        <tr>
-        <td>Depth stocks</td>
-        <td style="text-align: right;">1,645,501,733</td>
-        </tr>
-        <tr>
-        <td>Option chain</td>
-        <td style="text-align: right;">13,586,478</td>
-        </tr>
-        <tr>
-        <td>Option chain (all)</td>
-        <td style="text-align: right;">630,406,058</td>
-        </tr>
-        <tr>
-        <td><strong>Total</strong></td>
-        <td style="text-align: right;"><strong>15,608,589,129</strong></td>
-        </tr>
-        </tbody>
-        </table>
-        <p>Fifteen and a half billion rows. The obvious thing to do with a dataset that size is to build features and train something. That is what I did for a long time, and it was the wrong emphasis. The binding constraint was never the features or the architecture. It was the <strong>label</strong> — the question of what number should sit in the target column of a training example, and why.</p>
+        <p>Several billion rows across thousands of tickers over ten months. The obvious thing to do with a dataset that size is to build features and train something. That is what I did for a long time, and it was the wrong emphasis. The binding constraint was never the features or the architecture. It was the <strong>label</strong> — the question of what number should sit in the target column of a training example, and why.</p>
         <h2>The label has to survive your execution latency</h2>
         <p>The first thing that breaks the naive approach is timing.</p>
         <p>My order round trip is roughly 400 to 900 milliseconds. The data arrives at about one sample per second. So a label like "the price five seconds from now" is not actually available to me — by the time I act on a signal, most of a second has already gone. The realistic version is "the price five seconds from now, minus the half-second to one second I spent getting filled."</p>
