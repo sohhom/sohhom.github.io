@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>A reward model that agrees with people about a third of the time — Sohhom Bandyopadhyay</title>
+  <link rel="stylesheet" href="../../styles.css" />
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="site-header__inner">
+      <a class="brand" href="../../">Sohhom Bandyopadhyay <small>sohhom.github.io</small></a>
+      <nav class="nav" aria-label="primary">
+        <a href="../../cv/">cv</a>
+        <a href="../../project/">projects</a>
+        <a href="../" aria-current="page">blog</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="page">
+    <main data-screen-label="Post: reward-model-correlation">
+
+      <article>
+        <header class="project-hero">
+          <div class="project-hero__kicker">Analysis · Feb 2024 · 7 min</div>
+          <h1>A reward model that agrees with people about a third of the time</h1>
+          <p class="project-hero__lede">I scored a set of AI-generated images with a published image-preference reward model and correlated it against human ratings of the same images. Spearman 0.30. The model is not broken — it is measuring something adjacent to what I was asking about, and the two get conflated routinely.</p>
+        </header>
+
+        <h2>What I did</h2>
+        <p>I had a set of AI-generated images and human ratings for each of them. The
+        ratings came from crowdsourced annotators on a scale, answering a specific
+        question: <em>how well does this image depict the intended emotion?</em> Not whether it
+        was a good image. Whether it depicted the thing it was supposed to depict.</p>
+        <p>I then scored the same images with a published reward model trained on
+        large-scale human preference data for text-to-image generation — the kind of
+        model that is used to rank generator outputs, filter training sets, and serve as
+        an automatic evaluation metric in place of human raters.</p>
+        <p>The correlations between the model's scores and the human ratings:</p>
+        <table>
+        <thead>
+        <tr>
+        <th>Statistic</th>
+        <th>Value</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+        <td>Spearman's rank correlation</td>
+        <td>0.3027</td>
+        </tr>
+        <tr>
+        <td>Kendall's tau</td>
+        <td>0.2082</td>
+        </tr>
+        <tr>
+        <td>Pearson's r (raw values)</td>
+        <td>0.3369</td>
+        </tr>
+        </tbody>
+        </table>
+        <p>For a model whose stated purpose is to encode human preference, against actual
+        human judgements of the same images, that is a weak relationship. Roughly a
+        tenth of the variance.</p>
+        <h2>The obvious objection, which is correct</h2>
+        <p>The model was not trained to answer my question.</p>
+        <p>Image-preference reward models are trained predominantly on judgements of overall
+        preferability — which of these two images do you prefer — where the annotator's
+        verdict blends prompt fidelity, composition, aesthetic appeal, anatomical
+        plausibility and absence of artefacts into one number. My question isolated a
+        single narrow axis: emotional depiction fidelity. There is no reason those
+        should track each other closely, and a correlation of 0.30 is arguably evidence
+        that they overlap <em>somewhat</em>, which is about what you would expect.</p>
+        <p>So this is not a bug report. The model does what it says.</p>
+        <h2>The thing that is actually interesting</h2>
+        <p>The conflation is not mine. It is in the literature, and it is acknowledged
+        there, and it is then set aside.</p>
+        <p>The Human Preference Score v2 paper states it plainly: preference "may be
+        influenced by factors such as image-text alignment and visual attractiveness.
+        While these two factors can sometimes conflict with each other, understanding
+        the trade-off is crucial." The same paper notes that its own prompts contain
+        internal conflicts — a prompt asking for a "renaissance oil painting" that is
+        also "hyper realistic" sets two criteria against each other — and observes that
+        this "may confuse annotators in evaluating image-text alignment."</p>
+        <p>That is a striking admission when you sit with it. It means the benchmark's
+        prompt set is not neutral with respect to what is being measured, and the
+        resulting scalar absorbs the confusion rather than resolving it. Several other
+        lines of work in this space — dense reward formulations, DPO applied to
+        diffusion models, selection-based faithful generation — run into the same
+        tension and handle it in different ways.</p>
+        <p>This is why, in the experiment I was working on, we deliberately stripped the
+        subject noun out of the displayed prompt when asking annotators about emotional
+        alignment. If the prompt on screen says "a person expressing amusement," some of
+        the annotator's attention goes to whether the image contains a convincing person.
+        Removing it pushes attention toward the emotion, which is the axis we wanted.
+        Small interface decisions like that move the resulting numbers, which is the
+        subject of most of the rest of my work in this area.</p>
+        <h2>The opinion</h2>
+        <p><strong>A single scalar that claims to represent "human preference" is a compression of
+        several distinct judgements that frequently conflict, and reporting it without
+        saying which judgements went into it makes the number close to uninterpretable.</strong></p>
+        <p>The practical consequence is specific. If you use one of these reward models to
+        filter a training set, you are not selecting for "good images." You are selecting
+        for a particular weighted blend of prompt fidelity and conventional
+        attractiveness — with weights you did not choose, that were set by the
+        annotation instructions and interface of the dataset the model was trained on,
+        which you likely have not read. Any narrow property you care about that is not
+        well correlated with that blend gets filtered out along with the genuine
+        failures.</p>
+        <p>This is the same structural problem as preference aggregation across annotators,
+        one level down. When people disagree, a reward model trained on pooled
+        judgements averages the disagreement away; here, when a <em>single</em> annotator is
+        weighing several incommensurable criteria, the scalar averages those away too.
+        In both cases the information that got destroyed — who disagreed, on what
+        grounds, along which axis — is often the information you actually needed.</p>
+        <p>There is a body of work arguing that disagreement should be modelled rather than
+        eliminated. The framing I find most useful is the one that treats annotator
+        disagreement as signal about the item rather than noise about the annotator: two
+        images that split raters 50/50 are telling you something different from two
+        images that split 95/5, and collapsing both to a mean discards it. The
+        distributional-preference-learning result is the sharpest version — under hidden
+        context, standard preference learning implicitly aggregates via Borda count,
+        with all the pathologies that implies.</p>
+        <h2>Caveats, stated plainly</h2>
+        <p>This is one reward model, one image set, one narrow judgement axis, and a
+        modest sample. It is a spot check, not a benchmark. I am not claiming the model
+        underperforms its own stated objective — I did not test it against its own
+        objective, and the comparison that would establish that is a different
+        experiment.</p>
+        <p>What I am claiming is narrower and I think defensible: the correlation between a
+        general-purpose image preference model and a specific human judgement about the
+        same images was around 0.3, and if you are planning to substitute the former for
+        the latter, that number is the one you should be looking at first, on your own
+        data, before you rely on it.</p>
+        <p>The generalisable habit, which cost me an afternoon: before adopting any learned
+        metric as a stand-in for human judgement, correlate it against actual human
+        judgement on your own stimuli. It is a cheap check and the result is frequently
+        sobering.</p>
+        <h2>References</h2>
+        <ul>
+        <li>Xu, J., et al. (2023). ImageReward: learning and evaluating human preferences
+          for text-to-image generation. arXiv:2304.05977.</li>
+        <li>Wu, X., et al. (2023). Human Preference Score v2: a solid benchmark for
+          evaluating human preferences of text-to-image synthesis. arXiv:2306.09341.</li>
+        <li>Kirstain, Y., et al. (2023). Pick-a-Pic: an open dataset of user preferences
+          for text-to-image generation. arXiv:2305.01569.</li>
+        <li>Lee, K., et al. (2023). Aligning text-to-image models using human feedback.
+          arXiv:2302.12192.</li>
+        <li>Wallace, B., et al. (2023). Diffusion model alignment using direct preference
+          optimization. arXiv:2311.12908.</li>
+        <li>Yang, S., et al. (2024). A dense reward view on aligning text-to-image
+          diffusion with preference. arXiv:2402.08265.</li>
+        <li>Siththaranjan, A., Laidlaw, C., &amp; Hadfield-Menell, D. (2023). Distributional
+          preference learning. arXiv:2312.08358.</li>
+        <li>Plank, B. (2022). The "problem" of human label variation. <em>EMNLP</em>.</li>
+        <li>Uma, A., et al. (2021). Learning from disagreement: a survey. <em>JAIR</em>, 72.</li>
+        <li>Aroyo, L., &amp; Welty, C. (2015). Truth is a lie: crowd truth and the seven myths
+          of human annotation. <em>AI Magazine</em>, 36(1).</li>
+        </ul>
+      </article>
+
+    </main>
+  </div>
+
+</body>
+</html>

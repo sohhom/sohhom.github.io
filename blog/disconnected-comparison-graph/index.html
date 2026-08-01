@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>The comparison graph was in ten pieces — Sohhom Bandyopadhyay</title>
+  <link rel="stylesheet" href="../../styles.css" />
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="site-header__inner">
+      <a class="brand" href="../../">Sohhom Bandyopadhyay <small>sohhom.github.io</small></a>
+      <nav class="nav" aria-label="primary">
+        <a href="../../cv/">cv</a>
+        <a href="../../project/">projects</a>
+        <a href="../" aria-current="page">blog</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="page">
+    <main data-screen-label="Post: disconnected-comparison-graph">
+
+      <article>
+        <header class="project-hero">
+          <div class="project-hero__kicker">Essay · Jan 2024 · 9 min</div>
+          <h1>The comparison graph was in ten pieces</h1>
+          <p class="project-hero__lede">I plotted the network of which images had been compared against which, expecting a connected blob. I got ten separate islands, one per emotion category. Every ranking method we intended to use assumes that graph is connected, and none of us had checked.</p>
+        </header>
+
+        <h2>The setup</h2>
+        <p>We had a pile of pairwise preference data. Human annotators had been shown two
+        AI-generated images at a time and asked which one better matched a target
+        emotion — the standard two-alternative forced choice, the same shape of data
+        that reward models are trained on. Ten emotion categories, several image
+        generators, a few hundred images, a few thousand comparisons.</p>
+        <p>The plan was to fit a Bradley–Terry model. Bradley–Terry takes pairwise
+        outcomes and returns a latent utility score per item — one number per image,
+        comparable across the whole set. It is the workhorse behind Elo ratings, behind
+        LLM arena leaderboards, behind most of the preference-learning literature. It is
+        what you use when you want a global ranking and you cannot afford to run every
+        possible pair.</p>
+        <p>Before fitting anything I plotted the data as a graph. Nodes are images. An edge
+        joins two images if some annotator was ever asked to compare them.</p>
+        <h2>What came out</h2>
+        <p>Ten disconnected clusters. One per emotion.</p>
+        <p>The reason was obvious the moment I saw it, and invisible before. The task had
+        been <em>"pick the image that best matches the emotion 'anger'"</em> — so every trial
+        drew its images from within a single emotion category. Anger images were only
+        ever compared against other anger images. Amusement against amusement. No trial
+        had ever placed an anger image next to an amusement image, because that question
+        would have been incoherent to ask.</p>
+        <p>Which is fine as an experimental task. It is fatal as an input to Bradley–Terry.</p>
+        <p>The model infers a global scale from chains of comparisons: if A beats B and B
+        beats C, C's score is pinned relative to A's even though they never met. That
+        inference needs a path through the graph. With ten components there is no path
+        between them, and the ten sets of scores float independently. The fitting code
+        does not error. It returns numbers. The numbers are meaningless across clusters.</p>
+        <p>I put it to my collaborator this way: it is like comparing chess ratings against
+        football ratings. Both are Elo. Both are real numbers. Neither tells you
+        anything about the other, because no chess player has ever played a football
+        match. You can compute the comparison. You cannot interpret it.</p>
+        <h2>The disagreement, which was useful</h2>
+        <p>My collaborator's response was reasonable and, on its own terms, correct: <em>you
+        don't need to play every chess player to get an Elo score.</em> True. Bradley–Terry's
+        central virtue is that it works from an incomplete set of comparisons. That is
+        the whole point of it.</p>
+        <p>But sparsity and disconnection are different failures. A sparse graph is one
+        where most pairs are missing and the remainder still form a connected web —
+        Bradley–Terry handles that well, and there is a neat result that you need only
+        about <em>n−1</em> comparisons to chain <em>n</em> items into a single ranking. A disconnected
+        graph is one where no amount of additional sampling <em>within the current design</em>
+        will ever join the components, because the design forbids the joining
+        comparisons from being asked.</p>
+        <p>The second disagreement was more interesting and took longer to resolve. My
+        collaborator's position was that the cross-emotion comparison is not one we
+        should want: preference is always <em>with respect to a prompt</em>, so asking whether
+        an angry picture is better than a happy one is not a meaningful question about
+        alignment. I think that is right about alignment and beside the point about our
+        study. Our stated goal was to compare <em>elicitation methods</em> against each other.
+        That comparison needs every stimulus placed on one scale, so the methods can be
+        scored on the same axis. The within-category constraint that makes the alignment
+        question coherent is exactly the constraint that makes the methods question
+        unanswerable.</p>
+        <p>Both things were true at once. The design was correct for the question it was
+        originally built for, and wrong for the question we had since started asking. It
+        took us four months, on and off, to state that clearly.</p>
+        <h2>The fix, and what it cost</h2>
+        <p>The resolution was a change to the task instruction, not to the analysis. Instead
+        of showing four images from one emotion and asking which best matched that
+        emotion, show four images drawn from <em>anywhere</em> in the set, each captioned with
+        its own intended emotion, and ask which one is the most faithful depiction of the
+        emotion written under it.</p>
+        <p>Now a single trial can contain an anger image and an amusement image. The
+        comparisons cross category boundaries. The graph connects. And the underlying
+        judgement — does this image depict what it claims to depict — stays coherent,
+        because each image is still being judged against its own target rather than
+        against a foreign one.</p>
+        <p>The cost was that the existing data could not be retrofitted. Roughly a year of
+        collection had produced comparisons that were internally fine and globally
+        unusable for the ranking we wanted. We could analyse each emotion separately,
+        which we did. We could not put them on one scale.</p>
+        <h2>The thing I actually want to argue</h2>
+        <p>You cannot design a preference experiment and then decide how to analyse it.</p>
+        <p>This sounds like a platitude and is violated constantly, including by me, in
+        this project, for months. The specific failure mode is that experimental design
+        gets treated as a psychology problem — what is a fair question to ask a human,
+        what will they understand, what will not exhaust them — and analysis gets
+        treated as a statistics problem to be handled once the data are in. Both framings
+        are locally sensible. The gap between them is where the graph disconnects.</p>
+        <p>The methods that dominate preference learning right now — Bradley–Terry,
+        Plackett–Luce, Elo and its variants — all carry structural requirements about
+        which items must be compared with which. Those requirements are constraints on
+        the <em>sampling design</em>, expressed in the language of the analysis. If the person
+        designing the trials and the person choosing the model are different people, or
+        are the same person at a six-month remove, the constraints do not get
+        transmitted. Nobody is wrong at any individual step. The data are just quietly
+        unusable at the end.</p>
+        <p>A related failure I ran into on the same data: I tried to validate my
+        Bradley–Terry implementation by generating a synthetic set where the ground
+        truth was known and the comparisons were perfectly transitive. The iterative
+        fitting routine refused to converge, and I assumed for some hours that I had
+        written a bug. I had not. Several standard implementations need some
+        intransitivity — some genuine disagreement in the data — to have anything to
+        solve for. Perfect consistency is a degenerate case. That is worth knowing
+        before you trust a convergence failure to mean what you think it means.</p>
+        <h2>Caveats</h2>
+        <p>This is one dataset, one design, one class of models. The disconnection was
+        visible because I plotted it; I do not know how often it occurs unnoticed in
+        published preference datasets, and I am not in a position to claim it is common.
+        The diagnosis was also post-hoc — I found this in data already collected, which
+        is precisely the outcome the argument above says to avoid. I am not reporting a
+        technique for catching this early. I am reporting what it cost to catch it late.</p>
+        <p>The one concrete thing I would carry forward: before fitting any comparison-based
+        ranking model, plot the comparison graph and count the connected components. It
+        takes about five lines. It would have saved us several months.</p>
+        <h2>References</h2>
+        <ul>
+        <li>Bradley, R. A., &amp; Terry, M. E. (1952). Rank analysis of incomplete block
+          designs: I. The method of paired comparisons. <em>Biometrika</em>, 39(3/4), 324–345.</li>
+        <li>David, H. A. (1969). <em>The Method of Paired Comparisons.</em> Griffin.</li>
+        <li>Hunter, D. R. (2004). MM algorithms for generalized Bradley–Terry models.
+          <em>The Annals of Statistics</em>, 32(1), 384–406.</li>
+        <li>Maystre, L., &amp; Grossglauser, M. (2015). Fast and accurate inference of
+          Plackett–Luce models. <em>NeurIPS</em>.</li>
+        <li>Turner, H., &amp; Firth, D. (2012). Bradley–Terry models in R: the BradleyTerry2
+          package. <em>Journal of Statistical Software</em>, 48(9).</li>
+        <li>Chau, S., Cucuringu, M., &amp; Thanei, G. (2023). Many routes to Bradley–Terry.
+          arXiv:2312.13619.</li>
+        </ul>
+      </article>
+
+    </main>
+  </div>
+
+</body>
+</html>

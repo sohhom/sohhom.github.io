@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>The question I put on every exam — Sohhom Bandyopadhyay</title>
+  <link rel="stylesheet" href="../../styles.css" />
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="site-header__inner">
+      <a class="brand" href="../../">Sohhom Bandyopadhyay <small>sohhom.github.io</small></a>
+      <nav class="nav" aria-label="primary">
+        <a href="../../cv/">cv</a>
+        <a href="../../project/">projects</a>
+        <a href="../" aria-current="page">blog</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="page">
+    <main data-screen-label="Post: the-question-i-asked-three-times">
+
+      <article>
+        <header class="project-hero">
+          <div class="project-hero__kicker">Essay · Jul 2019 · 6 min</div>
+          <h1>The question I put on every exam</h1>
+          <p class="project-hero__lede">A classifier that always predicts &quot;no&quot; on a dataset with 15 positives out of 1000. Write its confusion matrix. Compute its accuracy. Then comment on whether accuracy is a useful metric. I set a version of this question on both quizzes and again on the final, which is either lazy exam-writing or the most deliberate thing I did all semester.</p>
+        </header>
+
+        <h2>The question</h2>
+        <p>Quiz 2, March 2019:</p>
+        <blockquote>
+        <p>"A faulty classifier for detecting cancer from MRI scans is always predicting
+        'no cancer', regardless of input. A dataset of 100 scans has 15 actual cases of
+        cancer. Write the confusion matrix for the classifier on this dataset, and
+        calculate the accuracy and F1 score based on it. Which measure would you choose
+        to evaluate future classifiers?"</p>
+        </blockquote>
+        <p>End-semester exam, April 2019:</p>
+        <blockquote>
+        <p>"A bank wants to deploy an automated system to flag fraudulent transactions.
+        There is a validation dataset with records of 1000 transactions, out of which 15
+        are known to be fraud, and the rest are normal. The first classifier being
+        tested is terrible, and always predicts 'not fraud' regardless of the input.
+        Write the confusion matrix for this classifier for the given dataset, and
+        calculate its accuracy. Based on the above, comment on the statement 'accuracy
+        is not a useful metric for judging a classifier for an unbalanced dataset'."</p>
+        </blockquote>
+        <p>Same question. Different domain, worse imbalance — 15 in 100 became 15 in 1000,
+        so the useless classifier's accuracy climbs from 85% to 98.5%. A variant of the
+        same idea appeared in a third version of the quiz too, that time with the
+        confusion matrix partly filled in and precision, recall, accuracy and F1 all
+        asked for explicitly.</p>
+        <p>Three appearances of one idea in a course with eleven lectures. That was not
+        because I ran out of things to ask.</p>
+        <h2>Why this one</h2>
+        <p>CG 501 was a core course for MSc cognitive science students. Most of them would
+        not become machine learning engineers. They would become researchers who use
+        classifiers — on EEG data, on behavioural data, on survey responses — and read
+        papers in which other people report classifier performance.</p>
+        <p>For that population there is exactly one machine learning failure mode that will
+        actually bite them, repeatedly, in real work: a model with an impressive-sounding
+        score that has learned nothing, on data where the thing you care about is rare.
+        Rare-positive data is not an edge case in cognitive science, it is the normal
+        case. Clinical populations are rare. Error trials are rare. The interesting
+        condition is almost always the small one.</p>
+        <p>Everything else I taught them — the perceptron, backpropagation, Hopfield
+        networks, k-means, kNN — is knowledge they can look up when they need it, and
+        which most of them will never need. The accuracy trap is different in kind. It is
+        not a technique to be recalled. It is a reflex that either fires when you read
+        "98.5% accuracy" or does not, and if it does not fire, no amount of looking things
+        up will save you, because you will not know there is anything to look up.</p>
+        <p>So I asked it three times. If a student sat all three assessments, they wrote out
+        that confusion matrix three times, in three different domains, and computed the
+        same embarrassing number. I would rather they left the course with one reflex
+        installed than with seven topics half-remembered.</p>
+        <h2>The design detail that mattered</h2>
+        <p>The hint on the endsem version reads: <em>"start by writing the zeros in the matrix."</em></p>
+        <p>That hint is doing more work than it appears to. The classifier predicts "not
+        fraud" always, so the entire "predicted positive" row is zero — zero true
+        positives, zero false positives. Students who tried to reason their way to
+        precision first hit 0/0 and stalled. Students who wrote the zeros down first saw
+        immediately that the matrix had only two non-empty cells, and that one of them
+        contained all 15 fraud cases sitting in the false-negative box.</p>
+        <p>That is the pedagogical moment. Not the arithmetic — 985/1000 is not hard — but
+        the visual fact that every single case you built the system to catch is in one
+        cell, and the number reported to management is 98.5%.</p>
+        <p>I also made a deliberate choice to ask for the <em>comment</em> and not just the
+        calculation, on all three versions. "Which measure would you choose to evaluate
+        future classifiers?" and "comment on the statement". The calculation is worth very
+        little; a student can produce 98.5% with no understanding whatsoever. The comment
+        is the assessment. It is also much harder to grade consistently, which is
+        relevant, since grading consistency was the item I scored joint-worst on in the
+        course evaluation — 2.20, with two students giving it a 0 and one writing "I don't
+        agree with the grading". Open-response questions are where that kind of complaint
+        comes from, and I had no second marker to check myself against.</p>
+        <p>I would still ask for the comment. But I would write the rubric before the exam
+        rather than during the marking, which is what I actually did.</p>
+        <h2>The opinion</h2>
+        <p><strong>A course with eleven lectures should teach three ideas properly and let the
+        rest be exposure — and the way you signal which three is by asking about them
+        repeatedly, not by covering them slowly.</strong></p>
+        <p>The standard objection is that repeating a question across assessments is
+        teaching to the test, and that students will simply memorise the confusion matrix
+        for the always-negative classifier. I think this objection is right about ordinary
+        exam questions and wrong about this one, for a specific reason: memorising the
+        answer to this question <em>is</em> acquiring the reflex. There is nothing else in it.
+        A student who has cached "always-predicts-no on rare positives gives high accuracy
+        and useless recall" has exactly the thing I wanted them to have. The cached answer
+        and the understanding are the same object.</p>
+        <p>That property is rare, and it is what makes a question worth repeating. Most exam
+        questions fail it — you can memorise the backpropagation derivation without being
+        able to apply it to a new architecture. Before repeating a question, the test I
+        would now apply is: if a student memorises the answer verbatim and nothing else,
+        have they acquired something I wanted them to have? For almost every question I
+        set that semester, the answer was no. For this one it was yes.</p>
+        <p>There is a cost I should state. Three assessments spent on one idea is three
+        assessments not spent probing whether the neural network material landed. It did
+        not land — the students said so, five of them independently, and the fundamentals
+        item scored 2.30. I cannot rule out that more assessment pressure on the neural
+        network block would have surfaced that earlier than the end-of-semester survey
+        did.</p>
+        <h2>The part I did not expect</h2>
+        <p>Seven years later I spend my time building trading systems, and the single most
+        important design decision in a trade-entry classifier is the one this question is
+        about.</p>
+        <p>An intraday entry signal fires on a small minority of bars. The overwhelming
+        majority of the time, the correct action is to do nothing. A classifier that
+        always says "do not trade" will be right most of the time, and its accuracy will
+        look excellent, and it is worth precisely zero. Meanwhile the metric that actually
+        matters is precision on the rare positive class — because a false positive costs
+        real money in transaction costs and a false negative costs only a missed
+        opportunity — to the point where I have deliberately optimised for near-zero false
+        positives while accepting that the model declines to trade on the large majority
+        of genuine opportunities.</p>
+        <p>I did not connect these until I went back through the CG 501 material to write
+        this. The exam question and the trading system are the same problem: rare
+        positives, asymmetric costs, and a headline metric that conceals both. I taught it
+        to twenty cognitive science students in 2019 using a cancer screening example, and
+        I now use it every day on order flow.</p>
+        <h2>Caveats</h2>
+        <p>I have no data on whether the repetition worked. I did not track per-question
+        performance across the three assessments, which would have been the obvious thing
+        to do and would have made this post an actual finding rather than a defence of a
+        design choice. The exam-validity item on the course survey scored 2.90 and the
+        free text contains no comment on the exams either way, which tells me the
+        assessments were not conspicuously bad and nothing more than that.</p>
+        <p>The claim about what cognitive science researchers need is my judgement about a
+        population I belonged to, not a survey of one.</p>
+      </article>
+
+    </main>
+  </div>
+
+</body>
+</html>

@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Measuring whether image generators can depict an emotion — Sohhom Bandyopadhyay</title>
+  <link rel="stylesheet" href="../../styles.css" />
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="site-header__inner">
+      <a class="brand" href="../../">Sohhom Bandyopadhyay <small>sohhom.github.io</small></a>
+      <nav class="nav" aria-label="primary">
+        <a href="../../cv/">cv</a>
+        <a href="../" aria-current="page">projects</a>
+        <a href="../../blog/">blog</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="page">
+    <main data-screen-label="Project: emotional-alignment-image-generators">
+
+      <article>
+        <header class="project-hero">
+          <div class="project-hero__kicker">Empirical study · 2023–2024</div>
+          <h1>Measuring whether image generators can depict an emotion</h1>
+          <p class="project-hero__lede">A controlled comparison of three text-to-image generators on a narrow question — not whether the images are good, but whether they depict the emotion they were asked to depict. Includes a snapshot of a generation of language models captured shortly before they were switched off.</p>
+
+          <dl class="project-meta">
+            <div><dt>Role</dt><dd>Experiment implementation, data collection, statistical analysis</dd></div>
+            <div><dt>Methods</dt><dd>Within-subjects factorial design, crowdsourced ratings, three-way repeated-measures ANOVA with effect sizes, reward-model correlation</dd></div>
+            <div><dt>Stack</dt><dd>Python, R, JavaScript, jsPsych, OpenAI API, local inference</dd></div>
+            <div><dt>Output</dt><dd>Co-authored peer-reviewed publication; archived generation dataset</dd></div>
+          </dl>
+        </header>
+
+        <h2>The question</h2>
+        <p>Text-to-image generators are usually evaluated on image quality and on prompt
+        fidelity in a general sense — is this a picture of a dog, is it a good picture.
+        The question here was narrower and harder to measure: when you ask for an image
+        depicting a specific <em>emotion</em>, does the result actually read as that emotion to
+        a human being?</p>
+        <p>This matters beyond aesthetics. Emotional legibility is a functional requirement
+        for any system meant to communicate with people — the argument for it in clinical
+        and conversational contexts rests on empathy being tied to outcomes, which means
+        a system that expresses the wrong affect is not merely unpolished but wrong. And
+        it is a good test case for measurement method, because emotional depiction is
+        genuinely subjective without being arbitrary. People do agree, imperfectly, and
+        that imperfect agreement is the signal.</p>
+        <h2>Design</h2>
+        <p>A within-subjects factorial design. Every participant saw every combination of
+        three factors:</p>
+        <ul>
+        <li><strong>Generator</strong> — three text-to-image models spanning roughly two years of
+          development, from an early open-weights diffusion model through two
+          generations of a commercial system.</li>
+        <li><strong>Emotion</strong> — ten target emotions spanning positive and negative valence.</li>
+        <li><strong>Context</strong> — the depicted subject, varied to test whether emotional legibility
+          survives a change in what is doing the emoting.</li>
+        </ul>
+        <p>240 images total, each condition repeated four times. Participants rated each
+        image on how well it matched its intended emotion, recruited through a paid
+        crowdsourcing platform with desktop-only enforcement for stimulus consistency.</p>
+        <h2>Stimulus generation, and a methodological wrinkle</h2>
+        <p>Adding the newest generator to an existing study created a problem I want to
+        record because it is going to recur for anyone doing this kind of longitudinal
+        model comparison.</p>
+        <p>The older generators accept a prompt and produce an image from that exact prompt.
+        The newest one, at the time, was only reachable through a chat interface that
+        <em>rewrote</em> the prompt before generation — expanding a short instruction into a
+        detailed scene description of its own devising. You cannot hold the prompt fixed
+        across conditions when one condition rewrites your prompt.</p>
+        <p>The compromise: use the original prompts as the seed instruction, edit the
+        initial message for each new generation rather than continuing a conversation
+        (so that no prior context leaks between conditions), and record the actual
+        expanded prompts as an appendix. This is a genuine confound and should be stated
+        as one. Part of what is being measured for the newest model is the quality of its
+        prompt expansion, which is a real capability but not the same capability as the
+        others were tested on.</p>
+        <p>A related detail: labelling. When images arrive without their generating prompt
+        attached, recovering which emotion each was meant to depict is unreliable — I
+        could not confidently distinguish a "hate" image from a "resentment" one on
+        inspection, which is itself a small piece of evidence about how legible these
+        categories are. The fix was regenerating the full set locally with filenames
+        carrying the condition, rather than guessing.</p>
+        <h2>Analysis</h2>
+        <p>Three-way within-subjects ANOVA with all interaction effects, effect sizes, and
+        Bonferroni-corrected pairwise post-hoc tests, computed in R from raw response
+        data. I have written separately about
+        <a href="../../blog/within-subjects-argument/">why I re-derived this rather than accepting the analysis I was handed</a>,
+        and about the terminology disagreement over whether the design counted as
+        repeated measures — it did, and that changes the error term.</p>
+        <p>Data-quality screening followed the crowdsourcing platform's own rejection
+        criteria (three standard deviations below mean response time, rather than an
+        intuitive threshold) plus per-participant correlation against the item mean. Four
+        participants fell between 0.51 and 0.68 against a much higher group norm; they
+        were retained and reported rather than excluded, because dropping participants
+        after seeing their data is a worse problem than the noise it removes.</p>
+        <p>On presentation: I argued for box plots over bar plots, and lost the first round
+        and won the second. The reviewer's request was for interaction plots. My
+        position was that box plots show the full distribution — including the
+        informative fact that a weaker generator sometimes produces excellent
+        results, which a mean-and-error-bar plot hides completely. My collaborator's
+        counter was that box plots are poor for comparing interactions specifically, and
+        that with crowded data they make comparison harder. Both correct. The resolution
+        was to supply both and let the reviewer choose, which is the right answer to most
+        visualisation disputes and took us an embarrassingly long time to arrive at.</p>
+        <h2>Correlating against a learned reward model</h2>
+        <p>Separately, I scored the same image set with a published image-preference reward
+        model and correlated it against the human ratings: Spearman 0.3027, Kendall's tau
+        0.2082, Pearson 0.3369.</p>
+        <p>That is a weak relationship, and the explanation is not that the model is broken
+        — it is that general image preference and emotional depiction fidelity are
+        different axes, routinely conflated. This is written up at length in
+        <a href="../../blog/reward-model-correlation/">a separate post</a>.</p>
+        <p>One design decision downstream of that: the displayed prompt in the alignment
+        task deliberately omitted the subject noun. If the text on screen names the
+        subject, some of the annotator's attention goes to whether the image contains a
+        convincing instance of it, rather than to the emotion. Removing it concentrates
+        attention on the axis being measured.</p>
+        <h2>The archive</h2>
+        <p>A side thread, and the part I expect to age best.</p>
+        <p>A generation of commercial language models was scheduled for deprecation. Once
+        switched off, their behaviour becomes unreproducible — the weights are not
+        public, and no amount of later work recovers what they did.</p>
+        <p>I collected roughly 14,500 generations across those models before shutdown, using
+        a factorial prompt design (emotion × context × random seed, ~2,400 unique
+        conditions) so that the resulting archive is analysable rather than merely
+        anecdotal. Total API cost was around two dozen dollars. I later extended the same
+        prompt design across several open-weights model families for comparison.</p>
+        <p>Two observations from that data:</p>
+        <p><strong>Alignment tuning suppresses negative affect.</strong> Instruction-tuning and
+        preference-optimisation phases inject strong dispositions toward particular kinds
+        of output, and models so tuned visibly struggle to write stories expressing
+        negative emotions — they deflect, soften, or resolve the negative state into a
+        redemptive ending. This is a real and measurable side effect of alignment on
+        expressive range, and it is directly relevant to anyone using these models for
+        affective content.</p>
+        <p><strong>Training-data fingerprints survive into outputs.</strong> One model family produced
+        stories set in a specific fictional city at a rate far above chance — a
+        recognisable borrowing from a well-known animated film. Small artefacts like this
+        are forensic evidence about training composition, and they are only visible if
+        you generate at volume with controlled prompts.</p>
+        <p>Smaller models were also run locally to compare behaviour under the same prompt
+        design, and the failure modes there were instructive in a different way — the
+        smallest models get stuck in repetition loops on emotional prompts, which is a
+        capability floor worth knowing about.</p>
+        <h2>Outcome</h2>
+        <p>The study contributed to a peer-reviewed publication on evaluating the alignment
+        of AI systems with human emotions. The instrumentation is described in
+        <a href="../preference-elicitation-toolbox/">a companion project writeup</a>.</p>
+        <p>What I would flag to anyone extending this: the prompt-rewriting confound is
+        going to get worse, not better, as more generation interfaces insert their own
+        prompt engineering between the user and the model. Longitudinal comparisons
+        across model generations are becoming structurally harder to run cleanly, and I
+        do not have a good answer for it beyond documenting the expansion and being
+        explicit about what is being compared.</p>
+        <h2>References</h2>
+        <ul>
+        <li>Ouyang, L., et al. (2022). Training language models to follow instructions with
+          human feedback. arXiv:2203.02155.</li>
+        <li>Xu, J., et al. (2023). ImageReward: learning and evaluating human preferences
+          for text-to-image generation. arXiv:2304.05977.</li>
+        <li>Wu, X., et al. (2023). Human Preference Score v2. arXiv:2306.09341.</li>
+        <li>Kirstain, Y., et al. (2023). Pick-a-Pic: an open dataset of user preferences for
+          text-to-image generation. arXiv:2305.01569.</li>
+        <li>Cowen, A. S., &amp; Keltner, D. (2021). Semantic space theory: a computational
+          approach to emotion. <em>Trends in Cognitive Sciences</em>, 25(2).</li>
+        <li>Yang, S., et al. (2024). Make me happier: evoking emotions through image
+          diffusion models. arXiv:2403.08255.</li>
+        <li>Lakens, D. (2013). Calculating and reporting effect sizes. <em>Frontiers in
+          Psychology</em>, 4, 863.</li>
+        </ul>
+      </article>
+
+    </main>
+  </div>
+
+</body>
+</html>

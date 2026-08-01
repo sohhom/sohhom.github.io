@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Designing and teaching a graduate course from scratch — Sohhom Bandyopadhyay</title>
+  <link rel="stylesheet" href="../../styles.css" />
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="site-header__inner">
+      <a class="brand" href="../../">Sohhom Bandyopadhyay <small>sohhom.github.io</small></a>
+      <nav class="nav" aria-label="primary">
+        <a href="../../cv/">cv</a>
+        <a href="../" aria-current="page">projects</a>
+        <a href="../../blog/">blog</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="page">
+    <main data-screen-label="Project: cg501-computation-and-cognition">
+
+      <article>
+        <header class="project-hero">
+          <div class="project-hero__kicker">Graduate Teaching Fellow · Jan–Apr 2019</div>
+          <h1>Designing and teaching a graduate course from scratch</h1>
+          <p class="project-hero__lede">Half of CG 501 Computation and Cognition, a core course for MSc cognitive science students at IIT Gandhinagar — eleven lectures, two quizzes, two assignments, a course project and the end-semester exam, all designed, delivered and graded. Includes a game theory module that was not in the syllabus, and an anonymous evaluation dataset I have since analysed against my own account of what happened.</p>
+
+          <dl class="project-meta">
+            <div><dt>Role</dt><dd>Graduate Teaching Fellow and co-instructor, with Prof. Krishna Prasad Miyapuram</dd></div>
+            <div><dt>Methods</dt><dd>Curriculum design, lecture delivery, from-scratch algorithm implementation in class, assessment design, project supervision, evaluation-data analysis</dd></div>
+            <div><dt>Stack</dt><dd>Python, NumPy, scikit-learn, Jupyter, Gambit, NetLogo, Google Classroom</dd></div>
+            <div><dt>Output</dt><dd>17 classes delivered; assessments and course project authored and graded; nominated for an institute teaching award</dd></div>
+          </dl>
+        </header>
+
+        <h2>The assignment</h2>
+        <p>CG 501, Computation and Cognition, is a core course for MSc cognitive science
+        students at IIT Gandhinagar. I taught the second half of it in Spring 2019 as a
+        Graduate Teaching Fellow, alongside Prof. Krishna Prasad Miyapuram, who taught the
+        first half and who took a liberal view of what I was allowed to put in mine.</p>
+        <p>The stated purpose of the course is to introduce cognitive science students to
+        computational tools for inspecting, modelling and exploring the behaviour of
+        complex systems, from neurons to organisms. The students were not computer
+        scientists. Most had undergraduate backgrounds in psychology, biology or
+        engineering, and for several of them this was the first course requiring them to
+        write code that had to work.</p>
+        <p>I ran 17 classes: 11 lectures, 2 quizzes, and 4 days of project presentations.</p>
+        <h2>What was taught</h2>
+        <p><strong>Machine learning, six lectures.</strong> Vectors and matrices as functions, then the
+        perceptron; multilayer perceptrons and backpropagation, with a scikit-learn demo
+        on the iris dataset; model evaluation and Hopfield networks; linear regression and
+        K-means clustering; k-nearest neighbours; NumPy and a from-scratch kNN
+        implementation.</p>
+        <p><strong>Game theory, five lectures.</strong> This module was not in the syllabus and I added
+        it. The prisoner's dilemma and its paradox, with three separate framings —
+        the canonical story, the hawk-dove money version, and Cournot duopoly — to make
+        the point that the matrix is the object and the story is interchangeable. Then
+        dominance and iterated elimination, best response and Nash equilibrium,
+        coordination games with multiple equilibria, mixed strategies and the indifference
+        principle, extensive-form games and backwards induction. Equilibria were
+        demonstrated live in Gambit as well as on the whiteboard.</p>
+        <p>The linear algebra was taught instrumentally: a matrix is a function that takes a
+        vector and returns a vector, and the exercises asked students to construct the
+        matrix producing a given transformation. That framing came back on both the quiz
+        and the final exam, which is the kind of repetition I used deliberately.</p>
+        <h2>How it was assessed</h2>
+        <p><strong>Assignments.</strong> Two, both requiring working code. The first asked students to
+        implement a perceptron in NumPy and train one for each of AND, OR, NAND and NOR,
+        printing weights before and after learning, with XOR left as the following week's
+        lecture. The second was a fill-in-the-blanks Jupyter notebook distributed through
+        a public repository — K-means clustering or linear regression, with every <code>??</code>
+        carrying a nearby comment stating the goal, plus questions at the end to be
+        answered in a markdown cell. Submissions had to be a restart-and-run-all notebook
+        named by roll number.</p>
+        <p>The design intent was to require students to combine what was discussed in class
+        with information they had to find themselves. My own account at the time: this
+        hands-on approach was aimed at the inertia that makes programming feel alien to
+        first-time users. Whether it worked is the one thing the evaluation data is most
+        critical about, and I discuss that below.</p>
+        <p><strong>Quizzes.</strong> Two, each around ten points. The machine learning quiz asked what a
+        single partial derivative of the cost function represents in plain language, how
+        to decide at run time that K-means has converged, a perceptron forward pass
+        followed by "now find a <code>w</code> such that the output is zero for the same input",
+        matrix construction, and a confusion matrix for a degenerate classifier. The game
+        theory quiz asked for a pure-strategy equilibrium, backwards induction on a game
+        tree, and two modelling questions with no matrix supplied.</p>
+        <p><strong>Course project.</strong> One per student, signed up from a list of twenty topics across
+        four tools. NetLogo agent-based models from the standard library — ants,
+        mammoths, virus on a network, traffic grid, signalling game — assessed on
+        parameter exploration, with students required to state what they expected before
+        changing a parameter and explain any disagreement with the observation, and bonus
+        credit for modifying the model code to test their own idea. scikit-learn projects
+        on Parkinson's disease classification, keystroke biometrics, and regression on
+        Open Psychometrics personality datasets, each requiring a stated minimum set of
+        reported metrics. A NumPy project computing equal error rate from ROC curve
+        points. Gambit projects on nuclear first-strike policy, transition to a circular
+        economy, an attendance game, and a voting-and-friendship game under secret versus
+        open ballot.</p>
+        <p>Deliverables were a ten-minute presentation and a report, with source notebooks or
+        captioned screenshots depending on the tool.</p>
+        <p><strong>End-semester exam.</strong> Ten questions, answer eight, equal weight, two and a half
+        hours. Roughly balanced between the two modules, with the modelling questions
+        carrying the same weight as the mechanical ones.</p>
+        <h2>The evaluation data</h2>
+        <p>The academic office ran the standard course reaction survey. Ten students
+        responded to twenty rated items on a five-point scale plus five free-text
+        questions. I have the item-level responses, transcribed into a machine-readable
+        form alongside the codebook.</p>
+        <p>The summary, stated plainly:</p>
+        <ul>
+        <li>Grand mean across 198 numeric ratings: <strong>2.80</strong> on a 0–4 scale.</li>
+        <li>Overall instructor rating: <strong>2.30</strong>. Distribution: two 1s, three 2s, five 3s,
+          zero 4s.</li>
+        <li>Administrative items (policies announced early, lectures held, materials
+          available, course website): mean <strong>3.55</strong>.</li>
+        <li>Delivery items (lectures useful, fundamentals emphasised, board work,
+          organisation, visual aids, questions answered, pace): mean <strong>2.53</strong>.</li>
+        <li>Lowest items: questions answered in class 2.20, pace even 2.20, grading
+          consistent 2.20, fundamentals emphasised 2.30, assignments helped understanding
+          2.30.</li>
+        <li>Five of ten respondents named neural networks as taught too fast. Nobody named
+          anything as too slow.</li>
+        <li>Two respondents named game theory as what they liked — the added module, and the
+          only unprompted enthusiasm in the free text.</li>
+        </ul>
+        <p>The most useful structure in the data is the roughly one-point gap between what I
+        scored on organisation and what I scored on instruction, which holds within
+        individual respondents including the two harshest evaluators. I have written that
+        analysis up separately in
+        <a href="../../blog/what-the-course-survey-measured/">what the course survey measured</a>.</p>
+        <h2>What the data says against my own account</h2>
+        <p>Three months after the course ended I wrote a teaching statement for an institute
+        teaching award nomination. It describes my approach as deliberately breadth-first
+        — cover a variety of topics, whet the appetite, give students enough to explore
+        further on their own. It also, four paragraphs later, concedes that managing
+        research alongside teaching meant some topics went too fast.</p>
+        <p>The evaluation data makes those the same sentence. Eleven lectures absorbing both
+        a machine learning course and a game theory course produced exactly the pace
+        complaint that five students independently reported, localised to the block I
+        prepared under the most time pressure. The statement presents the breadth as a
+        pedagogical choice and the pace as a scheduling accident; they were one decision.
+        That reading is developed in
+        <a href="../../blog/breadth-first-in-the-classroom/">breadth-first in the classroom</a>.</p>
+        <p>The other thing the data says is that my assignments did not do what I intended.
+        "Assignments helped better understand the course material" scored 2.30, with two
+        students rating it 0, and two of the free-text improvement suggestions asked for
+        fewer evaluations and fewer coding assignments. My statement at the time recorded
+        that I had been told I was too demanding with the assignments. I recorded it as
+        feedback received rather than as a conclusion, and the numbers suggest it deserved
+        to be a conclusion.</p>
+        <p>Grading consistency, at 2.20 with two zeros and one student writing "I don't agree
+        with the grading", is the item I can least defend. I set open modelling questions,
+        which I still believe were the right questions, and I graded every script alone
+        without a rubric written in advance and without a second marker. That combination
+        generates exactly this complaint and I have no counter-evidence.</p>
+        <h2>Artefacts</h2>
+        <p>Lecture slide decks, both quizzes and the end-semester exam, the project brief,
+        the demonstration notebooks, the day-wise schedule, and the transcribed evaluation
+        data with its codebook. The assignment notebooks were distributed through a public
+        repository during the course.</p>
+        <h2>What I would change</h2>
+        <p>Cut one of the two fields and teach the remaining one slowly enough that the
+        fundamentals item clears 3.0. Write the grading rubric before the assessment
+        rather than during the marking. State the capability a student should have at the
+        end, in one sentence, before writing the first lecture — the syllabus I actually
+        wrote was a list of topics, and a list of topics has no stopping condition.</p>
+        <p>Keep the game theory module, keep the fictional modelling scenarios, and keep the
+        degenerate-classifier question that appeared on both quizzes and the final.</p>
+      </article>
+
+    </main>
+  </div>
+
+</body>
+</html>

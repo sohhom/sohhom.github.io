@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Re-deriving an ANOVA instead of arguing about it — Sohhom Bandyopadhyay</title>
+  <link rel="stylesheet" href="../../styles.css" />
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="site-header__inner">
+      <a class="brand" href="../../">Sohhom Bandyopadhyay <small>sohhom.github.io</small></a>
+      <nav class="nav" aria-label="primary">
+        <a href="../../cv/">cv</a>
+        <a href="../../project/">projects</a>
+        <a href="../" aria-current="page">blog</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="page">
+    <main data-screen-label="Post: within-subjects-argument">
+
+      <article>
+        <header class="project-hero">
+          <div class="project-hero__kicker">Essay · Dec 2023 · 8 min</div>
+          <h1>Re-deriving an ANOVA instead of arguing about it</h1>
+          <p class="project-hero__lede">A reviewer wanted a full three-way ANOVA table. What came back from the analysis I was handed did not reconcile with the design as I understood it. Rather than negotiate, I re-ran the whole thing in R from the raw data. The design was within-subjects, which changed the model, the post-hoc tests, and one of the reported conclusions.</p>
+        </header>
+
+        <h2>The situation</h2>
+        <p>A manuscript under review. The reviewer had asked, reasonably, for a complete
+        three-way ANOVA table with interaction effects, reported to APA standards — the
+        existing version reported main effects and p-values and little else.</p>
+        <p>The design: participants rated AI-generated images on how well each matched an
+        intended emotion. Three factors — the image generator, the emotion, and the
+        depicted subject context. Every participant saw every combination, and each
+        combination appeared four times.</p>
+        <p>The analysis came back to me as a long document of statistical output. I could
+        not reconcile it with the design. Not because the numbers looked wrong in
+        isolation, but because I could not reconstruct which model had produced them,
+        and therefore could not write the results section around them or defend them if
+        the reviewer pushed.</p>
+        <p>I spent a day trying to map the output onto the hypotheses and gave up. Then I
+        re-ran the entire analysis in R from the raw response data.</p>
+        <h2>The disagreement</h2>
+        <p>The substantive question was whether this was a repeated-measures design.</p>
+        <p>My position was that it plainly was: the same participants provided data at
+        every level of every factor. That is the definition of within-subjects, and it
+        changes the error term. Treating repeated measures as if observations were
+        independent inflates the residual degrees of freedom, which biases the F-tests —
+        usually toward finding effects.</p>
+        <p>My collaborator's initial position was that repeated measures referred to
+        measurement <em>over time</em>, and since our conditions were randomised rather than
+        sequential, the design was not repeated-measures. There was a genuine terminology
+        gap here: "within-subjects" and "repeated measures" name the same thing in most
+        statistical software and most of the psychology literature, but the phrase
+        "repeated measures" does carry a longitudinal connotation in some fields, and if
+        that is the sense you learned it in, our design does not look like one.</p>
+        <p>We had also, earlier in the review process, already told the reviewer we would
+        describe it as a three-way within-subjects ANOVA. So the manuscript was
+        committed to a description that the analysis did not implement.</p>
+        <p>Two further wrinkles surfaced once we agreed on the frame:</p>
+        <p><strong>The four repetitions.</strong> Each condition was measured four times per
+        participant. The options were to average them and run repeated-measures ANOVA on
+        the means, or to model the repetitions explicitly with a mixed-effects model. I
+        argued against averaging — collapsing four measurements to a mean discards the
+        within-condition variance, which for a subjective judgement task is a
+        substantial part of what you are trying to characterise. I built the linear
+        mixed-effects model, got it running, and then made a decision I still think was
+        right: I did not use it. I did not have enough experience with mixed models to
+        interpret the output confidently or defend it under review. Shipping a model I
+        could not fully explain would have been worse than shipping a simpler one I
+        could.</p>
+        <p><strong>Post-hoc tests.</strong> I had read that Tukey HSD does not straightforwardly apply
+        to repeated-measures designs, because it assumes independent observations, and
+        briefly concluded we could not do the pairwise comparisons the reviewer wanted.
+        This was over-cautious. The resolution was pairwise t-tests with Bonferroni
+        correction — conservative, unambiguous, defensible.</p>
+        <h2>What changed</h2>
+        <p>The re-derived analysis differed from what I had been given. I reported effect
+        sizes, which had not been included and which the reviewer had implicitly asked
+        for by requesting a full table. The interaction effects came out properly
+        specified. And one descriptive claim in the manuscript turned out to be wrong.</p>
+        <p>The manuscript stated that all participants correlated at 0.7 or above with the
+        mean rating per image — a check for random clicking. In the new data, four
+        participants sat at 0.51, 0.51, 0.61 and 0.68.</p>
+        <p>We did not drop them. My collaborator's call on that was right and I want to be
+        precise about why: the correlations were low but not at chance, the effects in
+        the data were large and highly significant, and removing participants after
+        seeing their data is a researcher-degrees-of-freedom problem worse than the noise
+        it removes. The correct fix was to report the actual numbers and note that those
+        participants may contribute noise. The original sentence was not a fabrication;
+        it was true of an earlier dataset and had not been updated when the data were
+        replaced. That is an ordinary and very common failure mode, and the only defence
+        against it is re-checking every factual claim against the current data before
+        resubmission, which is tedious and which I then did line by line.</p>
+        <p>I also checked whether the low correlations came from participants rushing.
+        Correlation between rater-mean agreement and total time taken: 0.46. Present,
+        moderate, not the whole story.</p>
+        <h2>The opinion</h2>
+        <p><strong>When a statistical result cannot be reproduced from its description, the
+        description is the problem — and re-deriving the result yourself is usually
+        faster than negotiating about it.</strong></p>
+        <p>I do not mean this as a claim about who was right. I mean it as a claim about
+        cost. I spent roughly a day failing to reconcile the output I had been given,
+        and about two days re-running everything from raw data in R. The second activity
+        produced a results section I could defend line by line, effect sizes, corrected
+        post-hocs, and the discovery of a stale factual claim. The first produced
+        nothing but a slightly better-informed disagreement.</p>
+        <p>The general principle: for any analysis you will have to defend in public, the
+        ability to regenerate every number from the raw data is not a nice-to-have. It
+        is the thing that lets you find your own errors. An analysis you received as a
+        finished artefact has exactly one failure mode available to you — trusting it —
+        and no way to distinguish a result you disagree with from a result you have
+        misunderstood.</p>
+        <p>The corollary I like less, but believe: this makes collaboration on statistics
+        genuinely expensive. Two people cannot both hold the full derivation in their
+        heads for the same paper without one of them re-deriving it, which looks like
+        duplicated effort right up until the moment it isn't.</p>
+        <h2>A note on how this reads</h2>
+        <p>I have described a disagreement with a collaborator over statistical method, and
+        I want to be clear about the frame. The disagreement was productive and civil,
+        it was resolved on the merits, and the parts where I was wrong — the Tukey
+        question, and my initial instinct to drop low-correlation participants — I was
+        wrong about in exactly the same way and for the same reasons that the other
+        positions were wrong. Terminology gaps between fields are not incompetence. They
+        are the ordinary friction of interdisciplinary work, and the only reliable
+        solvent is going back to the raw data together.</p>
+        <h2>Caveats</h2>
+        <p>One study, 24 participants, one design. The methodological points are general;
+        the specific numbers are not, and I am not reporting the substantive findings
+        here — those belong to the published paper, not to me. Nothing above should be
+        read as a claim about how common stale factual claims are in manuscripts under
+        revision, only that this one had one and that a line-by-line re-check is the
+        thing that finds them.</p>
+        <h2>References</h2>
+        <ul>
+        <li>Field, A. (2018). <em>Discovering Statistics Using IBM SPSS Statistics</em> (5th ed.).
+          Sage. — on within-subjects error terms and sphericity.</li>
+        <li>Lawrence, M. A. (2016). <em>ez: Easy Analysis and Visualization of Factorial
+          Experiments.</em> R package.</li>
+        <li>Bates, D., Mächler, M., Bolker, B., &amp; Walker, S. (2015). Fitting linear
+          mixed-effects models using lme4. <em>Journal of Statistical Software</em>, 67(1).</li>
+        <li>Lakens, D. (2013). Calculating and reporting effect sizes to facilitate
+          cumulative science. <em>Frontiers in Psychology</em>, 4, 863.</li>
+        <li>American Psychological Association (2019). <em>Publication Manual</em> (7th ed.),
+          §3.6 on statistical reporting.</li>
+        <li>Simmons, J. P., Nelson, L. D., &amp; Simonsohn, U. (2011). False-positive
+          psychology: undisclosed flexibility in data collection and analysis.
+          <em>Psychological Science</em>, 22(11).</li>
+        </ul>
+      </article>
+
+    </main>
+  </div>
+
+</body>
+</html>

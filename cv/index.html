@@ -75,10 +75,12 @@ markets to understand how money works. Based in Kolkata, West Bengal, India.
           <span class="where">Playpower Labs — Remote (India)</span>
           <ul>
             <li>Reported to the CEO as a senior individual contributor; occasional collaboration with product teams.</li>
-            <li>Studied emergent properties of LLMs (GPT-4, Claude) and their implications for EdTech.</li>
-            <li>Designed improved user interfaces for collecting high-quality human preference data for AI alignment.</li>
-            <li>Tinkered with fine-tuning of Stable Diffusion.</li>
-            <li>Scoping and feasibility analysis for EdTech applications, including automated essay scoring.</li>
+            <li>Research on human preference elicitation for AI alignment — how the interface used to collect preference data changes the data you get, across rating scales, pairwise and n-alternative forced choice, like/dislike and best-worst scaling.</li>
+            <li>Built instrumentation for browser-based preference experiments, including a custom n-alternative forced-choice plugin (2-, 4- and 6-choice) that did not exist in the framework being used.</li>
+            <li>Ran crowdsourced studies end to end: stimulus generation, deployment, participant-quality screening, and analysis in R (within-subjects factorial ANOVA with effect sizes; Bradley–Terry and Elo ranking models).</li>
+            <li>Diagnosed a disconnected comparison graph in existing preference data that made global ranking unidentifiable, and designed the task change that fixed it.</li>
+            <li>Synthesised preference-elicitation literature across psychometrics, experimental economics, computational social choice and RLHF.</li>
+            <li>Studied emergent properties of LLMs (GPT-4, Claude) and their implications for EdTech; scoping and feasibility analysis including automated essay scoring.</li>
           </ul>
         </div>
       </div>
@@ -89,8 +91,10 @@ markets to understand how money works. Based in Kolkata, West Bengal, India.
           <h3>R&amp;D Researcher (Human–AI Interaction)</h3>
           <span class="where">Playpower Labs — Remote (India)</span>
           <ul>
-            <li>Tinkering and building with GPT-3, ChatGPT, and GPT-4.</li>
-            <li>Investigating the academic and commercial impact of these LLMs.</li>
+            <li>Built and evaluated prototypes on GPT-3, ChatGPT and GPT-4 as they were released, including deployed web applications with API integration, content moderation and usage logging.</li>
+            <li>Fine-tuned GPT-3 base models and characterised the practical limits of doing so; ran early Stable Diffusion and diffusion-model training experiments.</li>
+            <li>Designed and deployed the first round of browser-based preference experiments on crowdsourcing platforms.</li>
+            <li>Investigated the academic and commercial impact of these LLMs.</li>
           </ul>
         </div>
       </div>
@@ -166,6 +170,34 @@ markets to understand how money works. Based in Kolkata, West Bengal, India.
             <li>An oracle harness that grades exit rules independently of any entry signal</li>
             <li>A multimodal sequence transformer for intraday cross-sectional direction</li>
             <li>Stack: Python, Polars, NumPy, PyTorch, LightGBM, scikit-learn</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="cv-row">
+        <div class="cv-row__when">2023 — 2024</div>
+        <div class="cv-row__what">
+          <h3><a href="../project/preference-elicitation-toolbox/">A toolbox for collecting human preference data</a></h3>
+          <span class="where">Instrumentation for comparing preference elicitation methods</span>
+          <ul>
+            <li>Built a custom n-alternative forced-choice plugin for a web psychophysics framework, covering 2-, 4- and 6-choice image selection</li>
+            <li>Ran crowdsourced preference studies end to end — stimulus generation, deployment, participant screening, analysis</li>
+            <li>Implemented and compared Bradley–Terry, Elo and preference-ratio scoring on the same comparison data</li>
+            <li>Deployed a public 4-AFC collection app with a live results dashboard</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="cv-row">
+        <div class="cv-row__when">2023 — 2024</div>
+        <div class="cv-row__what">
+          <h3><a href="../project/emotional-alignment-image-generators/">Measuring whether image generators can depict an emotion</a></h3>
+          <span class="where">A within-subjects study of emotional alignment, and a rescue archive of deprecated models</span>
+          <ul>
+            <li>Ran a within-subjects study comparing emotional alignment across three text-to-image generators</li>
+            <li>Re-derived the full three-way repeated-measures ANOVA in R with effect sizes and corrected post-hoc tests</li>
+            <li>Correlated a published image-preference reward model against human ratings on the same stimuli</li>
+            <li>Archived ~14.5k generations from a family of language models shortly before deprecation</li>
           </ul>
         </div>
       </div>
@@ -256,6 +288,20 @@ markets to understand how money works. Based in Kolkata, West Bengal, India.
       </div>
 
       <div class="cv-row">
+        <div class="cv-row__when">Jan — Apr 2019</div>
+        <div class="cv-row__what">
+          <h3><a href="../project/cg501-computation-and-cognition/">Designing and teaching a graduate course from scratch</a></h3>
+          <span class="where">Eleven lectures of machine learning and game theory, plus the evaluation data</span>
+          <ul>
+            <li>Independently designed and delivered eleven lectures of a core MSc cognitive science course, covering machine learning and an added game theory module</li>
+            <li>Authored and graded two assignments, two quizzes, the end-semester exam and a twenty-topic course project</li>
+            <li>Implemented algorithms from scratch live in class and set assignments requiring students to complete working implementations</li>
+            <li>Nominated for an institute teaching award; analysed the anonymous course evaluation data against my own teaching statement</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="cv-row">
         <div class="cv-row__when">Apr 2017</div>
         <div class="cv-row__what">
           <h3><a href="../project/keystroke-flann-authentication/">Identifying users by how they type — a functional-link neural network for keystroke dynamics</a></h3>
@@ -336,6 +382,10 @@ markets to understand how money works. Based in Kolkata, West Bengal, India.
         <li>Matplotlib · EDA</li>
         <li>Signal processing (SciPy / MATLAB)</li>
         <li>Statistical analysis in R</li>
+        <li>Experiment design</li>
+        <li>Preference elicitation</li>
+        <li>Bradley–Terry · Elo</li>
+        <li>RLHF · DPO · KTO</li>
         <li>LLMs · HuggingFace · Transformers</li>
         <li>Computational modelling</li>
         <li>Flask · MongoDB · Node.js</li>

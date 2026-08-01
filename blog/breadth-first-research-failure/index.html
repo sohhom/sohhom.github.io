@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>I read for eight months and shipped one app — Sohhom Bandyopadhyay</title>
+  <link rel="stylesheet" href="../../styles.css" />
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="site-header__inner">
+      <a class="brand" href="../../">Sohhom Bandyopadhyay <small>sohhom.github.io</small></a>
+      <nav class="nav" aria-label="primary">
+        <a href="../../cv/">cv</a>
+        <a href="../../project/">projects</a>
+        <a href="../" aria-current="page">blog</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="page">
+    <main data-screen-label="Post: breadth-first-research-failure">
+
+      <article>
+        <header class="project-hero">
+          <div class="project-hero__kicker">Reflection · May 2024 · 8 min</div>
+          <h1>I read for eight months and shipped one app</h1>
+          <p class="project-hero__lede">I spent most of a year building a map of preference elicitation across psychometrics, experimental economics, social choice theory and machine learning. The map was good. It was also the wrong deliverable, and I knew that months before I changed anything.</p>
+        </header>
+
+        <h2>What happened</h2>
+        <p>I was asked to produce a literature review and an experiment design for
+        comparing methods of collecting human preference data. I produced a very large
+        literature review, a partial experiment design, one deployed data-collection app,
+        and no completed study.</p>
+        <p>The review was genuinely good. It connected work that does not usually get
+        connected: the psychometrics of paired comparison going back to Thurstone in
+        1927 and a 1969 monograph on the method; discrete-choice experiments from health
+        economics; multi-criteria decision analysis and best-worst scaling; computational
+        social choice and voting theory; the HCI literature on annotation interfaces;
+        and the then-current wave of alignment work — RLHF, DPO, IPO, KTO, Nash learning
+        from human feedback. As far as I know that synthesis did not exist anywhere in
+        one place. Some of it I still think is genuinely useful, and the four other posts
+        on this site drawing on that period exist because of it.</p>
+        <p>Six months in, I wrote to my collaborator: <em>"it is going slowly because I am
+        connecting dots across a large number of disciplines."</em> I meant it as an
+        explanation. Reading it back, it is a description of the problem wearing the
+        costume of a justification.</p>
+        <h2>The structure of the failure</h2>
+        <p>Breadth-first research has a specific and seductive failure mode, and it is not
+        laziness. It is that every individual step is defensible.</p>
+        <p>You are writing about pairwise comparison. That leads you to Bradley–Terry. That
+        leads you to the question of how many comparisons are needed for a connected
+        ranking, which is a real question you genuinely need answered. Answering it
+        properly leads to Plackett–Luce and the sampling-design literature. Which raises
+        active learning and bandit approaches to stimulus selection. Each hop is
+        justified by the previous one. None is a detour. And after eight weeks of
+        entirely defensible hops you have a magnificent map and no experiment.</p>
+        <p>The seduction is that the map keeps producing genuine insights, so the feedback
+        signal stays positive right up until the deadline. Depth-first work fails loudly
+        — you hit a wall, you know you hit it. Breadth-first work fails silently, and the
+        failure is only visible in aggregate, which is precisely the view you do not have
+        while you are inside it.</p>
+        <p>There was also an ordering problem I created for myself. I was trained to write
+        papers in the order methods → results → discussion → literature review →
+        introduction → abstract, and I followed that order through the whole of my PhD.
+        My collaborator's instruction was the opposite: <em>start with the abstract, always,
+        and end with the abstract.</em> I resisted this, on the grounds that I could not
+        frame an introduction before knowing what the results were.</p>
+        <p>I now think the instruction was correct and my objection missed its point. An
+        abstract written first is not a summary. It is a commitment device — a statement
+        of the claim you intend to be able to make, written down early enough that
+        everything after it can be checked against it. Had I written that abstract in
+        September, the review would have had a stopping condition. Instead it had a
+        subject, which is not the same thing and does not terminate.</p>
+        <h2>What the honest verdict is</h2>
+        <p>Asked afterwards what I would change, my answer was: I could have worked more
+        towards tangible results instead of gathering references and making notes.</p>
+        <p>I want to be careful not to over-correct here, because there is a version of this
+        reflection that is just self-flagellation and it would be inaccurate. The reading
+        was not wasted. The disconnected-graph problem I have written about elsewhere was
+        only diagnosable because I had gone deep enough into ranking models to know that
+        connectivity was a precondition. The procedure-invariance literature is the
+        reason I could state what was actually at stake in comparing elicitation formats.
+        That is what the map bought.</p>
+        <p>But the project needed a completed study, and a completed study was achievable
+        with a fraction of that reading. Three elicitation methods, one stimulus set, a
+        few hundred participants, inter-rater agreement and response time as the
+        outcomes. I proposed roughly that at one point — pairwise, rating scale, and a
+        category-based n-AFC — and then went back to reading instead of building it.</p>
+        <p>The proximate cause of the shortfall was not the reading. It was that I never
+        converted the reading into a scoped, dated plan and defended it. When I was
+        eventually asked directly for a plan with time estimates, I gave a date and
+        missed it, because the plan was a date rather than a scope.</p>
+        <h2>The opinion</h2>
+        <p><strong>A literature review spanning four disciplines is a real contribution and was
+        the wrong deliverable, and those two statements are fully compatible.</strong></p>
+        <p>The reason they are compatible is that value and fit are different axes, and
+        research culture systematically conflates them. Producing something genuinely
+        good is treated as sufficient justification for having produced it. It is not.
+        The question is not "is this valuable" but "is this the thing that most needed
+        doing, given what else was not getting done."</p>
+        <p>I would add a sharper version, which I hold with less confidence but do believe:
+        <strong>in a small team without institutional slack, breadth-first research is a
+        luxury good, and the person doing it usually cannot tell it has become one.</strong> In
+        a university group with a five-year horizon, eight months of synthesis is normal
+        and healthy. In a small applied setting the same work needs a forcing function
+        attached to it from day one, and the person best placed to attach it is the
+        person doing the reading — who is exactly the person least motivated to, because
+        the reading feels productive.</p>
+        <h2>What I do differently</h2>
+        <p>Three things, concretely.</p>
+        <p><strong>Write the claim first.</strong> Not the abstract as literary form — the single
+        sentence I intend to be able to defend at the end. If I cannot write it, I do not
+        yet know what I am doing, and more reading is unlikely to fix that.</p>
+        <p><strong>Timebox synthesis and ship the minimum study.</strong> The smallest experiment that
+        would move the claim from unsupported to supported, run early, is worth more than
+        a complete understanding of the surrounding field. I have started treating the
+        minimum viable study as the deliverable and the literature as the thing that
+        gets sampled in service of it.</p>
+        <p><strong>Notice the justification-shaped explanation.</strong> <em>"It is slow because the field
+        is broad"</em> is a description of the situation, not a reason for the situation to
+        continue. When I catch myself explaining a delay in terms of the subject's
+        properties rather than my choices, that is the signal.</p>
+        <p>Whether these actually hold under pressure I cannot tell you from here. They are
+        corrections applied after the fact to a project that had already run out of
+        runway, which is the weakest possible evidence for a behavioural change. I am
+        reporting them as intentions with a known failure history, not as a method.</p>
+        <h2>Caveats</h2>
+        <p>This is a self-assessment, and self-assessments of this kind have an obvious
+        reliability problem in both directions — too harsh reads as performance, too
+        generous reads as evasion. The one externally checkable fact is the ratio:
+        roughly eight months, one deployed app, one contributed dataset analysis, one
+        extensive review, zero completed method-comparison studies. Draw your own
+        conclusion about the balance; that is the number I would want if I were reading
+        someone else's version of this.</p>
+        <p>I should also say that the project had real constraints I have not itemised —
+        dependencies on other people's timelines, a mid-project pivot in scope, and a
+        few weeks lost to a family medical situation. All true, all real, and none of
+        them the reason. The reading was the reason.</p>
+      </article>
+
+    </main>
+  </div>
+
+</body>
+</html>

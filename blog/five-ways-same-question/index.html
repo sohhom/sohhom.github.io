@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Five ways to ask the same question — Sohhom Bandyopadhyay</title>
+  <link rel="stylesheet" href="../../styles.css" />
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="site-header__inner">
+      <a class="brand" href="../../">Sohhom Bandyopadhyay <small>sohhom.github.io</small></a>
+      <nav class="nav" aria-label="primary">
+        <a href="../../cv/">cv</a>
+        <a href="../../project/">projects</a>
+        <a href="../" aria-current="page">blog</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="page">
+    <main data-screen-label="Post: five-ways-same-question">
+
+      <article>
+        <header class="project-hero">
+          <div class="project-hero__kicker">Essay · Mar 2024 · 11 min</div>
+          <h1>Five ways to ask the same question</h1>
+          <p class="project-hero__lede">Rating scales, pairwise choice, n-alternative choice, like/dislike, best-worst scaling. They are meant to measure the same underlying preference. They do not agree with each other, the disagreement is systematic rather than noisy, and the alignment literature has largely standardised on one of them without arguing the case.</p>
+        </header>
+
+        <h2>The question behind the question</h2>
+        <p>Modern AI systems are tuned on human preference data. Someone is shown two model
+        outputs and says which is better; that judgement, multiplied by hundreds of
+        thousands, becomes a reward model, which becomes a fine-tuned model. The
+        algorithms that consume this data have been iterated on hard — RLHF, then DPO,
+        then IPO, KTO, SLiC-HF, Nash learning, and a new one every few weeks.</p>
+        <p>The <em>interface</em> that produces the data has barely moved.</p>
+        <p>Almost everything in the alignment stack runs on binary pairwise comparison: two
+        options, pick one. Occasionally like/dislike. The choice of that format is
+        usually presented as settled — it is what works, it is what the datasets use.
+        When I went looking for the argument that established it, I mostly found a
+        historical accident: early attempts used 0–10 rating scales, the reward models
+        trained on them did not work well, and the field moved to pairwise and stayed
+        there. That is a real empirical finding. It is not the same as having compared
+        the available formats on common stimuli and measured the trade-offs.</p>
+        <p>I spent about eight months on that comparison problem. This is what I think I
+        learned.</p>
+        <h2>The methods, and what each one assumes about the person</h2>
+        <p>There are more elicitation formats than the AI literature typically
+        acknowledges. The ones worth distinguishing:</p>
+        <p><strong>Rating scales.</strong> Show one item, ask for a number, usually 1–5 or 1–10 or a
+        continuous slider. Cheap, fast, and produces an absolute score per item with no
+        graph-connectivity problems at all. The cost is that the scale lives in the
+        annotator's head and drifts — the same image rated at the start and end of a
+        session gets different numbers, and different annotators anchor differently.</p>
+        <p><strong>Pairwise comparison (2-AFC).</strong> Two items, pick one. Low cognitive load per
+        trial, robust to scale drift because nothing absolute is being reported. The
+        cost is information density: one bit per trial, and you need a connected
+        comparison graph to recover a global ranking.</p>
+        <p><strong>n-alternative forced choice (4-AFC, 6-AFC).</strong> Show four or six, pick the best.
+        More information per trial — a 4-AFC trial is often treated as three implied
+        pairwise comparisons — at the price of higher working-memory load. There is
+        remarkably little published work comparing n across 2, 4 and 6 on identical
+        stimuli, which I found surprising given how heavily 2-AFC is used.</p>
+        <p><strong>Like/dislike (and like/indifferent/dislike).</strong> One item, binary or ternary
+        verdict. The weakest signal per trial and by far the cheapest to collect in the
+        wild, which is why it dominates real product telemetry. It has had a recent
+        theoretical revival: KTO aligns language models directly from this kind of
+        binary desirability signal, deriving its loss from the Kahneman–Tversky value
+        function, and reports matching or beating DPO at scales from 1B to 30B despite
+        learning from a strictly weaker signal.</p>
+        <p><strong>Best-worst scaling (MaxDiff).</strong> Show a set, pick both the best and the worst.
+        Extracts substantially more ordering information per trial than a single
+        selection. It has its own conference and a Springer proceedings volume, and it
+        is essentially absent from the AI alignment literature.</p>
+        <p><strong>Point/budget allocation.</strong> Distribute 100 points across options. Forces
+        explicit trade-off reasoning and produces ratio-scale data, at high cognitive
+        cost.</p>
+        <p><strong>Categorical binning.</strong> Drag items into labelled buckets. One CHI study found
+        this produced significantly more user interactions without increasing time
+        spent — the best effort-to-data ratio in that comparison.</p>
+        <p>Each format embeds a different assumption about what a preference <em>is</em>. A rating
+        scale assumes you hold a stable scalar value and can report it. Pairwise
+        comparison assumes only that you can order two things. Best-worst assumes you can
+        identify extremes more reliably than middles — which, empirically, you can.</p>
+        <h2>Procedure invariance, and why it fails</h2>
+        <p>The assumption that quietly underwrites all of this is called <strong>procedure
+        invariance</strong>: that a person's preferences are a property of the person, so any
+        competent method of asking should recover the same ordering. It is the reason it
+        feels safe to pick whichever format is convenient.</p>
+        <p>Procedure invariance is false. Not noisily false — systematically and
+        predictably false. This has been known in experimental economics and
+        psychometrics for decades, and preference reversals under changes of elicitation
+        format are among the more robust findings in the decision-making literature.
+        Choice tasks and matching tasks give different orderings from the same people
+        over the same options. I confirmed the direction of that classic result in our
+        own data: choice tasks generated fewer internal inconsistencies than matching
+        tasks, consistent with what Bostic and colleagues reported in 1990.</p>
+        <p>It gets worse in ways that are specific to subjective judgement. Deliberation
+        does not help: people asked to think carefully about their preferences are
+        <em>less</em> internally consistent than people who answer quickly, across stimuli as
+        varied as Chinese ideographs, paintings, apartments and jellybeans. Rejecting an
+        option is not the mirror image of choosing one; framing the same trade-off as a
+        rejection can reverse the outcome. And the number of options on screen changes
+        the strategy, not just the difficulty — past a certain set size people stop
+        comparing exhaustively and start using heuristics, which means the data
+        generated by a 6-AFC trial is not simply a denser version of the data from a
+        2-AFC trial. It is a different cognitive process with a different bias
+        structure.</p>
+        <p>There is also a decision-theoretic reason to expect this. Decision-makers are
+        not only optimising accuracy; they are trading it off against three other
+        metagoals — minimising cognitive effort, minimising negative emotion, and
+        maximising the ease of justifying the decision. Change the interface and you
+        change that trade-off. The annotator is not a noisy sensor. They are an agent
+        with their own objective, and the UI sets their incentives.</p>
+        <h2>The opinion</h2>
+        <p><strong>The algorithmic side of preference learning innovates hard and the interface
+        side barely at all, because the two research communities do not talk to each
+        other.</strong></p>
+        <p>I went through the recent alignment papers looking specifically for screenshots
+        of the annotation interface. The pattern was consistent: enormous sophistication
+        in the loss function, and either no description of the collection UI at all or a
+        single unremarked screenshot of a two-button layout. The improvements over RLHF
+        are real and they are almost entirely mathematical — they make better use of
+        pairwise data rather than asking whether pairwise data is the right thing to
+        collect.</p>
+        <p>I do not think this is negligence. It is a straightforward consequence of how the
+        work is organised. The people who design annotation interfaces publish at CHI
+        and in human-factors venues. The people who design alignment algorithms publish
+        at NeurIPS and ICML. The former treat the model as a given; the latter treat the
+        data as a given. Neither is wrong within its own frame, and the interaction
+        effect between the two — which is where I think a large amount of the available
+        signal quality is sitting — belongs to nobody.</p>
+        <p>There is a partial exception worth noting, and it cuts the other way: the recent
+        theoretical work on preference <em>aggregation</em> has started taking the elicitation
+        problem seriously. There is a result showing that standard RLHF, applied across
+        annotators with hidden differing contexts, implicitly aggregates via Borda
+        count — a specific and well-studied voting rule with known pathologies, adopted
+        by accident rather than by argument. Once you see preference learning as social
+        choice, the fact that Arrow's impossibility theorem applies to your reward model
+        stops being a curiosity.</p>
+        <h2>The disagreement I did not win</h2>
+        <p>Through most of this work I was arguing for measurement precision, and the
+        counter-argument from my collaborator was consistently about purpose: for a
+        practical curation task you do not need an accurate score for every item, you
+        need to find the good ones and discard the bad ones. Heuristics like <em>anything
+        shown five times with no selections can be dropped</em> get you most of the way there
+        for a fraction of the effort.</p>
+        <p>I pushed back for a while — my position was that finding the best items
+        operationally requires measuring preference well, so the distinction was
+        illusory. I now think I was mostly wrong, and in an instructive way. If the
+        downstream use is curation, precision on the bottom half of the distribution is
+        wasted effort, and a method that is sloppy but cheap can dominate a method that
+        is careful but expensive. The question <em>"how accurately do we need to measure
+        this?"</em> has an answer that depends on what the measurement is for, and I was
+        treating it as though it had a universal answer.</p>
+        <p>Where I still hold my ground: this is an argument for accepting a known
+        imprecision, not for not knowing what your imprecision is. Those are different
+        positions and they are easy to conflate under deadline pressure.</p>
+        <h2>Caveats</h2>
+        <p>Everything above is a reading of the literature plus one empirical project on
+        one class of stimuli — AI-generated images judged for emotional content — with
+        crowdsourced annotators. The procedure-invariance results I am leaning on are
+        robust and long-established, but they come mostly from consumer choice, health
+        economics and psychophysics, and I cannot tell you with confidence how large the
+        effects are in the specific setting of annotating language-model outputs. That
+        comparison, run properly on common stimuli with the same annotator pool across
+        formats, is as far as I know still missing. It was the study I was trying to
+        run.</p>
+        <h2>References</h2>
+        <p>Elicitation methods and procedure invariance</p>
+        <ul>
+        <li>Bostic, R., Herrnstein, R. J., &amp; Luce, R. D. (1990). The effect on the
+          preference-reversal phenomenon of using choice indifferences. <em>Journal of
+          Economic Behavior &amp; Organization</em>, 13(2), 193–212.</li>
+        <li>Chen, L., &amp; Pu, P. (2004). Survey of preference elicitation methods. EPFL
+          technical report.</li>
+        <li>David, H. A. (1969). <em>The Method of Paired Comparisons.</em> Griffin.</li>
+        <li>Bechtel, G. G. (1976). <em>Multidimensional Preference Scaling.</em> Mouton.</li>
+        <li>Nordgren, L. F., &amp; Dijksterhuis, A. (2009). The devil is in the deliberation:
+          thinking too much reduces preference consistency. <em>Journal of Consumer
+          Research</em>, 36(1), 39–46.</li>
+        <li>Shafir, E. (1993). Choosing versus rejecting: why some options are both better
+          and worse. <em>Memory &amp; Cognition</em>, 21(4), 546–556.</li>
+        <li>Payne, J. W., Bettman, J. R., &amp; Johnson, E. J. (1993). <em>The Adaptive Decision
+          Maker.</em> Cambridge University Press.</li>
+        <li>Carenini, G., &amp; Poole, D. (2002). Constructed preferences and value-focused
+          thinking. AAAI.</li>
+        <li>Lloyd, A. J. (2003). Threats to the estimation of benefit: are preference
+          elicitation methods accurate? <em>Health Economics</em>, 12(5), 393–402.</li>
+        <li>Rezaei, J., Brunelli, M., &amp; Mohammadi, M. (Eds.) (2022). <em>Advances in
+          Best-Worst Method.</em> Springer.</li>
+        <li>Zhang, Q., et al. (2019). Categorical binning for preference elicitation. CHI.</li>
+        </ul>
+        <p>Alignment algorithms and preference aggregation</p>
+        <ul>
+        <li>Ouyang, L., et al. (2022). Training language models to follow instructions
+          with human feedback. arXiv:2203.02155.</li>
+        <li>Rafailov, R., et al. (2023). Direct Preference Optimization. arXiv:2305.18290.</li>
+        <li>Azar, M. G., et al. (2023). A general theoretical paradigm to understand
+          learning from human preferences (IPO). arXiv:2310.12036.</li>
+        <li>Ethayarajh, K., et al. (2024). KTO: Model alignment as prospect theoretic
+          optimization. arXiv:2402.01306.</li>
+        <li>Siththaranjan, A., Laidlaw, C., &amp; Hadfield-Menell, D. (2023). Distributional
+          preference learning: understanding and accounting for hidden context in RLHF.
+          arXiv:2312.08358.</li>
+        <li>Kaufmann, T., et al. (2023). A survey of reinforcement learning from human
+          feedback. arXiv:2312.14925.</li>
+        <li>Casper, S., et al. (2023). Open problems and fundamental limitations of RLHF.
+          arXiv:2307.15217.</li>
+        <li>Wirth, C., et al. (2017). A survey of preference-based reinforcement learning
+          methods. <em>JMLR</em>, 18(136).</li>
+        </ul>
+        <p>Interface and annotation quality</p>
+        <ul>
+        <li>Dudley, J. J., &amp; Kristensson, P. O. (2018). A review of user interface design
+          for interactive machine learning. <em>ACM TiiS</em>, 8(2).</li>
+        <li>Metz, Y., et al. (2023). RLHF-Blender: a configurable interactive interface for
+          learning from diverse human feedback. arXiv:2308.04332.</li>
+        <li>Aroyo, L., &amp; Welty, C. (2015). Truth is a lie: crowd truth and the seven myths
+          of human annotation. <em>AI Magazine</em>, 36(1).</li>
+        <li>Goyal, N., Wang, T., &amp; Chang, K.-W. (2023). A pilot study on annotation
+          interfaces for summary comparisons. <em>ACL LAW workshop</em>.</li>
+        </ul>
+      </article>
+
+    </main>
+  </div>
+
+</body>
+</html>

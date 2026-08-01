@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Dragons, pizza, and payoff matrices — Sohhom Bandyopadhyay</title>
+  <link rel="stylesheet" href="../../styles.css" />
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="site-header__inner">
+      <a class="brand" href="../../">Sohhom Bandyopadhyay <small>sohhom.github.io</small></a>
+      <nav class="nav" aria-label="primary">
+        <a href="../../cv/">cv</a>
+        <a href="../../project/">projects</a>
+        <a href="../" aria-current="page">blog</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="page">
+    <main data-screen-label="Post: dragons-pizza-and-payoff-matrices">
+
+      <article>
+        <header class="project-hero">
+          <div class="project-hero__kicker">Essay · Jul 2019 · 6 min</div>
+          <h1>Dragons, pizza, and payoff matrices</h1>
+          <p class="project-hero__lede">I added a game theory module to a cognitive science course that did not have one, and set exam questions about medieval warlords trading dragons for slave armies, splitting a free pizza, and designing India&#x27;s nuclear first-strike policy. The fiction was not decoration. Modelling is the skill, and you cannot assess modelling with a question that hands the student the model.</p>
+        </header>
+
+        <h2>What I put on the quiz</h2>
+        <p>Quiz 3, April 2019, question 4, worth four points of eleven:</p>
+        <blockquote>
+        <p>"Suppose you are a warlord in Palaj in medieval times, and you own two dragons.
+        You've arrived at the following deal with slave masters of Chiloda: half the
+        Fearless slave army for one dragon, or both the dragons for the entire Fearless
+        army. Assume that two dragons together are more powerful as weapons than single
+        (i.e. their combined strength is more than the sum of individual strengths);
+        similarly, the Fearless also wield less than 50 percent power when broken up
+        into half. Model the situation as a static game of complete information (no need
+        to find equilibria), and explain each payoff pair."</p>
+        </blockquote>
+        <p>Palaj and Chiloda are the two villages adjacent to the IIT Gandhinagar campus.
+        The dragons and the slave army are from a television series most of the class was
+        watching that year.</p>
+        <p>Question 3 on the same quiz asked two friends at a restaurant to simultaneously
+        announce how many pieces of a free pizza they wanted from {2, 4, 6}, where
+        exceeding six pieces in total means nobody gets any. The end-semester exam asked
+        students to describe a scenario other than the canonical car crash where the game
+        of chicken applies, and then write a plausible payoff matrix for it. The course
+        project offered, among other topics, designing India's nuclear first-strike policy
+        against a conventionally weaker nuclear neighbour, the economics of a company
+        transitioning to a circular economy, and a game-theoretic analysis of a class
+        attendance rule under which nobody gets attendance unless 80% of the class shows
+        up.</p>
+        <p>That last one is a game the students were, at the time, playing.</p>
+        <h2>Why not just ask for the equilibrium</h2>
+        <p>The mathematics of an introductory game theory course is not difficult. Finding
+        pure strategy Nash equilibria in a 3×3 matrix is cell-checking. Backwards
+        induction on a small extensive-form game is bookkeeping. The mixed-strategy
+        calculation is one linear equation from the indifference principle. I taught all
+        of it, and I assessed all of it — quiz 3 opens with a plain "find the pure
+        strategy Nash equilibrium in the static game given below", worth one point.</p>
+        <p>One point out of eleven, because that question is nearly free. Any student who
+        attended could do it, and doing it demonstrates almost nothing about whether they
+        understood what game theory is.</p>
+        <p>The hard step — the one the whole apparatus exists to serve — happens before any
+        of that. It is the step where a situation in the world becomes a set of players,
+        a set of actions available to each, and a payoff structure. I put it directly in
+        the lecture slides, quoting Binmore: <em>"one cannot capture all the complicated ins
+        and outs of a new telecom market in a mathematical model. Designing a telecom
+        auction is therefore as much an art as a science. One extrapolates from simple
+        models chosen to mimic what seem to be the essential strategic features of a
+        problem."</em></p>
+        <p>If that is the skill, then a question that hands the student a completed payoff
+        matrix has assessed everything except the skill. The dragon question gives no
+        matrix. It gives a situation, an explicitly stated action set for each player, two
+        stated assumptions about superadditivity, and the instruction to build the model
+        and defend every cell. The four points are for the construction and the defence.
+        "No need to find equilibria" is in the question text because I did not want a
+        single mark going to the easy part.</p>
+        <h2>Why fiction, specifically</h2>
+        <p>Three reasons, in increasing order of how much I believe them.</p>
+        <p><strong>It is memorable.</strong> Weak but real. A payoff matrix about dragons is recalled
+        better than a payoff matrix about firms A and B. I would not have built a question
+        around this alone.</p>
+        <p><strong>It equalises background.</strong> A question about Cournot duopoly rewards the student
+        who has taken economics. A question about dividing a pizza does not advantage
+        anybody, which matters in a cognitive science cohort with mixed undergraduate
+        backgrounds — some from psychology, some from engineering, some from biology. The
+        fiction was chosen partly because nobody comes pre-equipped with domain knowledge
+        about dragons.</p>
+        <p><strong>It forces the assumptions into the open.</strong> This is the real reason. In a
+        familiar economic scenario, a student can produce a plausible payoff matrix by
+        pattern-matching to one they have seen, without ever articulating why the numbers
+        are what they are. Remove the familiar setting and pattern-matching has nothing to
+        grip. The only route to an answer is to reason from the stated assumptions to the
+        ordering of outcomes — and since payoffs in these games are ordinal, the reasoning
+        <em>is</em> the answer. The number in the cell is worth nothing on its own. I made that
+        explicit in the lectures: <em>the numbers are on an ordinal scale, and payoff
+        magnitudes by themselves don't mean anything.</em></p>
+        <p>The dragon question is engineered so that superadditivity on both sides makes the
+        sell-two-for-full-army cell dominate in an interesting way, and a student who
+        merely writes plausible-looking numbers without tracking that assumption will
+        produce a matrix they cannot defend. Which is what the "explain each payoff pair"
+        clause is there to catch.</p>
+        <h2>The opinion</h2>
+        <p><strong>If you want to assess modelling, the scenario has to be one the student cannot
+        look up — and the most reliable way to guarantee that is to make it up.</strong></p>
+        <p>The obvious objection is that invented scenarios are unrealistic, and that the
+        whole value of game theory is its application to real strategic situations, so
+        assessing it through dragons trains students on a toy. I think this gets the
+        direction of transfer backwards. A student who can model a fictional situation
+        from stated assumptions has demonstrated the general capability. A student who can
+        reproduce the Cournot duopoly matrix has demonstrated that they remember the
+        Cournot duopoly matrix, and I cannot tell from their answer which of the two they
+        are.</p>
+        <p>There is a real cost, and one respondent's free text points straight at it: the
+        survey item on whether the exam truly reflected grasp of the course material
+        scored 2.90, respectable, but grading consistency scored 2.20 — joint-lowest on
+        the form, with two students rating it 0. Open modelling questions are
+        substantially harder to grade consistently than "find the equilibrium", and I
+        graded every script alone with no second marker. I believe the questions were the
+        right questions. I am much less confident that I marked them uniformly, and the
+        students who complained had a legitimate target even if I cannot now reconstruct
+        which specific judgements they objected to.</p>
+        <p>The mitigation is a rubric written before the exam, enumerating what counts as a
+        defended payoff — assumption stated, ordering derived from it, cell consistent
+        with the ordering. I wrote nothing of the kind. I marked by judgement, which is
+        exactly the practice that generates a 2.20.</p>
+        <h2>The module I was not asked to teach</h2>
+        <p>Game theory was not in the CG 501 syllabus. I added it because my supervisor took
+        a liberal view of the course outline and let me, and because collective decision
+        making struck me as an obvious gap in a cognitive science curriculum that
+        otherwise treats cognition as something happening inside one head.</p>
+        <p>It is the part of the course the students named as what they liked — "game
+        theory", "Game theory was fun" — and the only place in the free-text responses
+        where anybody expressed enthusiasm rather than assessment. I have written
+        elsewhere about the cost of that addition, which came out of the neural network
+        block and which five students independently identified as rushed. Both things are
+        true: the module I invented was the best-received part of the course, and adding
+        it damaged the part I was actually assigned to teach.</p>
+        <p>I would still add it. But I would drop something explicitly and say so, rather
+        than absorbing it by teaching faster.</p>
+        <h2>Caveats</h2>
+        <p>I have no per-question performance data, so I cannot tell you whether the students
+        did better or worse on the modelling questions than on the mechanical ones, which
+        is the single measurement that would turn this from a design rationale into a
+        finding. The claim that fictional scenarios equalise background is a design
+        intention I never tested. And a class of this size gives no way to separate "the
+        game theory module was well taught" from "the game theory module came second,
+        after I had already made my worst pacing mistakes on the machine learning block."</p>
+      </article>
+
+    </main>
+  </div>
+
+</body>
+</html>

@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>A toolbox for collecting human preference data — Sohhom Bandyopadhyay</title>
+  <link rel="stylesheet" href="../../styles.css" />
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="site-header__inner">
+      <a class="brand" href="../../">Sohhom Bandyopadhyay <small>sohhom.github.io</small></a>
+      <nav class="nav" aria-label="primary">
+        <a href="../../cv/">cv</a>
+        <a href="../" aria-current="page">projects</a>
+        <a href="../../blog/">blog</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="page">
+    <main data-screen-label="Project: preference-elicitation-toolbox">
+
+      <article>
+        <header class="project-hero">
+          <div class="project-hero__kicker">Research engineering · 2023–2024</div>
+          <h1>A toolbox for collecting human preference data</h1>
+          <p class="project-hero__lede">Instrumentation for running and comparing human preference elicitation experiments — a custom n-alternative forced-choice plugin, crowdsourcing integration with participant-quality screening, deployed collection apps, and a ranking-model analysis pipeline. Built to answer a question the AI alignment stack mostly does not ask: does the interface you collect preferences through change the preferences you get?</p>
+
+          <dl class="project-meta">
+            <div><dt>Role</dt><dd>Sole researcher and developer</dd></div>
+            <div><dt>Methods</dt><dd>n-AFC plugin development, crowdsourced experiment deployment, participant-quality screening, Bradley–Terry and Elo fitting, repeated-measures ANOVA</dd></div>
+            <div><dt>Stack</dt><dd>JavaScript, jsPsych, React, Python, R, Netlify, Vercel</dd></div>
+            <div><dt>Output</dt><dd>Internal research instrumentation; contributed to a peer-reviewed publication</dd></div>
+          </dl>
+        </header>
+
+        <h2>The problem</h2>
+        <p>Human preference data is the fuel of modern AI alignment. Someone is shown two
+        model outputs, says which is better, and that judgement — aggregated across
+        hundreds of thousands of trials — becomes a reward model.</p>
+        <p>Almost all of that data is collected through one interface: two options, pick
+        one. Occasionally a thumbs up/down. The algorithms consuming the data have been
+        iterated on relentlessly; the interface producing it has not. And there is a
+        substantial literature, mostly outside machine learning, showing that the format
+        of the question systematically changes the answer.</p>
+        <p>The work described here is the instrumentation built to test that: a set of
+        tools for collecting preference data through several different interfaces over
+        identical stimuli, so the methods can be compared against each other rather than
+        assumed equivalent.</p>
+        <h2>What was built</h2>
+        <h3>An n-alternative forced-choice plugin</h3>
+        <p>The web framework we used for browser-based psychophysics had solid support for
+        one-item-at-a-time tasks — rating scales, single-image button responses — and no
+        support for showing a grid of images and asking the participant to pick one.</p>
+        <p>I built that as a plugin: a configurable n-up image selection trial supporting
+        2-, 4- and 6-choice layouts, with randomised position assignment, per-trial
+        timing, and response logging. Two-choice is trivially available everywhere;
+        four- and six-choice are not, and my collaborator's observation at the time has
+        stayed with me — <em>if it is hard, that may be why people do not do it.</em> The
+        scarcity of published comparisons across n is at least partly an instrumentation
+        problem.</p>
+        <p>Design decisions that mattered:</p>
+        <ul>
+        <li><strong>Randomised grid positions per trial</strong>, so a participant developing a
+          positional habit (always clicking top-left under fatigue) does not
+          systematically bias one stimulus.</li>
+        <li><strong>Per-trial response time</strong>, recorded for every trial, used downstream both as
+          a cognitive-load proxy and as a data-quality screen.</li>
+        <li><strong>Desktop-only deployment.</strong> Layout consistency across mobile viewports was
+          not achievable in the time available, and an inconsistent stimulus display is
+          a confound rather than a cosmetic issue. The crowdsourcing platform supports
+          device restriction, so this was enforced at recruitment.</li>
+        </ul>
+        <h3>Collection apps and deployment</h3>
+        <p>Several data-collection applications, deployed to static hosts with data
+        persistence to a hosted database backend. Practical issues that consumed real
+        time and are worth recording:</p>
+        <ul>
+        <li><strong>CDN preload failures.</strong> The static host's CDN returned intermittent 404s for
+          images that existed, during preload. Moving image assets to a dedicated image
+          CDN resolved it. Preloading matters here: an image that appears late changes
+          the effective stimulus presentation and therefore the response time you are
+          recording.</li>
+        <li><strong>Database record limits and API changes.</strong> The initial backend hit both a
+          free-tier record ceiling and a mid-project API change that broke writes. Data
+          collection infrastructure needs a migration path planned before you need it,
+          not after a study has stalled.</li>
+        <li><strong>Participant identity across sessions.</strong> The later public-facing app wrote an
+          identifier to browser local storage, so a participant who completed some
+          trials, closed the browser and returned later could be linked to their earlier
+          responses rather than counted as a new person.</li>
+        </ul>
+        <p>The final 4-AFC application was deployed publicly with uniform random sampling
+        across the full stimulus set and a live dashboard summarising collected data.
+        This one was built to test the cross-category comparison design described in
+        <a href="../../blog/disconnected-comparison-graph/">the disconnected-graph writeup</a> —
+        each image captioned with its own intended label, so comparisons cross category
+        boundaries and the comparison graph connects.</p>
+        <h3>Crowdsourcing and participant-quality screening</h3>
+        <p>Studies were run on a paid crowdsourcing platform with screening built into the
+        analysis rather than bolted on:</p>
+        <ul>
+        <li><strong>Response-time outlier detection.</strong> A reviewer on a related manuscript had
+          flagged implausibly fast responses. The platform's own guidance permits
+          rejection only for statistical outliers — three standard deviations below the
+          mean — rather than an arbitrary threshold, so that is what was implemented. An
+          intuitive cutoff like "under 800 ms is not a real judgement" is defensible in
+          the abstract and not defensible as grounds for withholding payment.</li>
+        <li><strong>Agreement-with-mean screening.</strong> For each participant, the correlation
+          between their ratings and the per-item mean across all participants. Low
+          correlation flags random clicking. In one dataset this surfaced four
+          participants between 0.51 and 0.68 against a much higher group norm.</li>
+        <li><strong>The decision not to exclude.</strong> Those participants were retained and reported.
+          Dropping participants after inspecting their data is a
+          researcher-degrees-of-freedom problem, and the honest move is to report the
+          distribution and note the possible noise contribution. Correlation between
+          agreement-with-mean and total time taken was 0.46 — present, moderate, not a
+          complete explanation.</li>
+        </ul>
+        <h3>Analysis pipeline</h3>
+        <ul>
+        <li><strong>Ranking models.</strong> Bradley–Terry fitted via several independent
+          implementations — a from-scratch Python version, a textbook implementation, and
+          an established R package — deliberately cross-checked against each other.
+          Elo computed for pairwise data and extended to like/dislike data via a logistic
+          formulation, with n-AFC trials decomposed into implied pairwise comparisons (a
+          4-choice trial as three pairs, a 6-choice as five).</li>
+        <li><strong>A convergence finding worth recording.</strong> Validating the implementations
+          against synthetic data with known ground truth and perfectly transitive
+          comparisons, the iterative fitting routines failed to converge. This is not a
+          bug. Several standard algorithms require some intransitivity — genuine
+          disagreement — to have a well-posed problem; perfectly consistent data is
+          degenerate and produces a division by zero. Worth knowing before you interpret
+          a convergence failure as an implementation error, as I did for several hours.</li>
+        <li><strong>Comparison-graph diagnostics.</strong> Rendering the comparison structure as a
+          network and counting connected components, which is what surfaced the
+          ten-cluster problem. Five lines of code, and the single highest-value diagnostic
+          in the whole pipeline.</li>
+        <li><strong>Factorial analysis.</strong> Three-way within-subjects ANOVA in R with effect sizes
+          and Bonferroni-corrected pairwise post-hoc tests, plus a linear mixed-effects
+          formulation that was built, evaluated, and deliberately not used — I did not
+          have enough experience with mixed models to defend the output under review, and
+          shipping a model you cannot fully explain is worse than shipping a simpler one
+          you can.</li>
+        </ul>
+        <h2>Elicitation methods surveyed</h2>
+        <p>The instrumentation was designed against a taxonomy assembled from psychometrics,
+        experimental economics, computational social choice and HCI — a wider set than
+        the AI alignment literature typically considers: rating scales; ranking; pairwise
+        comparison and n-AFC; Q-sort; categorical binning; point/budget allocation;
+        best-worst scaling (MaxDiff); like/indifferent/dislike; unbounded "pick all you
+        want" curation; and conjoint analysis.</p>
+        <h2>Status and what was not finished</h2>
+        <p>The instrumentation works and was used to collect real data that contributed to a
+        peer-reviewed publication on emotional alignment in image generators. The
+        cross-category 4-AFC app was deployed and collecting.</p>
+        <p>The full method-comparison study — all elicitation formats, common stimuli, one
+        annotator pool, subjective-experience measures alongside the preference data —
+        was designed and not run. The engagement ended first. I have written honestly
+        about why that happened in <a href="../../blog/breadth-first-research-failure/">a separate reflection</a>;
+        the short version is that I spent too much of the available time mapping the
+        field and too little running the smallest study that would have tested the claim.</p>
+        <h2>References</h2>
+        <ul>
+        <li>Chen, L., &amp; Pu, P. (2004). Survey of preference elicitation methods.</li>
+        <li>Bradley, R. A., &amp; Terry, M. E. (1952). Rank analysis of incomplete block
+          designs. <em>Biometrika</em>, 39(3/4).</li>
+        <li>Hunter, D. R. (2004). MM algorithms for generalized Bradley–Terry models.
+          <em>Annals of Statistics</em>, 32(1).</li>
+        <li>Maystre, L., &amp; Grossglauser, M. (2015). Fast and accurate inference of
+          Plackett–Luce models. <em>NeurIPS</em>.</li>
+        <li>Turner, H., &amp; Firth, D. (2012). Bradley–Terry models in R. <em>JSS</em>, 48(9).</li>
+        <li>de Leeuw, J. R. (2015). jsPsych: a JavaScript library for creating behavioral
+          experiments in a web browser. <em>Behavior Research Methods</em>, 47(1).</li>
+        <li>Metz, Y., et al. (2023). RLHF-Blender: a configurable interactive interface for
+          learning from diverse human feedback. arXiv:2308.04332.</li>
+        <li>Kaufmann, T., et al. (2023). A survey of reinforcement learning from human
+          feedback. arXiv:2312.14925.</li>
+        <li>Rezaei, J., Brunelli, M., &amp; Mohammadi, M. (Eds.) (2022). <em>Advances in
+          Best-Worst Method.</em> Springer.</li>
+        </ul>
+      </article>
+
+    </main>
+  </div>
+
+</body>
+</html>
