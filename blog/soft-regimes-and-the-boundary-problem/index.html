@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>A regime classifier that flickers is worse than one that is wrong — Sohhom Bandyopadhyay</title>
+  <link rel="stylesheet" href="../../styles.css" />
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="site-header__inner">
+      <a class="brand" href="../../">Sohhom Bandyopadhyay <small>sohhom.github.io</small></a>
+      <nav class="nav" aria-label="primary">
+        <a href="../../cv/">cv</a>
+        <a href="../../project/">projects</a>
+        <a href="../" aria-current="page">blog</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="page">
+    <main data-screen-label="Post: soft-regimes-and-the-boundary-problem">
+
+      <article>
+        <header class="project-hero">
+          <div class="project-hero__kicker">Essay · Apr 2026 · 8 min</div>
+          <h1>A regime classifier that flickers is worse than one that is wrong</h1>
+          <p class="project-hero__lede">Classify market conditions on a few axes, threshold each one, and pick a strategy for the resulting cell. It works until a measurement sits near a boundary, at which point the recommendation oscillates between structurally opposite positions on noise. The fix is not a better threshold — it is refusing to collapse the measurement into a label at all.</p>
+        </header>
+
+        <p>A common design for systematic strategy selection: measure the market on several axes — direction, volatility level, whether implied volatility is rich or cheap against realised, term structure, skew — threshold each into a label, and let the resulting combination pick from a library of structures. Rich volatility and a range suggests selling premium. Cheap volatility before an event suggests buying it. Each cell of the grid gets a structurally appropriate answer.</p>
+        <p>The design is sound and the reasoning behind each cell is textbook. It has a failure mode that has nothing to do with whether the reasoning is right.</p>
+        <h2>The boundary problem</h2>
+        <p>Suppose the volatility premium axis splits <code>RICH</code> from <code>FAIR</code> at some threshold on the implied-minus-realised spread, and the current reading sits a hair above it. The regime reads <code>RICH</code>. The system recommends selling premium. Five minutes later, on ordinary measurement noise, the reading dips a hair below. The regime reads <code>FAIR</code> and the recommendation becomes something structurally different.</p>
+        <p>Nothing happened. The market did not change state; a number wobbled across a line. But the output changed categorically, and the two recommendations are not neighbours — a short premium structure and a long premium structure have opposite exposure to every Greek that matters. If you act on both you have paid the spread twice to end up flat, with a worse book than either would have given you alone.</p>
+        <p>This gets worse with more axes, not better. Five axes with three states each is 243 cells, and every additional axis adds boundaries where the same flicker occurs. <strong>The system is most confident and most unstable in precisely the same conditions</strong>, because a hard label carries no indication that it was nearly the other one. A reading far from any boundary and a reading a hair from one produce identical downstream output.</p>
+        <h2>What the label threw away</h2>
+        <p>The measurement is continuous. The classifier discards its distance from the boundary, and that distance is the exact information needed to know how much to trust the label.</p>
+        <p>So do not discard it. Have each axis emit a membership vector over its states rather than a single label — <code>{RICH: 0.62, FAIR: 0.33, CHEAP: 0.05}</code> instead of <code>RICH</code>. Give each candidate structure a preferred-regime profile of the same shape, and score compatibility as the dot product between them.</p>
+        <p>Now a borderline reading degrades scores smoothly instead of flipping them. Near a boundary, structures suited to both adjacent states score moderately, and the ranking between them is stable — because a small change in the underlying measurement produces a small change in every score, which is exactly the continuity a hard threshold destroys. The system stops broadcasting confidence it does not have, and the top recommendation stops depending on which side of a line a noisy number landed.</p>
+        <p><strong>The point I want to make sharply: this is not a smoothing hack applied after the fact, it is a refusal to throw information away in the first place.</strong> The usual instinct on discovering flicker is to add hysteresis — require the reading to cross by a margin, or persist for several periods, before switching. Hysteresis treats the symptom and adds problems of its own: it introduces lag exactly when a genuine regime change is happening, and it makes behaviour depend on path, so two identical market states give different recommendations depending on how they were reached. A membership vector has neither property. It is stateless and it lags nothing.</p>
+        <h2>The axis that was missing</h2>
+        <p>Working through this taught me something about the axes themselves that I think is more valuable than the soft-membership machinery.</p>
+        <p>A volatility-level axis distinguishes high from low. A volatility-premium axis distinguishes rich from cheap against realised. Both are levels. Neither says anything about <em>direction of travel</em> — and "implied volatility is high and falling" versus "implied volatility is high and rising" are opposite situations that a level-only classification cannot separate.</p>
+        <p>The first is a premium-selling environment: the market is repricing downward and short volatility positions benefit from the decay. The second is the situation where premium sellers are destroyed — volatility is already elevated and expanding, which is what a developing dislocation looks like from the inside. A classifier reading only levels sees <code>HIGH</code> in both and recommends selling into both. One of those two calls is catastrophic, and it is catastrophic in the specific way that matters: correlated with every other short-volatility position in the book, at exactly the moment liquidity deteriorates.</p>
+        <p>Adding a dynamics axis — the rate of change of implied volatility, its dispersion across strikes, proximity to a scheduled event — separates them. It was the single largest robustness improvement available, and it cost less than any amount of tuning on the existing axes.</p>
+        <p>The general form of that lesson: <strong>when a classifier keeps making the same category of expensive error, the fix is more often a missing axis than a worse-calibrated existing one.</strong> Tuning thresholds moves errors around within the space the axes can express. If the distinction you need is not representable, no threshold recovers it. It is worth asking, of any classifier that fails in a consistent direction, what distinction its inputs are structurally incapable of making.</p>
+        <h2>The part that is not a classification problem at all</h2>
+        <p>One more thing, because it is where I think this class of system most often goes wrong.</p>
+        <p>A ranked list of scored candidates is a menu, not a set of positions. If several highly-scored structures all express the same view — and near a boundary, or in a strongly-characterised regime, they usually do — then taking the top few gives you one concentrated bet wearing several names. The aggregate exposure can be far outside anything you would have accepted as a single position, and no individual scoring decision was wrong.</p>
+        <p>That is a portfolio problem, and it belongs to a stage that sits between scoring and execution, holding aggregate limits and evaluating each candidate against the book as it would exist after the fill. Netting matters here: a structure that offsets existing exposure should score better for that reason, and one that stacks onto it should be rejected however good it looked in isolation.</p>
+        <p>I state this as a design principle rather than a validated result, and I want to be clear about the difference. The reasoning is sound and it follows from how correlated exposures aggregate; I have not run a controlled comparison of a portfolio-constrained selector against an unconstrained one on live capital, so I cannot tell you what it is worth in basis points. What I can say is that the failure it prevents — discovering your aggregate Greeks only after the positions are on — is the kind that does not announce itself until the day it costs everything.</p>
+      </article>
+
+    </main>
+  </div>
+
+</body>
+</html>

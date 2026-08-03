@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>For a tool that advises an expert, a miss is free and a false alarm is fatal — Sohhom Bandyopadhyay</title>
+  <link rel="stylesheet" href="../../styles.css" />
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="site-header__inner">
+      <a class="brand" href="../../">Sohhom Bandyopadhyay <small>sohhom.github.io</small></a>
+      <nav class="nav" aria-label="primary">
+        <a href="../../cv/">cv</a>
+        <a href="../../project/">projects</a>
+        <a href="../" aria-current="page">blog</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="page">
+    <main data-screen-label="Post: false-positives-cost-more-than-silence">
+
+      <article>
+        <header class="project-hero">
+          <div class="project-hero__kicker">Essay · Mar 2026 · 7 min</div>
+          <h1>For a tool that advises an expert, a miss is free and a false alarm is fatal</h1>
+          <p class="project-hero__lede">Detectors are habitually evaluated on balanced metrics — F1, accuracy, ROC curves — as though the two error types were commensurable. When the output is shown to a domain expert who can immediately see it is wrong, they are not. The asymmetry is in the consequences, and it is large enough that recall barely belongs in the objective.</p>
+        </header>
+
+        <p>Build a detector that marks something on a chart for an experienced trader, or flags a case for a radiologist, or highlights a clause for a lawyer, and the default evaluation is symmetric. Precision and recall get reported together, F1 summarises them, ROC curves display the trade-off, and the implicit framing is that you pick a point on a curve according to taste.</p>
+        <p>That framing assumes the two errors are commensurable. For a tool advising an expert who can independently verify each output, they are not, and the gap is not a factor of two.</p>
+        <h2>Count the actual consequences</h2>
+        <p><strong>A miss costs approximately nothing.</strong> The expert is already doing the task. They are looking at the chart, reading the scan, going through the contract. Your tool was silent on an instance they can see perfectly well themselves, and they are exactly as well off as they would have been without the tool. The counterfactual for a missed detection is the status quo ante, which is the world where the tool does not exist. That is the whole cost.</p>
+        <p><strong>A false positive costs enormously.</strong> It is an assertion, made to someone qualified to evaluate it, that they can immediately see is wrong. It costs their attention. It costs the time to verify and dismiss it. And it costs credibility on a schedule far steeper than linear — two or three visibly wrong outputs and the expert stops looking at the tool, at which point every future correct detection is worth zero too.</p>
+        <p>That last clause is what makes the asymmetry structural rather than a matter of preference. A false positive does not only cost its own error. <strong>It destroys the value of an unbounded number of future correct outputs, because it removes the user.</strong> There is no equivalent for a miss — the expert who never saw a detection has no reason to stop trusting the ones they do see.</p>
+        <p>So the objective is not a balance point. It is: drive false positives toward zero and accept whatever recall that leaves. A detector that fires on one instance in twenty and is right every single time is a useful tool. A detector that fires on nine in ten and is wrong a third of the time is worse than no tool, and it is worse in a way that also poisons the next tool you ship to the same person.</p>
+        <p>I have made this argument before for trade-entry classification, where optimising to zero false positives at the cost of missing most genuine opportunities is the correct objective rather than a failure to be apologised for. The reasoning transfers to any detector whose role is to advise rather than replace. <strong>Where the human is already competent at the task, the tool's only job is to be worth trusting, and trust is destroyed by commission, not omission.</strong></p>
+        <h2>The evaluation problem underneath</h2>
+        <p>There is a second-order issue that is easy to miss and that undermines the whole exercise.</p>
+        <p>You have decided precision is what matters. You measure it on your labelled set — say forty instances, which is a realistic number when each one requires expert annotation. The detector fires on twelve and is right on eleven. Precision is 0.917.</p>
+        <p>That number is an estimate from a sample of twelve, and it is reported to three decimal places as though it were a property of the detector. It is not. A different forty instances would produce a different figure, and the sampling variation on twelve trials is enormous — the interval consistent with eleven-of-twelve comfortably spans from around 0.65 to nearly 1.0. On that evidence you cannot distinguish a detector that is right 70% of the time from one that is right 95% of the time, and those are wildly different products.</p>
+        <p>Confusion-matrix quantities are estimated probabilities with uncertainty attached, not ratios that happen to be written as decimals. Treating them properly — as a posterior over the underlying rate rather than a point — changes what you are entitled to conclude. Most immediately: <strong>when you compare two detectors on a small labelled set and one has higher precision, you usually have not shown anything at all.</strong> The credible intervals overlap almost entirely. Acting on that difference is reading noise, and it is the mechanism by which detector development turns into an expensive random walk that feels like progress.</p>
+        <p>This matters more under a precision-focused objective than a balanced one, because you have deliberately made the detector fire rarely. Rare firing means few positive predictions means a small denominator means wide intervals. The objective and the measurement difficulty are the same phenomenon viewed from two sides, and there is no way to escape it other than more labelled data or a more honest accounting of what you know.</p>
+        <h2>What this changes in practice</h2>
+        <p><strong>Set the operating point before evaluating, not after.</strong> If precision is the objective, say so, name the floor you require, and then ask what recall is achievable subject to it. Choosing a threshold by looking at results and picking the nicest point is how you fit to your validation set, and the small samples make it especially easy.</p>
+        <p><strong>Report intervals, not points.</strong> A precision of 0.917 on twelve firings should be written in a way that makes the twelve visible. Anyone who sees the denominator will calibrate correctly; anyone who sees only the decimal will not.</p>
+        <p><strong>Make abstention a first-class output.</strong> A detector that reports "nothing here I am confident about" is behaving correctly, and the system around it should treat that as a normal result rather than a failure to be engineered away. Most of the pressure toward false positives comes from an implicit expectation that the tool should say <em>something</em>.</p>
+        <p><strong>Prefer detectors that explain their rejections.</strong> Under a precision objective you will reject the large majority of candidates, and knowing which criterion did the rejecting is what lets you tell an over-strict rule from a correctly-strict one. A learned model that outputs a score gives you a number; a rule-based one gives you a reason, and at small sample sizes the reason is worth more.</p>
+        <p>The caveat that travels with all of this: it applies to advisory tools with a competent human in the loop. Invert the setup — an automated system with no human review, or a screening context where the expert cannot examine everything and misses are the expensive error — and the asymmetry reverses along with the objective. What does not change is that the two errors have different costs and you should know which is which before you optimise anything.</p>
+      </article>
+
+    </main>
+  </div>
+
+</body>
+</html>

@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Write the questions before you build the dashboard — Sohhom Bandyopadhyay</title>
+  <link rel="stylesheet" href="../../styles.css" />
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="site-header__inner">
+      <a class="brand" href="../../">Sohhom Bandyopadhyay <small>sohhom.github.io</small></a>
+      <nav class="nav" aria-label="primary">
+        <a href="../../cv/">cv</a>
+        <a href="../../project/">projects</a>
+        <a href="../" aria-current="page">blog</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="page">
+    <main data-screen-label="Post: questions-before-dashboards">
+
+      <article>
+        <header class="project-hero">
+          <div class="project-hero__kicker">Essay · Mar 2026 · 7 min</div>
+          <h1>Write the questions before you build the dashboard</h1>
+          <p class="project-hero__lede">Given a list of analytics to build, the natural move is to build them and then work out what to say about each. Inverting that — writing the questions a user would actually ask first, then building only what answers them — changes the design of the underlying computation, not just the presentation layer.</p>
+        </header>
+
+        <p>Suppose you are handed a list of things a domain expert wants analysed. Positioning data. Ratios between two sides of a market. Where a certain quantity concentrates. How each of these changes intraday, and how today compares to history.</p>
+        <p>The natural sequence is: build each computation, plot it, then work out what a user is supposed to conclude from the plot. This produces dashboards. It is also, I have come to think, backwards, and the cost of the ordering is not aesthetic.</p>
+        <h2>Start with the question bank</h2>
+        <p>The alternative is to write, for each analytic, a handful of questions a real user would actually ask — phrased the way they would phrase them, not the way the data is organised.</p>
+        <p>Not "display the open interest distribution" but <em>where is the largest concentration right now?</em> Not "plot the ratio" but <em>is this at an extreme that has historically preceded a reversal?</em> Not "show intraday change" but <em>was the buildup in the first hour sustained, or has it reversed since?</em> Not "show the volatility percentile" but <em>given where this sits historically, does it favour buying or selling?</em></p>
+        <p>Five or so per analytic, and you have a document that is a specification in disguise. Then build only what answers those questions.</p>
+        <p><strong>The claim: the question bank changes the computation, not merely the presentation — and that is why writing it afterwards does not work.</strong> Three examples of how, all of which I got wrong in the other order.</p>
+        <p><strong>Questions are almost always about change, and data is almost always stored as level.</strong> <em>Was the first-hour buildup sustained?</em> requires a baseline snapshot at a specific time, retained, and compared against now. If you build the level display first, you get a current-state view and bolt on differencing later, which means you discover only at that point that the required baseline was never captured. The question demanded a fundamentally different retention design.</p>
+        <p><strong>Questions are comparative across time, and the natural build is a single day.</strong> <em>Is this at an extreme?</em> is meaningless without a distribution to compare against. That means a history, which means decisions about how much, at what resolution, and how to handle the days where the instrument was not liquid. A single-day pipeline extended to multi-day is usually a rewrite, because the single-day version has no concept of an axis you now need to aggregate over.</p>
+        <p><strong>Questions reference the trading day's structure, and raw data does not.</strong> <em>In the last hour</em>, <em>at the open</em>, <em>since the morning</em> are session-relative. That forces the timestamp handling — timezone conversion, session boundaries, and the sentinel bars that some venues emit at the open — to the front, where it belongs, rather than surfacing as inexplicable outliers at the edges of your plots three weeks later.</p>
+        <p>Every one of these is a data-layer consequence of a question, invisible until the question exists.</p>
+        <h2>The other thing the questions do</h2>
+        <p>If a language model is going to produce the natural-language answer, the question bank becomes the evaluation set. This is the part I would keep in any future project.</p>
+        <p>You now have a fixed set of realistic inputs, so you can run every one against the computed state and read the answers. That is a manual review, and it is the cheapest useful evaluation available for this kind of system. What it surfaces, reliably:</p>
+        <p><strong>Answers that are fluent and evade the question.</strong> Asked <em>where is the largest concentration</em>, a model that has been handed the full state will sometimes produce a competent paragraph about market conditions that never names the level. Fluency masks this in isolated testing; it is obvious when you read forty answers in a row against forty questions.</p>
+        <p><strong>Questions that the data cannot actually answer.</strong> Some perfectly reasonable questions turn out to need something the pipeline does not have. Better to discover it as a documented gap than to have a model confabulate an answer — which it will, confidently, if the field is present but empty.</p>
+        <p><strong>Questions that are really requests for a recommendation.</strong> <em>Should I buy or sell?</em> is phrased as analysis and is not. Having those in the bank forces the decision about what the system does with them to be made explicitly and early, rather than being discovered in production.</p>
+        <p>That last category deserves emphasis. The line between describing a market state and advising an action is one someone has to draw deliberately. A question bank makes it a design decision with a written answer instead of an emergent property of whatever the model felt like saying.</p>
+        <h2>Answer length is a design parameter</h2>
+        <p>One small finding worth recording. Constraining the answer to a few sentences — genuinely a few, not "be concise" — improved quality on every dimension I could judge.</p>
+        <p>The mechanism is not subtlety. A short answer cannot hedge. Given room, a model handed a rich state object will enumerate everything it sees, note that some indicators point one way and others the other, and conclude that traders should monitor developments. Every clause is defensible; the whole is useless. Forced to choose, it has to identify what matters most in the current state, which is the actual analytical task.</p>
+        <p>There is a real trade-off and I do not want to hide it: brevity buys decisiveness at the cost of nuance, and a genuinely ambiguous state deserves to be described as ambiguous. The resolution is to make "the evidence conflicts, here is how" an explicitly permitted answer, so that hedging is a substantive claim the model can make rather than the path of least resistance it defaults to.</p>
+        <h2>The transferable part</h2>
+        <p>None of this is specific to market data. The pattern is:</p>
+        <p><strong>Write the questions before the computation.</strong> They are a specification, they are legible to the domain expert who can tell you they are the wrong questions, and they expose data-layer requirements — retention, history, session structure — that are expensive to retrofit.</p>
+        <p><strong>Keep them as the evaluation set.</strong> They cost nothing extra and they are the only thing standing between you and a system that produces plausible text nobody has checked against the question it was asked.</p>
+        <p><strong>Include the questions the system should refuse.</strong> Where the boundary sits is a decision, and a question bank is where it gets made on purpose.</p>
+        <p>The caveat that travels with all of this: a question bank written by the person building the system is a guess about what users ask. It should be reviewed by someone who actually has the questions, and revised once real usage exists. Mine were a starting point that made the design tractable, not a measurement of demand — and the difference matters, because a well-executed answer to a question nobody asked is still a wasted quarter.</p>
+      </article>
+
+    </main>
+  </div>
+
+</body>
+</html>

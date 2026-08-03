@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>The same geometry, computed twice, in two languages — Sohhom Bandyopadhyay</title>
+  <link rel="stylesheet" href="../../styles.css" />
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="site-header__inner">
+      <a class="brand" href="../../">Sohhom Bandyopadhyay <small>sohhom.github.io</small></a>
+      <nav class="nav" aria-label="primary">
+        <a href="../../cv/">cv</a>
+        <a href="../../project/">projects</a>
+        <a href="../" aria-current="page">blog</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="page">
+    <main data-screen-label="Post: same-geometry-two-runtimes">
+
+      <article>
+        <header class="project-hero">
+          <div class="project-hero__kicker">Essay · Feb 2026 · 7 min</div>
+          <h1>The same geometry, computed twice, in two languages</h1>
+          <p class="project-hero__lede">Porting numerical code to a second runtime so it can run client-side sounds like transcription. It is not. The bugs that emerge are not arithmetic errors — they are disagreements about what the coordinates mean, and they survive every test that checks the numbers rather than the frame they are expressed in.</p>
+        </header>
+
+        <p>Some numerical code has to run in more than one place. A calculation developed in Python needs to execute in a browser for latency, and on a phone for the same reason. The obvious plan is to port it: same algorithm, same inputs, same outputs, expressed in another language.</p>
+        <p>Two things go wrong. Neither is arithmetic, and neither is caught by tests that compare numbers on the same machine.</p>
+        <h2>The coordinate frame is not in the numbers</h2>
+        <p>The first bug I hit in this territory was a piece of geometry that worked perfectly on one machine and produced nonsense on another, from the same saved file. Same code, same input, different output — the setup that makes you doubt determinism itself.</p>
+        <p>The cause: what was saved were positions in one frame of reference, and what was needed were positions in another. Specifically, screen coordinates where data coordinates belonged. On the originating machine the two happened to coincide closely enough — same window size, same visible range, same zoom — that the error was invisible. Move to a different viewport and the transform between the frames changes, and every saved position lands somewhere wrong.</p>
+        <p>What makes this class of bug nasty is that the numbers are all <em>plausible</em>. A position is a pair of numbers in both frames. Nothing is null, nothing is out of range, no assertion fires. It looks like data and behaves like data and it is simply expressed in the wrong units — and unlike a units error in physics, there is no dimensional analysis to catch it, because both frames are dimensionless pairs.</p>
+        <p>The same shape of error appears with array indices. Export a subset of a series — the visible window, say — and re-index it from zero, while separately recording positions as offsets into the <em>original</em> series. Now two integers that look identical mean different things, and any code that mixes them silently reads from the wrong place. In the case I chased, this meant geometry that always referenced the beginning of the underlying file regardless of what was on screen: consistently, deterministically wrong, and wrong in a way that looked like a rendering problem rather than an indexing one.</p>
+        <p><strong>The lesson I would state as a rule: any position crossing a process boundary must carry its frame with it, explicitly, in the serialised form.</strong> Not in a comment, not in a convention the two ends are supposed to share — in the payload. A record that says only <code>[142, 25460]</code> is an invitation. One that says which series, which indexing origin, and which frame those numbers live in cannot be misread by the far end. It costs bytes and eliminates an entire category of bug that is otherwise found only by someone opening the file on a differently-sized screen.</p>
+        <h2>A faithful port can be a worse product</h2>
+        <p>The second problem is more interesting because nothing is broken.</p>
+        <p>Suppose the original implementation grew up alongside its users, and accumulated behaviour to make its output <em>useful</em> rather than merely correct. It prefers longer-established results over marginal ones. It penalises results outside the current view. It suppresses near-duplicates so the display does not fill with variations of the same thing. It applies a tighter tolerance than the mathematics strictly requires, because the loose tolerance admitted results that were technically valid and visually meaningless.</p>
+        <p>Now port it strictly, aiming at mathematical parity with the underlying algorithm. Every one of those behaviours looks like a deviation from the algorithm — because that is exactly what it is — and a careful porter removes them, because the brief was to reproduce the algorithm faithfully.</p>
+        <p>The port is more correct. The product is worse: cluttered with near-duplicates, showing irrelevant results, admitting noise the original filtered out. And the tests pass, because they were written against the algorithm.</p>
+        <p><strong>The uncomfortable claim is that this is a documentation failure disguised as an engineering one.</strong> Those filters were product decisions, made deliberately, embedded in code as though they were implementation details. Nothing distinguished the tolerance chosen because the mathematics requires it from the tolerance chosen because a domain expert said the looser one produced garbage. Both were a constant in a function. A porter cannot preserve a decision they cannot see, and reviewing a port against the original code will not surface it either, because the difference reads as cleanup.</p>
+        <p>The fix is not more careful porting. It is marking product decisions as product decisions where they live — named constants with a comment stating whose judgement they encode and what goes wrong at other values, or a separate configuration layer distinct from the algorithm proper. Then a port can reproduce the algorithm and <em>carry the layer across</em>, which is what was actually wanted.</p>
+        <h2>What I would do differently</h2>
+        <p><strong>Test across the boundary, not within it.</strong> Tests that check the port against fixed inputs on one machine verify the arithmetic, which was never the risk. The tests that matter run both implementations against the same data with <em>different</em> ambient conditions — different viewport sizes, different visible ranges, different window offsets — and assert agreement. That is the only kind that catches a frame mismatch, because a frame mismatch is invisible whenever the frames coincide.</p>
+        <p><strong>Serialise meaning, not just values.</strong> Every exported coordinate should be self-describing. If a reader needs external context to interpret a number correctly, that context belongs in the file.</p>
+        <p><strong>Decide what parity means before starting.</strong> Parity with the algorithm and parity with the product's behaviour are different targets, and a port aimed at the first will silently miss the second. Whichever you choose, write it down, because the porter will otherwise choose the one that is easier to verify — and that is always the algorithm.</p>
+        <p>The general version, which is why this is worth writing up at all: cross-runtime numerical work fails at the interfaces, not in the computation. Floating-point differences between runtimes are real but small and well understood. Disagreements about what a number <em>means</em> are unbounded, produce output that looks entirely reasonable, and are found by a user on a laptop with a different screen.</p>
+      </article>
+
+    </main>
+  </div>
+
+</body>
+</html>

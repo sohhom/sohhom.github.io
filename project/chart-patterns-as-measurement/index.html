@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Making chart patterns measurable — Sohhom Bandyopadhyay</title>
+  <link rel="stylesheet" href="../../styles.css" />
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="site-header__inner">
+      <a class="brand" href="../../">Sohhom Bandyopadhyay <small>sohhom.github.io</small></a>
+      <nav class="nav" aria-label="primary">
+        <a href="../../cv/">cv</a>
+        <a href="../" aria-current="page">projects</a>
+        <a href="../../blog/">blog</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="page">
+    <main data-screen-label="Project: chart-patterns-as-measurement">
+
+      <article>
+        <header class="project-hero">
+          <div class="project-hero__kicker">Project · Oct 2025 — May 2026 · applied research</div>
+          <h1>Making chart patterns measurable</h1>
+          <p class="project-hero__lede">Technical analysis is a vocabulary of shapes — wedges, triangles, double tops, trendlines — that experienced traders read fluently and disagree about constantly. Turning that vocabulary into something a machine can detect, and then into something a language model can talk about without inventing things, is mostly a measurement problem: deciding what counts as an instance before arguing about how to find one. This is what I learned doing it.</p>
+
+          <dl class="project-meta">
+            <div><dt>Role</dt><dd>Sole researcher and engineer on the technical workstream</dd></div>
+            <div><dt>Methods</dt><dd>Geometric pattern specification, time-series motif discovery, shape-based distance measures, structured prediction, precision-weighted evaluation, symbolic state reduction for LLM context</dd></div>
+            <div><dt>Stack</dt><dd>Python (NumPy, SciPy, pandas), STUMPY, DTW libraries, JavaScript for in-browser geometry, LLM APIs</dd></div>
+            <div><dt>Output</dt><dd>Detector library, annotation tooling, evaluation methodology, written notes</dd></div>
+          </dl>
+        </header>
+
+        <h2>What the problem actually was</h2>
+        <p>A trader looks at a price chart and says "that's a falling wedge." Another trader looks at the same chart and says it isn't. Neither is being careless. The pattern is defined by convention and example rather than by criteria, and the convention has enough slack in it that two fluent readers can land on opposite answers.</p>
+        <p>The engineering brief in that situation looks like "build a detector." The research problem underneath it is different and has to be solved first: <strong>what counts as an instance?</strong> Until that has an answer you can write down, there is nothing to detect, no way to say whether a detector is working, and no way for two people to agree that a given output is wrong.</p>
+        <p>This is the same shape of problem as my doctoral work, where the question turned out not to be "how do I measure this" but "what should I be measuring." I want to describe the methodology rather than any particular product, so what follows is deliberately about the general case. Everything specific to the engagement this arose in stays out.</p>
+        <h2>Specification before detection</h2>
+        <p>The first useful move is to force the informal description into criteria that can be checked mechanically, and then to notice how much of the description was doing no work.</p>
+        <p>A pattern description in the wild reads something like: <em>price makes two lows at roughly the same level, separated by a peak, after a decline, with volume falling off on the second low, confirmed by a break above the intervening high.</em> Every clause in that sentence hides a decision. Roughly the same level — within what? A decline — measured over what window, and how steep before it counts? Volume falling off — strictly less, or less by a margin? Confirmed by a break — closing above, or trading above, and within how long before the setup expires?</p>
+        <p>Writing those out turns one English sentence into a dozen parameters. Two things happen when you do it, and both are informative.</p>
+        <p>The first is that the specification becomes far stricter than anyone intended. Implemented literally, clause by clause, a textbook description will reject most of the instances a human would happily label as the pattern. The prose was never meant as a conjunction of hard tests; it was meant as a description of a family resemblance, with the reader supplying judgement about which clauses matter in which context. Discovering exactly which clauses do the rejecting is more useful than the detector — it tells you which parts of the convention carry the meaning and which are decoration.</p>
+        <p>The second is that some clauses turn out to be unfalsifiable as written, or to encode a claim that the data doesn't support. A rule can be perfectly clear and still never fire, and it is worth knowing that before you build on it.</p>
+        <h2>The methods question, and a negative result worth respecting</h2>
+        <p>The obvious first instinct for "find this shape in this series" is to reach for the time-series matching literature rather than hand-written geometry. I spent real time there, and the honest summary is that it is a worse fit for this problem than it looks.</p>
+        <p><strong>Matrix profile methods</strong> — the STUMPY family — are built for discovering that repeated subsequences exist without being told what to look for, and for the related task of scanning a series for near-occurrences of a query subsequence you already hold. That second task is closer to what is wanted here, and it does work in the narrow sense: give it a labelled example and it will surface z-normalised near-matches elsewhere, including across instruments and across timeframes.</p>
+        <p>But there is a published negative result that matters and is easy to skip past. The multidimensional generalisation of motif discovery — the natural thing to try when your series is OHLC rather than a single price — does not behave the way the univariate case trains you to expect. Yeh and colleagues showed that methods seeking motifs across <em>all</em> dimensions produce meaningless results outside contrived cases, because forcing agreement on every dimension at once is a stronger and stranger requirement than it appears. Their remedy is to select the informative subset of dimensions rather than insisting on all of them. It is a public result, it is over a decade old, and reading it saved me from a class of approach that would have failed slowly and confusingly rather than quickly.</p>
+        <p><strong>Shape-based distances</strong> — dynamic time warping and its relatives — handle the fact that two instances of the same pattern take different numbers of bars, which is exactly the invariance you want. They are genuinely useful for the "here are a handful of labelled examples, build a prototype, score new windows against it" workflow, and with very few labels they are one of the few things that work at all.</p>
+        <p><strong>Structured prediction</strong> is the framing I found most clarifying, even where I didn't use it. Rather than asking "is this window an instance," ask the model to place the pattern's defining points — the endpoints of each line, the peaks, the troughs. This is the human-pose-estimation framing transplanted to charts: a pattern is a fixed set of keypoints, and detection is locating them. Constraints that are painful to state explicitly (the lines must converge, the slopes must have particular signs) are implicit in consistent training examples. The reason this framing is valuable even without a model behind it is that it makes explicit what the output <em>is</em>: not a boolean, but a geometry.</p>
+        <p>And then the result I did not expect. For several of these patterns, a specification written out carefully as rules and implemented directly outperformed the learned approaches, and did so in a fraction of the time. The distance measures and motif methods were not wasted — they were how I learned which parts of the specification were load-bearing — but the working detector was geometry and conditionals. <strong>The sophisticated method was the right tool for understanding the problem and the wrong tool for solving it.</strong> I have come to think this is more common than the literature makes it look, and that the reason is straightforward: when you have twenty labelled examples and a domain expert who can tell you the rule, learning the rule from the examples is the harder path to the same place.</p>
+        <h2>Precision is the whole objective</h2>
+        <p>For a detector whose output is shown to an experienced human, precision and recall are not symmetric, and treating them as a trade-off to be balanced is the wrong frame.</p>
+        <p>A missed instance costs almost nothing. The trader is looking at the chart; they see what they see; the tool was silent and they are no worse off than with no tool. A false positive costs a great deal, because it is a claim, made to an expert, that they can immediately see is wrong — and two or three of those retire the tool permanently. The asymmetry is in the consequences, not in the arithmetic.</p>
+        <p>So the objective is: near-zero false positives, and accept whatever recall that leaves. A detector that fires on one in twenty genuine instances and is right every time is useful. One that fires on nine in ten and is wrong a third of the time is worse than nothing. This is the same argument I have made for trade-entry classifiers, and it generalises to any detector that advises a domain expert rather than replacing one.</p>
+        <p>Getting the evaluation right matters as much as getting the objective right. Confusion-matrix quantities are estimates from finite samples, not properties of the detector, and on a few dozen labelled instances the uncertainty on a precision figure is wide enough to swamp the differences you are trying to act on. Treating those quantities as probabilities with credible intervals — rather than as ratios reported to three decimals — is the difference between knowing you improved something and believing you did.</p>
+        <h2>Getting a language model to describe a chart without inventing things</h2>
+        <p>The second half of the work was making a language model discuss chart state in natural language. The naive approach — hand the model the raw series and ask — fails in the ways you would predict: the payload is enormous, the model performs arithmetic badly, and it is happy to narrate structure that is not present.</p>
+        <p>The design pattern that works is <strong>symbolic reduction</strong>: never let the model see raw numbers. Compute everything numerically first — indicators, geometry, pattern state — and reduce each to a small set of discrete semantic facts before the model sees anything. A hundred values become a state label. A detected pattern becomes its status, its key levels, and its position relative to current price. The model's job is composition and explanation over facts it has been handed, not measurement.</p>
+        <p>Three things follow from this that I did not anticipate.</p>
+        <p><strong>Compression is a correctness mechanism, not just a cost mechanism.</strong> The obvious benefit is a payload that stays small regardless of how much history is in view. The real benefit is that the model can no longer be wrong about the numbers, because it never had them. Every quantitative claim in the output traces to a deterministic computation you can test independently.</p>
+        <p><strong>The model will hallucinate on empty fields specifically.</strong> Give it a populated state object and it reasons over it reasonably. Give it a field that is present but empty — an indicator that returned nothing, a pattern list with no entries — and it is markedly more likely to invent a plausible value than to say nothing. Absent data is more dangerous than wrong data. The fix is to omit empty fields entirely rather than passing them through as nulls, and to make "no signal" an explicit state rather than a missing one.</p>
+        <p><strong>A model will contradict its own input while sounding confident.</strong> Handed a pattern state that says a formation failed, it will sometimes narrate the formation as though it were developing. This is not a knowledge failure and more context does not fix it; it is a synthesis failure, where fluent narrative overrides a discrete fact. What helps is making status a first-class part of the reduced state rather than a modifier, and checking output against input for direct contradiction before it reaches a user.</p>
+        <p>There is a fourth lesson about constraints. A system prompt that is a long list of prohibitions performs worse than a short one framed as a decision procedure — not only cheaper and faster, but better at following the instructions that remain. Piling on prohibitions produces something like constraint fatigue, where the model becomes uniformly cautious and starts refusing things it should answer. Fewer, better-structured constraints beat more of them.</p>
+        <h2>What I would carry to the next problem</h2>
+        <p><strong>Specification is the deliverable.</strong> The most durable output was not any detector but the written-down criteria — including the discovery of which clauses in the informal description were load-bearing and which were ornamental. That artefact outlives any particular implementation.</p>
+        <p><strong>Try the sophisticated method to understand the problem; ship the simple one.</strong> Motif discovery and shape distances taught me what the patterns actually were. Rules and geometry are what worked. Neither half was avoidable, and I would not skip the exploration next time even knowing where it lands.</p>
+        <p><strong>Choose the error you can afford before measuring anything.</strong> For advisory tools shown to experts, that means precision at the expense of nearly everything else, and it means saying so before the evaluation rather than discovering it afterwards.</p>
+        <p><strong>Never let a language model near a raw number it could instead be handed as a fact.</strong> Reduce first, then compose. Everything the model cannot measure is something it cannot get wrong.</p>
+        <p>The limits are worth stating plainly. Everything above is methodology I would defend in general; none of it is a claim that any particular detector achieved any particular performance on any particular data, and the numbers that would let you evaluate that claim are not mine to publish. What I can say is that the sequence — specify, then explore, then simplify, then constrain the evaluation — is what turned an argument about whether a shape was present into something two people could check.</p>
+      </article>
+
+    </main>
+  </div>
+
+</body>
+</html>

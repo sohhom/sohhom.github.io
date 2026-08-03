@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Before you detect a pattern, decide what counts as one — Sohhom Bandyopadhyay</title>
+  <link rel="stylesheet" href="../../styles.css" />
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="site-header__inner">
+      <a class="brand" href="../../">Sohhom Bandyopadhyay <small>sohhom.github.io</small></a>
+      <nav class="nav" aria-label="primary">
+        <a href="../../cv/">cv</a>
+        <a href="../../project/">projects</a>
+        <a href="../" aria-current="page">blog</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="page">
+    <main data-screen-label="Post: what-counts-as-a-pattern">
+
+      <article>
+        <header class="project-hero">
+          <div class="project-hero__kicker">Essay · May 2026 · 8 min</div>
+          <h1>Before you detect a pattern, decide what counts as one</h1>
+          <p class="project-hero__lede">Textbook descriptions of chart patterns read as prose but are treated as specifications. Implement one literally, clause by clause, and it rejects almost every instance a human would happily label. That gap is not a bug in the implementation — it is the most informative measurement you can take of the convention itself.</p>
+        </header>
+
+        <p>Ask two experienced traders whether a particular stretch of a price chart is a falling wedge and you can get two different answers, from two people who have each read the same books and looked at ten thousand charts. Neither is being sloppy. The pattern is defined by convention and example, not by criteria, and there is enough slack in the convention to accommodate honest disagreement.</p>
+        <p>That is a normal state of affairs for an expert visual vocabulary, and it is not in itself a problem. It becomes a problem the moment somebody asks for a detector, because a detector needs a rule, and the field does not have one — it has a description that competent readers interpret with judgement.</p>
+        <h2>The prose is not a specification</h2>
+        <p>Here is the kind of sentence the literature offers, for a double bottom:</p>
+        <blockquote>
+        <p>Price makes two lows at roughly the same level, separated by an intervening peak, following a decline, with lower volume on the second low, confirmed by a break above the peak.</p>
+        </blockquote>
+        <p>It reads as though it is telling you what to do. Try to implement it and every clause opens up.</p>
+        <p><em>Roughly the same level</em> — within what tolerance? A fixed percentage will behave differently on a quiet large-cap than on a volatile mid-cap, so presumably it should scale with something. With what, measured over how many bars?</p>
+        <p><em>Following a decline</em> — how far back do you look, and how much decline qualifies? A shallow drift and a sharp selloff both satisfy "decline."</p>
+        <p><em>Lower volume on the second low</em> — strictly lower, or lower by a margin? Volume on the single lowest bar, or averaged across the region? These give different answers often enough to matter.</p>
+        <p><em>Confirmed by a break</em> — trading above the peak, or closing above it? And within what window, before the setup is stale and should be abandoned?</p>
+        <p>One English sentence, and you have made a dozen decisions that were not in the sentence. None of them are unreasonable. All of them are yours, and the results depend on them.</p>
+        <h2>Implement it literally and watch it reject everything</h2>
+        <p>The instructive experiment is to resolve each clause the strictest reasonable way — the peak must exceed the troughs by a real margin, the prior decline must be substantial, the volume relation must hold strictly, the neckline is an exact price and not a zone — and then run it over data and count.</p>
+        <p>The count comes back very low. Far lower than the number of instances a trader scanning the same charts would point at and name without hesitation.</p>
+        <p>The first reaction is that the implementation is broken. It usually isn't. What is happening is that the prose was never a conjunction of hard tests. It is a description of a family resemblance, and the reader is expected to supply the judgement about which clauses matter in which context — to accept a slightly-too-shallow prior decline when everything else is textbook, to treat the neckline as a region rather than a line, to forgive a volume relation that goes the wrong way if the shape is otherwise clean.</p>
+        <p>None of that flexibility is written down anywhere, because to the people who wrote the description it was not a rule being relaxed. It was just reading the chart.</p>
+        <h2>The gap is the finding</h2>
+        <p>Here is the part I did not expect to be the most useful output.</p>
+        <p>Once you have the strict implementation, you can turn clauses off one at a time and see which ones were doing the rejecting. That gives you something the informal description cannot: a ranking of the criteria by how much they actually constrain, on real data, in the regime you care about.</p>
+        <p>Some clauses turn out to be nearly free — they are satisfied by almost everything that satisfies the others, so they contribute no discriminative power and are there for narrative completeness. Some are doing all the work. And some are close to unfalsifiable as written, or encode an empirical claim that simply does not hold in the data at the timeframe you are looking at, in which case a rule that reads sensibly will approximately never fire.</p>
+        <p>That decomposition is worth more than the detector. It tells you which parts of a century-old convention carry the meaning and which are decoration, and it is a claim about the convention that can be checked by anyone with the same data.</p>
+        <p><strong>This is the opinion I will defend: the specification is the deliverable, and the detector is a by-product.</strong> The industry framing is backwards. It treats "build a pattern detector" as the task and the criteria as a means to it — an annoying preliminary to get through so the real engineering can start. But the criteria are the durable artefact. Implementations get rewritten, ported to other languages, replaced by a learned model. The written-down answer to "what counts as an instance, and which clauses are load-bearing" survives all of that, and it is the only thing that lets two people disagree productively about a specific output instead of about taste.</p>
+        <h2>Why this generalises</h2>
+        <p>None of this is really about charts. It is the structure of every problem where an expert community has a fluent informal vocabulary and somebody wants to automate it.</p>
+        <p>I ran into the same thing in psychoacoustics. Everyone in the field knows what "the envelope is distorted" means, in the sense that they can hear it and agree on clear cases. Turning that into a measurement meant choosing an envelope extraction method, a modulation frequency range, a statistic, and a comparison baseline — none of which were in the informal description, and all of which changed the answer. The measurement I ended up defending was defensible precisely because those choices were written down and their consequences shown, not because it was obviously right.</p>
+        <p>The failure mode is identical in both fields, and it is subtle because it looks like progress: you implement the informal description, get an implementation that runs, and now you have a number. The number feels like a measurement. It is actually a measurement of your dozen private decisions, and if you have not written them down, nobody — including you, in six months — can tell which.</p>
+        <p>The caveat travels with the claim. Writing the criteria down does not make them correct. It makes them <em>arguable</em>, which is a strictly weaker and much more useful property. A specification that is wrong and explicit can be fixed by anyone who notices. A specification that lives in an expert's judgement can only be fixed by that expert, one chart at a time, forever.</p>
+      </article>
+
+    </main>
+  </div>
+
+</body>
+</html>

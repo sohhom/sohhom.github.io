@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>A trade can pass two gates and die on the third — Sohhom Bandyopadhyay</title>
+  <link rel="stylesheet" href="../../styles.css" />
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="site-header__inner">
+      <a class="brand" href="../../">Sohhom Bandyopadhyay <small>sohhom.github.io</small></a>
+      <nav class="nav" aria-label="primary">
+        <a href="../../cv/">cv</a>
+        <a href="../../project/">projects</a>
+        <a href="../" aria-current="page">blog</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="page">
+    <main data-screen-label="Post: three-gates-not-one-check">
+
+      <article>
+        <header class="project-hero">
+          <div class="project-hero__kicker">Essay · Apr 2026 · 8 min</div>
+          <h1>A trade can pass two gates and die on the third</h1>
+          <p class="project-hero__lede">Where can this position hurt me&quot; reads as one question. Implemented, it separates into at least three independent checks that fail for unrelated reasons — is the market type right, is the structure itself degenerate, and does time permit it. Collapsing them into a single suitability score loses the information you most need when something is rejected.</p>
+        </header>
+
+        <p>There is a good piece of trader advice that goes: direction is the entry point, not the decision. Two people can share a view and take structurally different positions, and the real question is not <em>what do I think happens</em> but <em>which risk am I choosing to carry.</em></p>
+        <p>I agree with it. What I want to write about is what happens when you try to make it mechanical, because the prose sentence "where can this hurt me if the market does not move the way I expect" turns out to be at least three separate questions with three separate answers, and the separation is the useful part.</p>
+        <h2>Three gates</h2>
+        <p><strong>Gate one: is the market type right?</strong> This is regime compatibility. A short premium structure wants elevated and preferably falling implied volatility, and a range. A long convexity structure wants cheap volatility and an expected move. The check is a match between the structure's preferred conditions and the measured state, and it is the gate everyone builds first because it is the one the strategy literature is about.</p>
+        <p><strong>Gate two: is the structure itself degenerate?</strong> This one has nothing to do with market conditions. A vertical spread whose two legs resolve to the same strike has zero width — it is not a spread at all, it is a wash trade paying commission twice. A butterfly whose wings collapse onto its body is a different animal from the one you scored. These arise from strike selection running against a coarse strike grid, or a rounding step, or an expiry whose chain is thin, and they can happen to a structure whose regime fit was excellent. The check is on the constructed legs, and it must run <em>after</em> strike selection, because before that the structure is an abstraction and abstractions are never degenerate.</p>
+        <p><strong>Gate three: does time permit it?</strong> A structure can be regime-appropriate and structurally sound and still be inadmissible because of where it sits relative to expiry. Anything with a naked short leg becomes qualitatively different in its final hours: gamma rises sharply, the distribution of outcomes stops being approximately continuous, and hedging assumptions that hold on a three-day horizon stop holding on a three-hour one. This is a <em>path</em> constraint, not a structure constraint or a regime constraint.</p>
+        <p>The instructive cases are the structures deliberately built to have no risk on one side — a naked short leg on one wing, paired with a defined-risk spread on the other. They are genuinely structurally sound; the asymmetry is the entire point of them. But the defined-risk spread does not hedge the naked leg, so the position needs a floor on time-to-expiry for a reason that has nothing to do with its structure or its regime fit. Gate one passes. Gate two passes. Gate three rejects it.</p>
+        <p><strong>The claim I want to make: these three must remain separate checks, and the near-universal instinct to fold them into one suitability score destroys the information you need most.</strong> A single number tells you a trade was rejected. Three gates tell you <em>which kind</em> of wrong it was — and the three have completely different repairs. Wrong regime means wait, or pick a different structure. Degenerate construction means fix strike selection; the strategy was fine. Time constraint means this structure is fine and simply not available today, and no amount of parameter tuning will make it available.</p>
+        <p>A scoring system that blends them will also silently trade them off, letting an excellent regime fit compensate for a structurally degenerate construction. That is not a trade-off anyone would accept if stated plainly, and it is exactly what a weighted sum does when nobody is looking.</p>
+        <h2>What the sizing layer reveals</h2>
+        <p>There is a fourth thing, and it is not a gate. It is the layer that decides how much.</p>
+        <p>If you cap exposure per unit of capital — a bound on aggregate gamma, a bound on vega — then a structure carrying heavy gamma inherits fewer lots than a light one for the same money, automatically, without anyone deciding it should. The scorer says <em>this is a good trade</em>; the budget says <em>good, and you may carry three lots of it.</em></p>
+        <p>That is the closest a mechanical system gets to the experienced trader in the advice I opened with. And it exposes something about that advice which I think is worth stating.</p>
+        <p><strong>A scoring system has no preferences. It has a ranking.</strong> The prose framing says the structure expresses what the trader <em>wants</em> to carry. A scorer says the structure is whatever the current conditions <em>reward</em>. Those are not the same claim, and the difference shows up in a specific way: a scorer has no notion of a trader who is directionally right, sees a suitable structure, and declines it because it does not suit their appetite. It only declines when something else scores higher.</p>
+        <p>If you want the system to encode "I will carry only this much of this kind of risk regardless of how attractive it looks," that preference has to live in the budget layer — and it is worth noticing that in most designs the budget sits <em>downstream</em> of scoring, trimming a decision already made, rather than shaping which decisions get considered. Whether that ordering is right is a real design question. Downstream is simpler and keeps scoring pure. Upstream would mean the system never seriously entertains structures it could not carry, which is closer to how the experienced trader in the advice actually behaves.</p>
+        <h2>Where the framing outruns what can be measured</h2>
+        <p>I want to end on the gap, because it is the honest part.</p>
+        <p>The five-dimensional framing — price, time, volatility, liquidity, path — is a good decomposition. Four of those dimensions are computable from a chain snapshot and a price history. <strong>Liquidity is the one that is named as co-equal and is almost always the one the system cannot actually see.</strong></p>
+        <p>Quoted spread and depth per strike are the inputs that would make liquidity a real gate, and they are frequently unavailable in whatever historical data a backtest runs on — which typically has last-traded prices and volumes, not the book. So the liquidity filters get written, get parameters, and get defaults that disable them, because enabling them against data that cannot support them produces confident nonsense. The dimension the framing names as one of five becomes, in practice, a stub.</p>
+        <p>That is worth stating explicitly wherever it is true, because the failure is invisible: the system reports a filter it is not applying. A backtest that assumes every strike is tradeable at the mid is not modelling a market, it is modelling a market where liquidity is free, and the difference is concentrated in exactly the far-from-the-money strikes that defined-risk structures depend on for their wings.</p>
+        <p>The general lesson has nothing to do with options. When a conceptual framework names N dimensions and your implementation can only observe N−1, the missing one does not politely announce itself. It gets a parameter, a default, and a comment — and everything downstream proceeds as though it were being checked.</p>
+      </article>
+
+    </main>
+  </div>
+
+</body>
+</html>

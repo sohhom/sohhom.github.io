@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>The sophisticated method taught me the problem; conditionals solved it — Sohhom Bandyopadhyay</title>
+  <link rel="stylesheet" href="../../styles.css" />
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="site-header__inner">
+      <a class="brand" href="../../">Sohhom Bandyopadhyay <small>sohhom.github.io</small></a>
+      <nav class="nav" aria-label="primary">
+        <a href="../../cv/">cv</a>
+        <a href="../../project/">projects</a>
+        <a href="../" aria-current="page">blog</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="page">
+    <main data-screen-label="Post: motif-discovery-taught-me-to-write-rules">
+
+      <article>
+        <header class="project-hero">
+          <div class="project-hero__kicker">Essay · May 2026 · 9 min</div>
+          <h1>The sophisticated method taught me the problem; conditionals solved it</h1>
+          <p class="project-hero__lede">Matrix profiles, dynamic time warping and structured prediction are the natural tools for finding a known shape in a time series. I spent weeks on them and shipped hand-written geometry instead. The exploration was not wasted — it was how I learned which parts of the shape mattered — but the ordering has an uncomfortable implication for how these projects get scoped.</p>
+        </header>
+
+        <p>Given a handful of labelled examples of a shape in a price series, and the task of finding more like them, the literature offers an obvious menu. Matrix profile methods for motif discovery. Dynamic time warping for elastic shape comparison. Structured prediction if you want the geometry back rather than a boolean. All are well-founded, all have good implementations, and all are more interesting than writing conditionals.</p>
+        <p>I worked through them. What shipped was rules and geometry, written in an afternoon, outperforming the lot.</p>
+        <p>I want to be careful about what that does and does not mean, because the glib version of this story — <em>fancy methods lose to simple ones, again</em> — is both a cliché and, in this case, wrong about the causation.</p>
+        <h2>What matrix profiles are actually for</h2>
+        <p>The matrix profile is a beautiful piece of engineering. For every subsequence of a given length in a series, it records the distance to that subsequence's nearest neighbour elsewhere in the series. From that one structure you get motifs (the closest pairs — patterns that recur) and discords (the most isolated subsequences — anomalies), and you get them without having told the algorithm what to look for.</p>
+        <p>That last property is the selling point and it is also why it was not quite my problem. Blind discovery answers "does anything repeat here?" I already knew what I was looking for; somebody had drawn it on a chart for me. The right tool in that family is not the full profile but a query-based scan — take the pattern in hand, slide it across the data, compute a z-normalised distance at every offset. STUMPY exposes this via <code>mass</code>, which is a distinct algorithm from the matrix profile proper, and it is enormously faster than blind search precisely because you supplied the thing being searched for.</p>
+        <p>Used that way it does work. Give it a labelled instance and it surfaces near-matches elsewhere, including — and this genuinely surprised me — across instruments and across timeframes. Finding a shape in one index's data from a template built on another's, at a different bar interval, was the moment the whole premise stopped feeling speculative.</p>
+        <p>Though I should be honest about what that demonstrates. Every technical analyst would have told me in advance that patterns are scale- and instrument-independent; that is the central claim of the discipline. My surprise was evidence about my priors, not about the market. Z-normalised distance is invariant to level and scale by construction, so finding scale-free shapes with a scale-free measure is close to circular. It confirms the shapes are geometrically consistent. It says nothing about whether they predict anything.</p>
+        <h2>The negative result worth reading</h2>
+        <p>Here is the thing that saved me the most time, and it is a public paper from 2017.</p>
+        <p>OHLC data is multidimensional. The natural generalisation of motif discovery to multiple dimensions is to seek subsequences that are similar across all of them at once. Yeh, Kavantzas and Keogh showed that this does not work — that methods seeking motifs on all dimensions fail to produce meaningful results except in contrived cases. The intuition is that requiring simultaneous agreement across every dimension is a far stronger constraint than the univariate case leads you to expect, and in real data it is satisfied either trivially or not at all. Their contribution, mSTAMP, selects the informative subset of dimensions rather than insisting on all of them.</p>
+        <p>I want to flag the meta-point rather than the technical one. <strong>A well-executed published negative result saved me weeks, and I nearly skipped it because the title sounded like a survey.</strong> This is a real cost of how the field treats nulls: a paper whose central contribution is "the obvious generalisation does not work, here is why" is filed as a lesser contribution than one claiming a win, gets cited less, and is correspondingly easier to miss. It was the highest-value thing I read on this problem. If it had been framed as a positive result about mSTAMP alone, I would have taken the algorithm and missed the reasoning — and the reasoning is what stopped me from spending a month building the thing that cannot work.</p>
+        <h2>Where DTW earns its place</h2>
+        <p>Dynamic time warping handles the invariance that matters most here: two instances of the same pattern occupy different numbers of bars. One forms over thirty, another over eighty, and they are the same shape. Euclidean distance on raw windows cannot see that; DTW can, by allowing the time axis to stretch.</p>
+        <p>With very few labelled examples, DTW-family methods are one of the few things that work at all. You can build a prototype from a handful of instances and score new windows against it, and you get a continuous similarity rather than a hard verdict — which is the right output shape, because it lets you set the operating point later, after you know what precision you need.</p>
+        <p>Its limitation is that it treats the pattern as a curve when the pattern is really a set of <em>relations</em>: these two lines converge, this trough sits above that one, this break happens after that peak. DTW measures how close the trace is; it has no vocabulary for the constraints that define the thing.</p>
+        <h2>The framing that clarified everything</h2>
+        <p>Structured prediction was the most useful idea I took from the exploration, including from the parts I did not use.</p>
+        <p>Stop asking "is this window an instance?" Ask instead for the pattern's defining points — the endpoints of each line, the peaks, the troughs. This is human pose estimation transplanted onto charts: a pose is a fixed set of keypoints and detection means locating them; a chart pattern is also a fixed set of keypoints. Constraints that are miserable to state explicitly — the lines must converge, the slopes must have opposite signs, the second trough must sit within a band of the first — are implicit in consistent training examples rather than enumerated.</p>
+        <p>Even where I did not use a model, this reframing paid for itself, because it forced the question of what the output <em>is</em>. Not a boolean. A geometry. A detector that says "yes, here" is nearly useless to someone who then has to draw the thing; a detector that returns the ten points defining five line segments is immediately actionable. I would not have arrived at that by writing rules first.</p>
+        <h2>Why rules won, and what that actually shows</h2>
+        <p>With the specification clear — and it was clear only because the exploration had made it clear — the rules were straightforward. Find local extrema. Fit lines. Check convergence, slope signs, relative levels, timing. Conditionals and a bit of geometry.</p>
+        <p>They beat the learned approaches on the metric that mattered, which was precision at a usable operating point, and they had two properties nothing else offered: every rejection came with a reason, and any criterion could be adjusted in isolation without retraining.</p>
+        <p>The temptation is to conclude that the sophisticated methods were a detour. I think that is exactly wrong, and the causation matters. <strong>The exploration is what produced the specification.</strong> Watching which windows DTW called close taught me which deformations preserve the pattern's identity and which destroy it. The keypoint framing told me what to output. The failure of naive multidimensional motif discovery told me the pattern does not live equally in all four OHLC series — that it is carried by highs and lows, with opens and closes mostly along for the ride. Every one of those became a line in the rule set. I could not have written the rules first, because I did not know them.</p>
+        <p>So the honest lesson is narrower and more useful than "simple beats complex." It is this: <strong>when you have twenty labelled examples and access to someone who can tell you the rule, learning the rule from the examples is the harder path to the same destination.</strong> Twenty examples is not a training set. It is a specification, delivered inefficiently. The machine learning was doing the job of extracting a rule from examples — a job a domain expert plus a careful interviewer does better and faster at that sample size.</p>
+        <p>The condition on that claim is the sample size, and it is doing all the work. At twenty thousand labelled examples the reasoning inverts completely, because at that point the examples contain regularities no expert can articulate, and rule-writing becomes the crippled approach. The mistake is not choosing either one. It is not noticing which regime you are in before you start.</p>
+      </article>
+
+    </main>
+  </div>
+
+</body>
+</html>

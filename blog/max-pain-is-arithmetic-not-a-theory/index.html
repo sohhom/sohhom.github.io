@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>The max pain curve is a bowl because of arithmetic, not because of manipulation — Sohhom Bandyopadhyay</title>
+  <link rel="stylesheet" href="../../styles.css" />
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="site-header__inner">
+      <a class="brand" href="../../">Sohhom Bandyopadhyay <small>sohhom.github.io</small></a>
+      <nav class="nav" aria-label="primary">
+        <a href="../../cv/">cv</a>
+        <a href="../../project/">projects</a>
+        <a href="../" aria-current="page">blog</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="page">
+    <main data-screen-label="Post: max-pain-is-arithmetic-not-a-theory">
+
+      <article>
+        <header class="project-hero">
+          <div class="project-hero__kicker">Essay · Apr 2026 · 8 min</div>
+          <h1>The max pain curve is a bowl because of arithmetic, not because of manipulation</h1>
+          <p class="project-hero__lede">Plot total option payout against underlying price near expiry and you get a U-shaped curve whose minimum sits almost exactly at spot. This is presented as evidence that price is drawn toward the pain point. The shape is a deterministic consequence of summing piecewise-linear payoffs weighted by open interest, and the alignment at expiry is close to tautological.</p>
+        </header>
+
+        <p>Max pain is the strike at which the aggregate payout to option holders is minimised — where the largest quantity of contracts expires worthless. The folk theory attached to it says that price gravitates toward this level as expiry approaches, because sellers, who are collectively short those contracts, have both the incentive and the means to push it there.</p>
+        <p>Plot it and the theory looks well supported. Total pain against candidate settlement price traces a clean bowl, and its minimum coincides with spot to within a stone's throw — on the index snapshots I have looked at, a handful of points apart on a five-figure index. It is a persuasive picture.</p>
+        <p>It is also, on its own, close to no evidence at all, and the reasons are worth being precise about.</p>
+        <h2>Where the bowl comes from</h2>
+        <p>Total pain at candidate settlement price $S$ is</p>
+        <p>$$\text{Pain}(S) = \sum_i OI^{\text{call}}_i \cdot \max(0,\, S - K_i) \;+\; \sum_i OI^{\text{put}}_i \cdot \max(0,\, K_i - S)$$</p>
+        <p>Each call contributes a ray with slope $OI^{\text{call}}_i$ once $S$ exceeds its strike, and zero below. Each put contributes a ray with slope $-OI^{\text{put}}_i$ below its strike. Summing them gives a piecewise-linear function whose slope changes only at strikes:</p>
+        <p>$$\frac{d}{dS}\text{Pain}(S) = \sum_{K_i &lt; S} OI^{\text{call}}<em K_i="K_i" S="S" _="&gt;">i \;-\; \sum</em>_i$$} OI^{\text{put}</p>
+        <p>The first term is non-decreasing in $S$ and the second is non-increasing, so the derivative is monotonically non-decreasing. <strong>The function is convex by construction.</strong> It cannot fail to be bowl-shaped. The minimum sits where cumulative call OI below balances cumulative put OI above — a cumulative-balance point in the OI distribution, nothing more.</p>
+        <p>So the smooth U-shape, presented as though it revealed a force field, is a property of summing hockey-stick payoffs. You would get it from randomly generated open interest.</p>
+        <h2>Where the alignment comes from</h2>
+        <p>The minimum being near spot is the second half of the impression, and it is nearly as mechanical.</p>
+        <p>Open interest concentrates around the money. Traders open positions near where price is, and near expiry the strikes carrying real OI are the ones price has recently been near. Deep out-of-the-money contracts contribute almost nothing to the sum — they are worthless across most of the plotted range and their OI is small anyway. So the balance point of the OI distribution is pinned near spot by the same process that put the OI there.</p>
+        <p>Take the snapshot minutes before expiry and you are measuring the end state of that clustering and calling it a prediction. The curve is descriptive of where positions accumulated. It says nothing about causation, and specifically it does not distinguish <em>price moved toward the OI</em> from <em>OI accumulated around price</em>, which is the entire question.</p>
+        <h2>What would actually test it</h2>
+        <p>The claim is dynamic, so the test has to be. Not "is spot near max pain at expiry" but:</p>
+        <p><strong>Does $|S_t - S^*_{\text{max pain}}|$ shrink systematically as $t \to T$, across many expiries, beyond what OI clustering and gamma concentration already explain?</strong></p>
+        <p>That needs a time series of distance-to-max-pain through the life of each expiry, across a large sample of expiries, with the max pain point recomputed at each step because it moves as OI changes. And it needs controls, because two alternative explanations produce the same convergence:</p>
+        <p><strong>OI clustering.</strong> If OI accumulates around wherever price currently is, then the max pain point follows price rather than price approaching it. The distance shrinks and the causation runs backwards. Distinguishing these requires looking at lead-lag — does the max pain point move toward spot before spot moves toward it?</p>
+        <p><strong>Gamma pinning.</strong> This is a genuine flow mechanism and it is not the same thing. Dealers short options are short gamma; hedging that exposure means buying as price rises and selling as it falls, which is mechanically mean-reverting and concentrates near strikes with large short positions. It produces sticky behaviour around heavily-traded strikes, and those strikes correlate with the max pain point because both are driven by OI concentration.</p>
+        <p>The distinction matters. Gamma pinning is dealer hedging flow, operating through the order book, strongest near expiry when gamma is largest, and its magnitude follows from position sizes. Max pain is a static payout minimisation with no mechanism attached. They are correlated because they share a cause, and they are constantly conflated.</p>
+        <p><strong>Here is the inconvenient part: the mechanism that would make max pain work is gamma pinning, and if gamma pinning is what is happening, then max pain is a lossy proxy for a quantity you could compute directly.</strong> Net dealer gamma by strike is a better-founded object than a payout-minimising strike. Max pain ignores volatility, ignores time to expiry, ignores dynamic hedging entirely, and treats a call and a put at the same strike as interchangeable contributors to a sum. If the flow story is right, computing $\Gamma_{\text{net}}(S) = \sum_i OI_i \cdot \Gamma_i(S)$ dominates it. Max pain survives on being computable from a static chain with nothing but open interest — a convenience property, not an epistemic one.</p>
+        <h2>The one thing I would not dismiss</h2>
+        <p>There is published work — a 2022 study on predictable reversals around expiration — finding that long-short portfolios formed on max pain do generate excess risk-adjusted returns, with the effect concentrated in stocks that had fallen substantially, stronger among small illiquid names, and the authors explicitly unwilling to rule out manipulation.</p>
+        <p>That is a real result and I am not waving it away. But note what it is: a <em>reversal</em> effect, strongest where prices had already moved a lot and where the underlying is small and illiquid — which is to say, where moving price is cheap. That is a specific mechanism in a specific corner, not a general gravitational pull toward the pain point in liquid index options, which is where the folk theory is invoked most confidently.</p>
+        <h2>The honest position</h2>
+        <p>Max pain is a descriptive summary of where open interest sits, computed in a way that guarantees a convex curve. As a snapshot it is internally consistent and proves nothing about causation. The pinning it is invoked to explain has a better-specified alternative mechanism in dealer gamma hedging.</p>
+        <p>None of which makes the computation useless. Knowing where OI is concentrated is genuinely worth knowing — heavy two-sided positioning at a strike does imply elevated short gamma in the market, and therefore a real possibility of mean-reverting hedging flow. Combined with the change in OI, the level and skew of implied volatility, and the liquidity of the underlying, it is a reasonable input.</p>
+        <p>What it is not is a prediction. The plot that started this — bowl-shaped, minimum at spot — is a picture of arithmetic. I have not run the longitudinal test, so I am not claiming the theory is false; I am claiming the usual evidence for it does not bear on the question. That distinction is the entire post.</p>
+      </article>
+
+    </main>
+  </div>
+
+</body>
+</html>

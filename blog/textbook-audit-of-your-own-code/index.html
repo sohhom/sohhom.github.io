@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Auditing your implementation against the textbook, one definition at a time — Sohhom Bandyopadhyay</title>
+  <link rel="stylesheet" href="../../styles.css" />
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="site-header__inner">
+      <a class="brand" href="../../">Sohhom Bandyopadhyay <small>sohhom.github.io</small></a>
+      <nav class="nav" aria-label="primary">
+        <a href="../../cv/">cv</a>
+        <a href="../../project/">projects</a>
+        <a href="../" aria-current="page">blog</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="page">
+    <main data-screen-label="Post: textbook-audit-of-your-own-code">
+
+      <article>
+        <header class="project-hero">
+          <div class="project-hero__kicker">Essay · Apr 2026 · 7 min</div>
+          <h1>Auditing your implementation against the textbook, one definition at a time</h1>
+          <p class="project-hero__lede">Code that runs, produces sensible-looking output, and passes its tests can still be building the wrong object. The only way I have found to catch this is a tedious one — go through each construction, write down the canonical definition, write down what the code actually builds, and compare them in public.</p>
+        </header>
+
+        <p>Here is a category of bug that testing does not find.</p>
+        <p>You implement twenty variants of something — twenty option structures, twenty estimators, twenty transforms — from a table in a README. Each one runs. Each produces output with the right shape and a plausible magnitude. Downstream code consumes them uniformly, so nothing crashes. Your tests check that a structure with four legs has four legs, that prices are positive, that P&amp;L arithmetic is consistent.</p>
+        <p>And one of them is not the thing it is named after.</p>
+        <p>No test catches this, because the tests were written from the same misunderstanding as the code. The output is not malformed; it is well-formed and <em>mislabelled</em>. Everything downstream treats it as what its name says, and the error surfaces only as a scoring system that keeps preferring a structure whose risk profile is not what the scorer thinks it is.</p>
+        <h2>The format that works</h2>
+        <p>The only reliable method I have found is unglamorous. For each item, produce four things, side by side, in a document:</p>
+        <ol>
+        <li><strong>What we claim it is</strong> — the one-line description from the README or the docs.</li>
+        <li><strong>What the canonical definition says</strong> — the construction as a standard reference gives it. Name the reference.</li>
+        <li><strong>What the code actually builds</strong> — read the construction function and write down, in plain terms, the object it emits. Cite the file and the lines.</li>
+        <li><strong>A verdict</strong> — correct, correct with minor concerns, partially correct, or incorrect. Plus, where it is not correct, the specific change, written for a programmer who is not a domain expert.</li>
+        </ol>
+        <p>That last qualification carries more weight than it looks. "Fix the strike selection to be delta-based" is an instruction only a specialist can execute. "Select the call whose delta is nearest to +0.16, then clamp the chosen strike to within six strike-steps of at-the-money" is executable by anyone, and the act of writing it that precisely is itself a check — if you cannot write the instruction that way, you have not finished understanding the problem.</p>
+        <p><strong>The claim I will defend: writing down the definition and the implementation as two separate statements, and then comparing them deliberately, is a categorically different activity from reading the code and asking whether it looks right.</strong> Reading code invites you to reconstruct the intent from the implementation, which means you evaluate the code against itself. Writing the definition first, from an external source, gives you something the code can disagree with. It is the same reason a pre-registered analysis plan is worth more than the same analysis chosen after seeing the data.</p>
+        <h2>What it surfaces</h2>
+        <p>Three kinds of finding, in rough order of how often they show up.</p>
+        <p><strong>Silent parameter degeneracy.</strong> A construction that is supposed to pick strikes by some criterion picks them by a fallback when the criterion cannot be met, and the fallback produces something structurally different. Nothing errors. The object is well-formed and is now a different structure with a different risk profile than the one being scored.</p>
+        <p><strong>Gates that do not match the risk.</strong> Every structure has conditions it should refuse — a short-premium position wants a floor on time to expiry, a defined-risk one might not. When these gates are set by copy-paste from a similar-looking neighbour, you get a structure whose admission rules belong to a different risk profile. This is invisible in output because the gate only fires sometimes, and when it fails to fire you simply get a trade you should not have had.</p>
+        <p><strong>Scorers rewarding the wrong quantity.</strong> A scoring function that adds points for a quantity that the structure is actually hurt by. These are the hardest to catch by inspection, because the scorer's code is short, readable, and wrong only if you know the structure's Greek profile — which is exactly the knowledge the audit is forcing you to write down.</p>
+        <p>The audit also finds the opposite, which is worth saying: most of the items usually turn out to be correct, and confirming that is not wasted work. It converts "we think these are right" into "these were checked against a named reference on a stated date," which is a different asset — one that survives the author leaving and can be re-run against a changed codebase.</p>
+        <h2>Why it has to be written down</h2>
+        <p>The tempting shortcut is to do this in your head while reading the code. It does not work, for a reason that is not about diligence.</p>
+        <p>When you read an implementation, you build a model of what it is trying to do <em>from the implementation</em>. That model is contaminated by the code, and it will accommodate the code's mistakes, because a mistake presents as an intention you had not considered. Writing the canonical definition first — ideally from a source you did not write — is what makes the comparison possible at all.</p>
+        <p>The document also does work that the check itself does not. It tells the next person which of twenty items were verified, against what, and when. Without it, the natural half-life of "we audited that" is about one quarter, after which it reverts to folklore.</p>
+        <p>And there is a version-control benefit that surprised me: a dated audit document diffs. Re-run the audit six months later, and the changed verdicts are the review. That is a much cheaper artefact to maintain than a test suite that would have to encode all the same domain knowledge in assertions.</p>
+        <h2>The limits</h2>
+        <p>An audit against textbook definitions verifies that you built the thing you named. It does not verify that the thing is useful, that the scoring logic ranks well, or that any of it makes money. It is a correctness check against a definition, and definitions can be right while everything built on them is unprofitable.</p>
+        <p>It also inherits the reference's authority. Where standard sources genuinely disagree — and for some constructions they do, particularly on strike selection conventions — the audit can only record the disagreement and state which convention was adopted. That is still progress: an explicit choice beats an accidental one. But it is not the same as being right, and a document that hides a contested convention behind a confident "CORRECT" is worse than no document.</p>
+        <p>The general form: <strong>any system with many similar-looking components accumulates ones that are not what they claim to be, and the failure is silent because the type system is satisfied.</strong> Names are not checked by the compiler. Periodically, somebody has to sit down with the definitions and confirm that the twenty things named after twenty concepts are, in fact, those concepts.</p>
+      </article>
+
+    </main>
+  </div>
+
+</body>
+</html>

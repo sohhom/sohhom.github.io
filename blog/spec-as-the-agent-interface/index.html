@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>The specification is the artefact the agent and I both edit — Sohhom Bandyopadhyay</title>
+  <link rel="stylesheet" href="../../styles.css" />
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="site-header__inner">
+      <a class="brand" href="../../">Sohhom Bandyopadhyay <small>sohhom.github.io</small></a>
+      <nav class="nav" aria-label="primary">
+        <a href="../../cv/">cv</a>
+        <a href="../../project/">projects</a>
+        <a href="../" aria-current="page">blog</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="page">
+    <main data-screen-label="Post: spec-as-the-agent-interface">
+
+      <article>
+        <header class="project-hero">
+          <div class="project-hero__kicker">Essay · Mar 2026 · 9 min</div>
+          <h1>The specification is the artefact the agent and I both edit</h1>
+          <p class="project-hero__lede">Asking a coding agent to build a detector produces code you then have to argue with. Asking it to write a rigorous specification first, then implement that specification, changes what you review and what you fix. The interesting part is not that this produces better code — it is that the specification becomes the only place a disagreement can be resolved.</p>
+        </header>
+
+        <p>Give a competent coding agent a pattern name and a paragraph of description, and it will write you a detector. It will run. It will produce output. The output will be wrong in ways you cannot localise, because the thresholds are inline constants, the rules are implicit in control flow, and the reasoning that produced them is gone.</p>
+        <p>You are now in the worst position in software: reviewing a plausible implementation of an unstated specification. Every disagreement — this fires too often, that anchor is misplaced — has to be litigated against code, and the fix is a patch to a magic number whose provenance nobody knows. Do that a few times and you have a detector nobody can explain, tuned to whatever examples happened to be in front of you.</p>
+        <p>The fix that worked for me is structural, and it is mostly about <strong>what artefact the human reviews</strong>.</p>
+        <h2>Separate the contracts</h2>
+        <p>Instead of one prompt producing one program, I split the work into stages, each governed by a written contract that says what that stage delivers and what it is forbidden to touch.</p>
+        <p><strong>A specification-writing contract.</strong> Its output is a document, not code: overview, a table of every configurable parameter with defaults and types, minimum data requirements, how extrema are identified, the geometric rules of the formation each with a numbered ID and a formula, the breakout condition, target and stop derivation, invalidation rules, and the output schema. Two rules in that contract do nearly all the work. First: <em>every threshold must be a named configurable parameter, never a magic number buried in prose.</em> Second: <em>do not invent novel heuristics — stick to what a standard reference would describe, translated into algorithmic rules.</em></p>
+        <p><strong>A detector contract.</strong> Pure analysis. Takes a chunk of price data, returns structured metadata about instances found. Explicitly forbidden from file I/O, sliding-window iteration, deduplication, plotting, or parallelism — and the contract says outright that if you find yourself importing a plotting library, you have crossed the boundary.</p>
+        <p><strong>A renderer contract.</strong> Everything the detector is banned from: iteration over the data, deduplication across overlapping windows, drawing, file naming.</p>
+        <p><strong>An evaluation contract.</strong> Scores rendered output against the specification, which I will come back to because it is the piece that makes the loop close.</p>
+        <p>The stages run in order and none may begin before the previous finishes. That constraint sounds bureaucratic and turns out to be the point.</p>
+        <h2>What changes when the spec is the deliverable</h2>
+        <p>The immediate benefit is legibility, and it is not a small one. A numbered rule with a formula and a named parameter can be read by a domain expert who does not program. They can tell you rule 2.3 is too strict without reading a single line of Python — and they can tell you <em>before</em> the implementation exists, which is when it is cheap.</p>
+        <p>But the effect I did not anticipate is what happens to disagreement.</p>
+        <p>When output is wrong and the artefact of record is code, the argument is "the detector is firing too much," and the fix is somebody changing a constant. When the artefact of record is a specification, the same complaint has to be localised: <em>which rule admitted this?</em> And that question has an answer, because every threshold has a name and every rule has an ID. The fix is a change to a named parameter with a stated default, and the implementation is regenerated to match.</p>
+        <p><strong>The specification becomes the single place a disagreement can be resolved, and that is worth more than any improvement in the code it generates.</strong> This is the same claim I have made about informal chart-pattern descriptions generally — that the specification is the deliverable and the detector is a by-product — but the agentic setting makes it operationally forced rather than merely advisable. When code is cheap to regenerate, the code stops being the asset. The reviewed, argued-over document is the asset, and the code is a build product.</p>
+        <p>That has an uncomfortable corollary for how this work gets estimated. The time is not in implementation, which is now fast. It is in specification and evaluation, which are not, and which look like "writing documents" to anyone measuring progress in commits.</p>
+        <h2>The loop only closes if something grades the output</h2>
+        <p>A specification and an implementation are still two artefacts that can silently disagree. Code review does not catch this well, because the code can be a perfectly faithful implementation of a rule that turns out to be wrong about the world.</p>
+        <p>What closes the loop is evaluation against rendered output — the same charts a human would look at — scored on a rubric that references the specification's own rule IDs.</p>
+        <p>The rubric I used scores each detection on five dimensions, zero to three: are the anchor points where a skilled analyst would put them; does the shape actually resemble the named pattern; is the breakout genuine; are the target and stop consistent with the spec's formulas; and, standing back, is this a valid instance at all. Composite below eight gets flagged as a likely false positive. Two details matter more than the dimensions: the rubric demands explicit calibration — <em>a top score should be rare, most legitimate patterns should land in the middle</em> — and it requires cited rule IDs, with an instruction not to invent one when unsure. A grader that cannot point at a violated rule must say so in free text rather than fabricate a citation.</p>
+        <p>This makes the evaluation a measurement of <em>spec-implementation agreement</em> rather than a vibe check. When the score is low, the follow-up question is whether the specification was wrong or the implementation diverged from it, and those are different repairs.</p>
+        <h2>What the evaluation pass finds, and why it is the useful half</h2>
+        <p>The characteristic first-pass outcome, for a formation with several free parameters, is far too many detections — a set large enough that nobody will inspect it, containing genuine instances buried in noise. That much is predictable. What is not predictable is <em>why</em>, and this is where scoring rendered output earns its place.</p>
+        <p>The evaluation names specific causes and — crucially — tags each as a <em>spec-level</em> or an <em>implementation-level</em> problem. In my experience the spec-level ones dominate, and they have a family resemblance worth naming:</p>
+        <p><strong>A structural precondition left optional.</strong> Many patterns are only meaningful in a particular context — a reversal formation means nothing in a flat range. If the spec makes the prior-trend requirement a parameter defaulting to off, the detector will dutifully find the shape everywhere, and every one of those is a false positive that no amount of geometric tightening removes.</p>
+        <p><strong>A minimum size small enough to admit noise.</strong> Any shape defined by a handful of turning points will occur constantly at small scales. The bound that separates structure from noise is a real modelling decision and it usually is not in the textbook description.</p>
+        <p><strong>An anchor permitted at a degenerate position.</strong> Let a defining point sit at the very edge of the formation and the shape collapses into a different pattern that still satisfies every stated inequality. Degenerate configurations are the most common way a rule set admits things it never meant to.</p>
+        <p><strong>A threshold set where the test does nothing.</strong> A volume filter with a ratio of exactly 1.0 is not a lenient filter, it is an absent one. These are easy to miss in review because the parameter exists, is named, and appears to be doing work.</p>
+        <p>None of those are bugs. Every one is the code faithfully implementing a rule that was wrong about the world — precisely the failure that code review cannot catch, because the code is correct, and that rendered-output evaluation does catch, because the chart is visibly not the pattern.</p>
+        <p>Correcting defaults of that kind moves a detector from far-too-many to far-too-few, and both extremes are informative. The second regime is the more dangerous one to stop at, because a small set of clean detections looks like success. The same evaluation that flagged the false positives will tell you recall has collapsed, and the disciplined next move is to recover it by loosening exactly one lever at a time — starting with a quality threshold rather than reopening the geometry rules, so that each change has an attributable effect.</p>
+        <p>I am describing the shape of the process rather than reporting numbers from it, deliberately. The specific detection counts and rubric scores from a client engagement are not mine to publish, and they would not transfer anyway. What transfers is the categories: these four spec defects recur across quite different formations, and knowing to look for them is most of the value.</p>
+        <p>One thing worth being clear about regardless. These scores measure agreement between a specification and its implementation, as judged against rendered charts. They say nothing whatever about whether the pattern predicts anything. Detection quality and predictive value are separate questions, and this loop only measures the first.</p>
+        <h2>Where I would not push this</h2>
+        <p>The failure mode of this whole approach is that a model grading model-generated output can share the generator's blind spots. If both stages misunderstand the pattern in the same direction, the loop will happily converge on a confident, well-documented, wrong detector. Nothing internal to the loop catches that. Human review of the specification — by someone who knows the domain and never sees the code — is the only defence I found, and it is the step most likely to get skipped because everything else is automated.</p>
+        <p>The second limit is that rubric scores are estimates from small samples. Scoring a few dozen rendered charts is not a large evaluation set, and small differences in the fraction judged acceptable sit well inside what sampling noise produces. Treat a change of regime — far too many detections becoming far too few — as real, and treat a few points of composite score as noise until a larger sample says otherwise.</p>
+        <p>What I would carry anywhere: <strong>make the artefact you review the artefact you can argue with.</strong> Agents made implementation cheap enough that the specification is no longer the preliminary. It is the product, and everything downstream of it — including the code — should be regenerable from it.</p>
+      </article>
+
+    </main>
+  </div>
+
+</body>
+</html>

@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Give the agent a shell and an API, not a prompt and a hope — Sohhom Bandyopadhyay</title>
+  <link rel="stylesheet" href="../../styles.css" />
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="site-header__inner">
+      <a class="brand" href="../../">Sohhom Bandyopadhyay <small>sohhom.github.io</small></a>
+      <nav class="nav" aria-label="primary">
+        <a href="../../cv/">cv</a>
+        <a href="../../project/">projects</a>
+        <a href="../" aria-current="page">blog</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="page">
+    <main data-screen-label="Post: agent-as-trader-not-oracle">
+
+      <article>
+        <header class="project-hero">
+          <div class="project-hero__kicker">Essay · Apr 2026 · 8 min</div>
+          <h1>Give the agent a shell and an API, not a prompt and a hope</h1>
+          <p class="project-hero__lede">The usual way to put a language model in charge of a decision loop is a script that calls it and acts on the answer. Replacing that script with an interactive agent works better than I expected, but only because of a design decision that has nothing to do with the agent — the state lives behind a service the agent does not own.</p>
+        </header>
+
+        <p>A one-shot script that asks a model what to do and then does it is the default architecture for putting a language model in a decision loop. Fetch some state, format it, call the model, parse the response, execute. It works, it is easy to reason about, and it has a specific ceiling: the model gets exactly one look at whatever you thought to put in the prompt.</p>
+        <p>Replacing that script with an interactive agent — one with a shell, able to run commands, read output, and decide what to look at next — is a bigger change than it appears, and most of what makes it work is not about the agent at all.</p>
+        <h2>The architectural precondition</h2>
+        <p>The thing that made the swap possible in the case I know best was a decision made earlier and for unrelated reasons: <strong>the component that owns the state runs as a long-lived service behind an HTTP API, and the decision-making code is a client.</strong></p>
+        <p>The state-owner holds the book. It knows current positions, it applies the rules for opening and closing, it enforces its own invariants. It exposes endpoints — health, current state, submit an action — and it does not know or care who is calling. A Python script, a curl command in a loop, a person with a browser, an agent: all the same to it.</p>
+        <p>That means the decision-maker is stateless by construction. It cannot hold a position, because positions live in the service. It cannot drift out of sync with reality, because it has no local copy of reality to drift from. Every cycle it asks the service what is true, decides, submits, and forgets.</p>
+        <p><strong>That property — the decider owns no state — is what makes the agent swap a swap rather than a rewrite,</strong> and it is worth building for even if you never intend to put an agent anywhere near the system. The interesting consequence is not flexibility. It is that an agent which crashes, or hallucinates, or gets confused halfway through a cycle, cannot corrupt anything. Its confusion is confined to a decision. The book is elsewhere, guarded by code that validates every request against its own rules.</p>
+        <p>Contrast the common alternative, where the loop holds positions in memory and periodically reconciles with a broker. There the failure mode of a confused decider is a divergence between what the system thinks it holds and what it holds, which is the single worst state a trading system can be in and one that agents — nondeterministic, occasionally verbose, capable of misreading their own prior output — are unusually good at producing.</p>
+        <h2>What the agent needs that a script does not</h2>
+        <p>A script needs an API. An agent needs an <strong>operating manual</strong>, and writing it is most of the work.</p>
+        <p>The manual that worked was structured as: here is your mental model, here are the two URLs that matter, here is the cycle you run, here is what to do when a step fails. The mental model section did more than I expected — a plain statement of <em>you are the trader; you have a shell and a service; you own no state; you submit orders and read state back</em> — because it prevents an entire class of confusion where the agent starts reasoning about positions it believes it holds.</p>
+        <p>The cycle is written as numbered steps with the actual commands, and each step says what a healthy response looks like and what to do otherwise. The first step is a health check with an explicit instruction: if this fails, <strong>do nothing</strong> — the operator has not started the service. That instruction matters more than any other line in the document. The default behaviour of a capable agent facing an unreachable dependency is to investigate, work around, or reimplement, and every one of those is wrong when the dependency is the thing that owns your money.</p>
+        <p>Alongside the manual sit the data contracts: what the endpoints are, what the response shapes look like, what the rate limits are, what the known data quirks are. These are the same documents a human integrator would need. Writing them for the agent produced better documentation than the system had when only humans used it, which is a real if slightly embarrassing benefit.</p>
+        <h2>Where the leverage actually is</h2>
+        <p>The gain from an interactive agent over a one-shot script is not that it makes better decisions. On the decision itself I would not claim an improvement I cannot measure.</p>
+        <p>The gain is in <strong>the loop between noticing something is off and finding out why</strong>. A script that produces a bad decision gives you a bad decision. An agent that produces a bad decision can be asked what it was looking at, told to fetch the state again, told to check a specific instrument, told to explain which condition it thought was satisfied. The investigation happens inside the same session with the same context, and it takes minutes rather than a debugging cycle.</p>
+        <p>That is worth being precise about, because it is a claim about iteration speed and not about decision quality, and the two get conflated constantly in discussions of agentic systems. If your bottleneck is the quality of an individual decision, an agent may not help. If your bottleneck is understanding why the system did what it did — which, in my experience, is where the time actually goes — then it is a substantial change.</p>
+        <h2>The failure modes I would plan for</h2>
+        <p><strong>Agents work around obstacles.</strong> This is the behaviour that makes them useful and the behaviour that makes them dangerous next to anything irreversible. An agent told to submit an order, encountering a rejection, may try a different endpoint, a modified payload, or a workaround you did not anticipate. The defence is not in the prompt — it is that the service validates every request and refuses invalid ones regardless of who asks and how persuasively. <strong>Never let the guardrail live in the instructions when it can live in the API.</strong></p>
+        <p><strong>Rate limits and shared resources need to be stated as hard rules with the reason attached.</strong> An agent parallelising requests to be helpful will exceed a documented limit unless the limit is stated as a constraint rather than a suggestion, ideally with the consequence spelled out.</p>
+        <p><strong>Nondeterminism means the same state can produce different actions on different runs.</strong> For anything with real consequences, this argues for the agent proposing and something else disposing — a validation layer, a budget check, a human — rather than the agent's output being the final word. The stateless-client design makes this natural, because inserting a check between decision and execution is just a change to what the client calls.</p>
+        <p><strong>The manual is code.</strong> It goes in version control, it gets reviewed, and when the API changes it changes with it. A stale operating manual is worse than none, because the agent will follow it confidently.</p>
+        <h2>The honest limit</h2>
+        <p>I am describing an architecture and the reasoning behind it. I am not reporting that an agent-driven loop outperformed a script-driven one on any measured outcome, because that comparison requires a controlled evaluation over enough decisions to distinguish signal from variance, and short of that the comparison is anecdote.</p>
+        <p>What I will say is narrower and I think more useful: the design that makes an agent safe to use here — state behind a service, decider owns nothing, guardrails in the API, contracts written down — is a design worth having anyway. Agents mainly made the cost of <em>not</em> having it obvious sooner.</p>
+      </article>
+
+    </main>
+  </div>
+
+</body>
+</html>

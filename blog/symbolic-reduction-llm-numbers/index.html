@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Never hand a language model a number it could be handed as a fact — Sohhom Bandyopadhyay</title>
+  <link rel="stylesheet" href="../../styles.css" />
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="site-header__inner">
+      <a class="brand" href="../../">Sohhom Bandyopadhyay <small>sohhom.github.io</small></a>
+      <nav class="nav" aria-label="primary">
+        <a href="../../cv/">cv</a>
+        <a href="../../project/">projects</a>
+        <a href="../" aria-current="page">blog</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="page">
+    <main data-screen-label="Post: symbolic-reduction-llm-numbers">
+
+      <article>
+        <header class="project-hero">
+          <div class="project-hero__kicker">Essay · May 2026 · 8 min</div>
+          <h1>Never hand a language model a number it could be handed as a fact</h1>
+          <p class="project-hero__lede">The obvious way to make a language model discuss a time series is to give it the series. It fails, and not only for the reason everyone cites. Computing everything numerically first and passing the model discrete semantic states is usually framed as a cost optimisation. It is better understood as a correctness mechanism — the model cannot be wrong about numbers it never received.</p>
+        </header>
+
+        <p>Suppose you want a language model to describe what is happening in a price chart in natural language. The direct approach is to serialise the data — a few hundred bars of open, high, low, close, volume — put it in the context window and ask.</p>
+        <p>Everyone knows this fails on cost. A few hundred bars is a large payload, it grows with the history in view, and you pay for it on every turn. That is the reason usually given for doing something smarter, and it is the least interesting reason.</p>
+        <h2>Reduce first, then compose</h2>
+        <p>The alternative is to compute everything numerically in ordinary code — indicators, geometry, detected structures, volume relations — and reduce each result to a small number of discrete semantic facts before the model sees anything at all.</p>
+        <p>A moving average and its slope over a window become a trend state. A volatility band relationship becomes <code>SQUEEZING</code> or <code>FIRING</code>. A detected formation becomes its status, its key levels, and its position relative to current price. Volume becomes an intensity tag relative to its own baseline, plus an effort-versus-result reading — large range on heavy volume is conviction, small range on heavy volume is churn, large range on light volume is exhaustion.</p>
+        <p>A hundred floating-point values become one word. The model's job shifts from measurement to composition: it explains and connects facts it has been handed, and it never computes anything.</p>
+        <h2>The reason this matters is not the payload</h2>
+        <p><strong>The model cannot be wrong about numbers it never received.</strong></p>
+        <p>That sentence is the whole argument. Every quantitative claim in the output traces back to a deterministic computation in ordinary code — code you can unit-test, run in a debugger, and fix when it is wrong. The model's contribution is language. If the trend state says <code>UP</code>, that is because a function computed a slope and compared it to a threshold, and if that is wrong, it is wrong in a way you can find.</p>
+        <p>Compare the failure mode you avoid. Hand a model raw numbers and ask about the recent range, and it will produce a plausible figure. Sometimes it is right. Sometimes it is close. You will not reliably know which, and the presentation is identically confident in both cases. You have introduced an arithmetic dependency on a system that does not do arithmetic reliably, in exchange for nothing — because you had the numbers, in code, and could have computed the answer exactly.</p>
+        <p><strong>The opinion I will defend: passing raw numeric data to a language model is nearly always an architectural mistake, and the token cost is the least of it.</strong> The cost framing is actively harmful because it suggests the trade-off scales — that with a cheaper model or a bigger window you could stop bothering. You could not. The property you want is not affordability, it is that the numbers in the output are computed rather than generated, and no amount of context window buys you that.</p>
+        <h2>Three failure modes that surprised me</h2>
+        <p>Symbolic reduction removes the arithmetic failures. It does not remove all of them, and the residue is instructive.</p>
+        <h3>Empty fields are more dangerous than wrong fields</h3>
+        <p>If you pass a structured state object with a field that is present but empty — an indicator that returned nothing for this window, a pattern list with no entries — the model is markedly more likely to invent a plausible value than to say nothing.</p>
+        <p>This inverts the intuition that missing data is the safe failure. A wrong value tends to be wrong in a bounded way, and it will often contradict something else in the state, which is detectable. An absent value invites confabulation, and the confabulation is unconstrained — it will be internally consistent and completely fictional, because nothing in the input contradicts it.</p>
+        <p>The fix is mechanical: omit empty fields entirely rather than passing them as nulls or empty lists, and make "no signal" an explicit state with a name rather than an absence. <code>NO_PATTERN_DETECTED</code> is a fact the model can report. An empty array is a gap it will fill.</p>
+        <h3>Fluent narrative overrides discrete facts</h3>
+        <p>Hand a model a state saying a formation <em>failed</em> — the setup formed and then invalidated — and it will sometimes narrate that formation as though it were developing, and offer an interpretation predicated on it completing.</p>
+        <p>This is not a knowledge failure and adding context does not fix it. The model has the status; it is right there in the input. What is happening is that "double top forming, target below neckline" is an overwhelmingly more common continuation than "double top failed, therefore the opposite," and the narrative pull of the common pattern beats the discrete flag.</p>
+        <p>Two things help. Make status structurally primary rather than an attribute — <code>FAILED_DOUBLE_TOP</code> as the thing's identity, not <code>DOUBLE_TOP</code> with <code>status: failed</code>, because a modifier can be dropped by a summariser and an identity cannot. And check the output against the input for direct contradiction before it reaches anyone. That check is cheap and catches a specific, recurring, high-severity error.</p>
+        <h3>Prohibitions do not compose</h3>
+        <p>The intuitive way to keep a system from saying things it should not is to enumerate them. Do not give buy or sell recommendations. Do not predict prices. Do not answer off-topic questions. Do not claim certainty.</p>
+        <p>Past a handful, this degrades — and it degrades in both directions at once. Instruction-following on the individual prohibitions gets <em>worse</em>, and the system starts refusing things it should answer, because the accumulated weight of restriction shifts it toward blanket caution. Call it constraint fatigue.</p>
+        <p>What works better is a short decision procedure: classify what kind of request this is, and route. An educational question about what an indicator means gets answered. An analysis question about the current chart gets answered from the provided state. A request for a recommendation gets declined. That is one classification and three branches, and it is both shorter and more reliable than fifteen prohibitions — the model is executing a procedure rather than checking a list.</p>
+        <h2>The limits</h2>
+        <p>Symbolic reduction constrains the model to facts you thought to compute. If your reducer has no concept of a particular structure, the model cannot notice it, however visible it would be to a human looking at the chart. You have traded open-ended perception for reliability, deliberately, and it is a real trade — a system built this way will never surprise you with an observation you did not build the vocabulary for.</p>
+        <p>I think it is the right trade whenever the output makes quantitative claims to someone who will act on them. It is the wrong trade for open-ended exploration, where the whole point is noticing the unanticipated.</p>
+        <p>And the reduction itself is a modelling decision, not a neutral compression. Choosing that a slope above some threshold means <code>UP</code> embeds a judgement, and every consumer downstream inherits it without seeing it. The numbers become facts, and facts are harder to argue with than numbers — which is exactly why the thresholds belong in reviewed, tested, documented code rather than in a prompt.</p>
+      </article>
+
+    </main>
+  </div>
+
+</body>
+</html>
