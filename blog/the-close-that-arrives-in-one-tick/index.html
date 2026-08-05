@@ -1,0 +1,396 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>The close that arrives in one tick — Sohhom Bandyopadhyay</title>
+  <link rel="stylesheet" href="../../styles.css" />
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="site-header__inner">
+      <a class="brand" href="../../">Sohhom Bandyopadhyay <small>sohhom.github.io</small></a>
+      <nav class="nav" aria-label="primary">
+        <a href="../../cv/">cv</a>
+        <a href="../../project/">projects</a>
+        <a href="../" aria-current="page">blog</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="page">
+    <main data-screen-label="Post: the-close-that-arrives-in-one-tick">
+
+      <article>
+        <header class="project-hero">
+          <div class="project-hero__kicker">Essay · Aug 2026 · 15 min</div>
+          <h1>The close that arrives in one tick</h1>
+          <p class="project-hero__lede">On 3 August 2026 India replaced the closing price of its most liquid stocks with an auction. I captured the first three sessions tick by tick. The headline effect — a two-hundred-point index candle printing after cash trading had stopped — decayed by three quarters within three days; the trade that looked most obvious turns out to sit in a window with no order book in it; and the one effect that grew rather than shrank was the one nobody was looking at.</p>
+        </header>
+
+        <p>On 3 August 2026, SEBI replaced the way the closing price is determined for the roughly two hundred Indian stocks that have listed derivatives. The old method was a volume-weighted average of the last thirty minutes of continuous trading. The new one is a Closing Auction Session: continuous trading stops at 15:15, orders are collected for about a quarter of an hour, and a single uniform price is struck at which the maximum quantity can trade.</p>
+        <p>On the first day, the NIFTY 50 closed 200.95 points above where it had been trading fifteen minutes earlier. The entire move arrived in <strong>one tick</strong>. Retail traders watching a screen saw a large green candle appear after the cash market had already stopped, and the reaction was immediate and loud: the close was being manipulated.</p>
+        <p>I had a tick capture running. This post is what three consecutive sessions of it show — days one, two and three — and, more importantly, which of the loud first-day claims survive contact with a control group.</p>
+        <p>The short version is that the dramatic thing decayed fast, the boring thing did not decay at all, and the piece of it that looked most like a trading opportunity turns out to sit in a window where there is no market to trade in. The trade that survives that objection is somewhere else, and it is not yet proven.</p>
+        <h2>The measurement problem comes first</h2>
+        <p>Before any finding, a caveat that governs everything below, because it is the kind of thing that quietly invalidates an entire analysis.</p>
+        <p>My data is a throttled WebSocket snapshot capture — a retail feed, sampling the book every few hundred milliseconds — not an exchange trade tape. A "tick" here is a snapshot, not a trade. Counts of snapshots are a liquidity proxy and nothing more. Anywhere I say activity rose or fell, I mean the quote-update rate changed, which is <em>correlated</em> with trading but is not a measurement of it.</p>
+        <p>There is also a specific trap in this dataset that cost me real time, and I mention it because anyone else pulling Indian tick data across this date range will hit it. On CAS days the feed <strong>restarts the cumulative daily volume counter at 15:15</strong>, reports auction-window volume from zero, then snaps back to the true full-day cumulative around the cross. If you diff that counter naively — which is the obvious way to get per-minute volume — you book the snap-back as a single minute of roughly 333 million shares for the NIFTY 50 basket. That is about sixty times too large, and it is not real.</p>
+        <p>I nearly published it. It repeats on all three CAS days, in 208 of 208 eligible names, so it is a permanent property of the feed under the new regime rather than a first-day glitch. Any volume figure spanning 15:15 to 15:30 that has not explicitly handled the restart is wrong, including several I have seen quoted.</p>
+        <p>I state this first because the rest of the post asks you to believe a set of numbers, and the reason to believe them is that this one was caught.</p>
+        <h2>The natural experiment nobody has to construct</h2>
+        <p>The single most useful fact about this rule change is that it applies to some stocks and not others. Stocks with listed derivatives get the auction. Everything else — several hundred names on the same exchange, the same day, the same macro news, the same feed — keeps trading continuously until 15:30 exactly as before.</p>
+        <p>That is a control group handed to you for free, and it is what separates "the auction did something" from "the market moved that afternoon."</p>
+        <p>I built a fixed panel: the 208 auction-eligible names and 697 non-eligible ones present in <em>every</em> session across the eight days studied, ETFs removed. The universe is rebuilt each morning and drifts by a few names, so intersecting across dates is what keeps composition change from masquerading as an effect. Then for each stock I measured one number: the move from its last two-sided quote before 15:15 to its final settled price of the day, measured on the same 15:15 clock on pre-auction days so the comparison is structural rather than calendar-shifted.</p>
+        <p>Here is the whole study in one table.</p>
+        <table>
+        <thead>
+        <tr>
+        <th></th>
+        <th>mean signed move</th>
+        <th>% of names closing up</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+        <td><strong>Auction-eligible</strong>, 27–31 Jul (pre-CAS)</td>
+        <td>−7.2 to +9.5 bps</td>
+        <td>39–61%</td>
+        </tr>
+        <tr>
+        <td><strong>Auction-eligible</strong>, 3 Aug</td>
+        <td><strong>+46.9 bps</strong></td>
+        <td><strong>82%</strong></td>
+        </tr>
+        <tr>
+        <td><strong>Auction-eligible</strong>, 4 Aug</td>
+        <td><strong>+25.6 bps</strong></td>
+        <td><strong>68%</strong></td>
+        </tr>
+        <tr>
+        <td><strong>Auction-eligible</strong>, 5 Aug</td>
+        <td><strong>+16.0 bps</strong></td>
+        <td><strong>64%</strong></td>
+        </tr>
+        <tr>
+        <td><strong>Control</strong>, 27–31 Jul</td>
+        <td>−3.6 to +3.8 bps</td>
+        <td>44–52%</td>
+        </tr>
+        <tr>
+        <td><strong>Control</strong>, 3 Aug</td>
+        <td>−1.5 bps</td>
+        <td>44%</td>
+        </tr>
+        <tr>
+        <td><strong>Control</strong>, 4 Aug</td>
+        <td>−3.0 bps</td>
+        <td>44%</td>
+        </tr>
+        <tr>
+        <td><strong>Control</strong>, 5 Aug</td>
+        <td>−3.8 bps</td>
+        <td>40%</td>
+        </tr>
+        </tbody>
+        </table>
+        <p>Two things are happening at once and they should be read separately.</p>
+        <p>The first is that the auction genuinely does something, and it is not subtle. Before the change, the eligible group's mean signed move wandered around zero — individual names moved, but they cancelled across the cross-section, which is what you expect when the close is just more trading. On auction days the median <em>absolute</em> move and the mean <em>signed</em> move converge, which is the arithmetic signature of nearly every name moving the same direction at once. That is a level shift, not dispersion. Meanwhile the control group's signed move on those same three days sits inside its own pre-change range every single day, and its share of up-closes does not budge. Whatever is moving the auction basket is not touching the stocks that kept trading.</p>
+        <p>The second is that it is <strong>decaying fast</strong>. Forty-seven basis points, then twenty-six, then sixteen. Restricted to the NIFTY 50, where the effect is concentrated, the decay is steeper still: +81.4, then +65.5, then +24.9 bps, with the share of index constituents closing up falling from 96% to 96% to 72%. On day two, two of fifty NIFTY 50 names closed below their 15:15 price. On day three, fourteen did.</p>
+        <p>The index-level picture tells the same story. The largest single-tick move in the NIFTY 50 in the final half hour was +200.95 points on day one, +151.45 on day two, and +54.45 on day three — against a pre-change baseline of 7.90 points on 31 July. Still a sevenfold amplification on day three. But down from twenty-five-fold.</p>
+        <h2>The direction question, which is the one that mattered</h2>
+        <p>Every writeup of day one, mine included, ran into the same wall: with one observation you cannot distinguish "the auction systematically pushes the close up" from "the auction amplifies whatever direction the day was already going, and that day went up."</p>
+        <p>Three sessions answer it, and the answer is not the comfortable one.</p>
+        <table>
+        <thead>
+        <tr>
+        <th>date</th>
+        <th>index open → 15:14</th>
+        <th>auction move</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+        <td>3 Aug</td>
+        <td>+0.02%</td>
+        <td><strong>+200.90 pts</strong></td>
+        </tr>
+        <tr>
+        <td>4 Aug</td>
+        <td><strong>−0.76%</strong></td>
+        <td><strong>+151.50 pts</strong></td>
+        </tr>
+        <tr>
+        <td>5 Aug</td>
+        <td><strong>−0.31%</strong></td>
+        <td><strong>+52.40 pts</strong></td>
+        </tr>
+        </tbody>
+        </table>
+        <p>Two of the three sessions were <em>down</em> days into the close. The auction pushed the close up on all three. On two of three days it moved <strong>against</strong> the intraday direction.</p>
+        <p>So the amplification story is dead, at least across these three sessions. What replaces it is a genuine puzzle: something in this auction has a persistent upward bias. The obvious candidate is a structural buy imbalance from passive and index flow, which is precisely the constituency the reform was designed to serve — SEBI's stated rationale was letting passive funds transact at the official close and reduce tracking error. If index funds systematically arrive at the auction as net buyers, an upward-biased clearing price is exactly what you would expect.</p>
+        <p>I want to be clear that I have not established that. It is the mechanism most consistent with the data I can see, and the data I would need to confirm it — the auction order book, the imbalance path, the indicative price history — is not in a retail feed. <strong>Anyone claiming to know why the auction clears where it does, in either direction, is claiming more than this kind of data can support.</strong> That includes the manipulation claim and it includes my passive-flow guess.</p>
+        <h2>What the circular says, and what actually happened</h2>
+        <p>One finding is purely factual and has an operational consequence, so it is worth stating plainly.</p>
+        <p>The broker circulars describe order matching as occurring between 15:30 and 15:35, following a randomised order-entry cutoff somewhere between 15:28 and 15:30. I measured the actual cross directly rather than trusting the timetable: for each stock, the instant its two-sided quote disappears from the feed is the instant matching began.</p>
+        <table>
+        <thead>
+        <tr>
+        <th>date</th>
+        <th>median cross time</th>
+        <th>basket span</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+        <td>3 Aug</td>
+        <td><strong>15:29:06</strong></td>
+        <td>4.5 s</td>
+        </tr>
+        <tr>
+        <td>4 Aug</td>
+        <td><strong>15:28:22</strong></td>
+        <td>16.5 s</td>
+        </tr>
+        <tr>
+        <td>5 Aug</td>
+        <td><strong>15:28:43</strong></td>
+        <td>10.4 s</td>
+        </tr>
+        </tbody>
+        </table>
+        <p>Three sessions, three distinct times, spanning forty-four seconds — every one inside the documented random window, and every one <strong>before</strong> the 15:30 the circulars point at. By 15:30 on all three days the closing price already existed. The 15:30–15:35 window is when confirmation completes, not when the price is decided.</p>
+        <p>The whole 208-name basket crosses within a few seconds of itself, which is consistent with one system-wide matching event rather than per-symbol auctions.</p>
+        <p>The operational consequence: anyone planning to place or pull an order "just before the cutoff" is timing an instant that is deliberately unknowable and has already varied by forty-four seconds across the only three observations that exist. On day two, an order intended for 15:29 would have missed the auction entirely. This is the part of the design working as intended — the randomisation exists precisely to make last-instant gaming unprofitable — but it deserves to be stated as observed behaviour rather than repeated from a circular that the data contradicts.</p>
+        <h2>The futures market never agreed, until it did</h2>
+        <p>Here is where the first-day outrage came from, and it is a real thing rather than a misperception.</p>
+        <p>Index futures kept trading continuously through the entire auction window, on their own order book, all the way to 15:40. So for about thirteen minutes there were two prices for the same underlying: a frozen, stale cash index, and a live futures price. When the auction struck, the cash index jumped to meet a market that had been trading the whole time.</p>
+        <p>The basis — futures minus spot — is the cleanest way to see it.</p>
+        <table>
+        <thead>
+        <tr>
+        <th>date</th>
+        <th>basis before cross</th>
+        <th>basis after</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+        <td>27–31 Jul (pre-CAS)</td>
+        <td>−2.8 to +71.8</td>
+        <td>−1.4 to +75.0</td>
+        </tr>
+        <tr>
+        <td><strong>3 Aug</strong></td>
+        <td>+62.2</td>
+        <td><strong>−114.2</strong></td>
+        </tr>
+        <tr>
+        <td><strong>4 Aug</strong></td>
+        <td>+90.6</td>
+        <td><strong>−60.7</strong></td>
+        </tr>
+        <tr>
+        <td><strong>5 Aug</strong></td>
+        <td>+86.5</td>
+        <td><strong>+22.9</strong></td>
+        </tr>
+        </tbody>
+        </table>
+        <p>For five pre-change sessions the basis barely moves across the close — whatever it was at 15:14, it is within a few points of that afterwards, the largest pre-change shift being 30 July at +20.5 points. Note also that 28 July sat slightly <em>negative</em> all afternoon, so a negative basis is not itself unprecedented. What is new is the magnitude, the sign of the change, and the fact that it arrives in a single tick rather than drifting there. On day one it goes from +62 to −114 points in a single tick. And essentially all of that comes from the spot leg: on day one spot moved +197.05 points from 15:14 to its close while the future moved +24.45 to its own 15:40 close. The cash index was restated; the futures market was not.</p>
+        <p>But look at day three. The basis compressed by 64 points and <strong>stayed positive</strong>. Spot did not overshoot the futures price — it converged toward it and stopped.</p>
+        <p>That distinction carries a lot of weight. On days one and two, spot crossed from <em>below</em> futures to <em>above</em> them. That overshoot is what ruled out the benign interpretation — "the auction simply discovered the fair price that futures already knew" — because if that were the mechanism the basis would converge toward zero and halt, not sail through it. On day three the data is consistent with exactly that benign reading. Whether days one and two were a transitional overshoot that has now resolved, or whether the basis will invert again on the next volatile close, three sessions cannot tell you.</p>
+        <h2>The part that looked tradeable</h2>
+        <p>If the auction pushes prices to a level the continuous market does not ratify, the obvious question is whether the market takes it back — and whether you can be paid for that.</p>
+        <p>The cross-sectional version of this replicates cleanly. Regressing each stock's overnight move against its auction jump gives a slope where −1 means the auction move is entirely undone by the next open and 0 means it sticks:</p>
+        <table>
+        <thead>
+        <tr>
+        <th>transition</th>
+        <th>auction-eligible slope</th>
+        <th>control slope</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+        <td>3 Aug → 4 Aug</td>
+        <td><strong>−0.674</strong></td>
+        <td>+0.08</td>
+        </tr>
+        <tr>
+        <td>4 Aug → 5 Aug</td>
+        <td><strong>−0.615</strong></td>
+        <td>+0.44</td>
+        </tr>
+        </tbody>
+        </table>
+        <p>Both transitions show a steep negative slope in the auction group against a control that shows none. Roughly two thirds of the auction's cross-sectional dislocation is given back by the next morning.</p>
+        <p>The strongest evidence for this is not the regression, though. After the second session I wrote down four falsifiable predictions for the third — before the data existed — including naming the three stocks with the largest day-two auction jumps and predicting they would underperform at the next open. NESTLEIND, APOLLOHOSP and SBILIFE came back <strong>−88.5, −144.5 and −111.9 basis points</strong> against a group mean of +37.8. The top ten jumpers averaged −58.6 against that same +37.8, a spread of ninety-six basis points. Naming the names in advance is a much harder test than fitting a line, and it passed.</p>
+        <p>Two of my four predictions failed, and the failures are more instructive than the hit. I predicted the index would open between 24560 and 24600, below the auction close and reverting toward the futures price. It opened at <strong>24647.65</strong> — above the auction close and 95 points <em>above</em> the prior futures close. On the first transition futures had been the better predictor of the next open by roughly eight and a half times; on the second, the auction close was the better predictor by about three. A confident sentence I had written after two days — that futures are the better overnight mark, and that this was "the whole thesis" — did not survive its first out-of-sample test.</p>
+        <p>So: the <em>cross-sectional</em> ranking replicated, and the <em>index-level</em> direction did not.</p>
+        <h2>Why it is not a trade</h2>
+        <p>This is where I expected to find something, and did not, and the reason is worth more than the finding would have been.</p>
+        <p>Run the naive strategy — short the biggest auction jumpers, cover at the next open — across both transitions, with the round-trip cost wall computed exactly rather than estimated (4.49 basis points at ₹5 lakh notional through a validated cost library, not a rule of thumb):</p>
+        <table>
+        <thead>
+        <tr>
+        <th>filter</th>
+        <th>transition 1 net</th>
+        <th>transition 2 net</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+        <td>jump &gt; 0 bps</td>
+        <td><strong>+34.1 bps</strong></td>
+        <td><strong>−27.2 bps</strong></td>
+        </tr>
+        <tr>
+        <td>jump &gt; 75 bps</td>
+        <td><strong>+74.2 bps</strong></td>
+        <td><strong>+14.3 bps</strong></td>
+        </tr>
+        </tbody>
+        </table>
+        <p>The first transition looks spectacular and the second mostly gives it back. The reason is the split between the two claims above. On transition one the auction group fell 24.4 basis points overnight while the control <em>rose</em> 19.3 — a real group-level divergence. On transition two the auction group rose 37.8 and the control rose 39.5. Nearly identical. The cross-sectional tilt was still there, but the group-level edge that made transition one profitable simply was not.</p>
+        <p>Market-adjust it — subtract each day's control drift, which isolates the auction-specific component — and the effect replicates on both transitions, monotonically improving with selectivity, 88% win rate at the tightest filter. But a market-adjusted return is not a return. Capturing it requires shorting the auction basket <em>and</em> hedging the market: a long-short book, not the outright short, with different margin and different constraints.</p>
+        <p>And then there is the fact that kills it regardless. I checked whether you can actually transact at or near the auction price after it prints. Across all 208 eligible names on 5 August, from the cross to the end of capture at 15:40:</p>
+        <p><strong>2,223 snapshots. Zero two-sided quotes.</strong></p>
+        <p>Not "wide spreads." No book at all. The roughly 190 snapshots per minute after the cross are heartbeat repetitions of a frozen price. The auction close is an observable number, not an accessible one. Which means the earliest a retail participant can enter is the next morning's open — which is precisely the moment the reversal has <em>already occurred</em>. Testing what remains after the open, there is no consistent edge and the sign flips between the two transitions.</p>
+        <p>So the reversal is real, measurable, and replicates. It also sits entirely inside a window where there is nothing to trade against. Those are compatible facts, and holding both is the honest position.</p>
+        <h2>Where the trade actually is, if there is one</h2>
+        <p>I do not think a market-structure post that stops at "interesting but untradeable" has finished its job. Markets are for trading. So: given everything above, where would I actually look?</p>
+        <p>Not at the cash leg. That is settled — there is no book.</p>
+        <p>The place to look is the instrument that <em>kept trading through the whole thing</em>. Every CAS-eligible stock has a single-stock future, and those futures never froze. They traded continuously on their own book to 15:40, right through the auction, with no band and no vanished quote.</p>
+        <p>So I measured, for all 208 names on all three days, how much of the cash restatement the stock's own future reproduced over the identical window.</p>
+        <table>
+        <thead>
+        <tr>
+        <th>date</th>
+        <th>cash restatement</th>
+        <th>its futures</th>
+        <th><strong>futures / cash</strong></th>
+        <th>cross-sectional corr</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+        <td>3 Aug</td>
+        <td>+46.9 bps</td>
+        <td>+5.7 bps</td>
+        <td><strong>12.1%</strong></td>
+        <td>0.11</td>
+        </tr>
+        <tr>
+        <td>4 Aug</td>
+        <td>+25.6 bps</td>
+        <td>+0.8 bps</td>
+        <td><strong>2.9%</strong></td>
+        <td>0.07</td>
+        </tr>
+        <tr>
+        <td>5 Aug</td>
+        <td>+16.0 bps</td>
+        <td>+1.4 bps</td>
+        <td><strong>8.5%</strong></td>
+        <td>0.05</td>
+        </tr>
+        </tbody>
+        </table>
+        <p><strong>Single-stock futures ratify between three and twelve percent of the cash restatement, with a cross-sectional correlation of roughly zero.</strong> Two prices for the same asset, minutes apart, disagreeing by tens of basis points — on every session measured, including the one where the index basis did not invert at all.</p>
+        <p>That is the dislocation stated at its cleanest: not one index observation, but 208 names, three times over. And unlike everything else in this post, <strong>one leg of it is executable</strong>, because futures do not stop.</p>
+        <p>Now the part that stops me from calling it a strategy. The tradeable object here would be the <em>spread</em> — restated cash against its unmoved future — and a spread trade needs the two legs to converge. I have established that the gap exists. I have not established that it closes, or in which direction.</p>
+        <p>The evidence on that is genuinely split. Asking which mark better predicted the next morning's cash open, per name, across all 208:</p>
+        <table>
+        <thead>
+        <tr>
+        <th>transition</th>
+        <th>auction close</th>
+        <th>futures-implied</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+        <td>3 → 4 Aug</td>
+        <td>54.3 bps error</td>
+        <td><strong>47.7 bps</strong></td>
+        </tr>
+        <tr>
+        <td>4 → 5 Aug</td>
+        <td><strong>61.9 bps</strong></td>
+        <td>71.9 bps</td>
+        </tr>
+        </tbody>
+        </table>
+        <p>One each way. After day one I would have told you futures were the better mark — the index-level version of that comparison favoured futures by about eight and a half times, and I wrote it down as "the whole thesis." The second transition reversed it. At two observations, neither mark is established, and the honest statement is that the dislocation is measured at n=3 while the convergence is measured at n=0.</p>
+        <p>Those are different claims and only the first has evidence. A spread trade also pays costs on both legs and carries futures margin, which no unmeasured edge should be asked to clear.</p>
+        <p>So the answer to "where is the trade" is: <strong>in the spread, and it is not yet demonstrated to exist.</strong> That is a genuinely different statement from the cash-leg case, where the trade is ruled out by structure rather than by insufficient evidence. One is closed. The other is open and is the first thing I will run when a fourth session lands.</p>
+        <p>There is a second place worth naming, and it is the liquidity migration in the next section — an environment change rather than a directional signal, and the only thing here that is growing.</p>
+        <p>A word on what I am <em>not</em> claiming. There is no backtest in this post. No equity curve, no slippage model, no walk-forward. The cost figures are computed through a validated library rather than estimated, and the one number I would defend is that a round-trip on ₹5 lakh of intraday equity costs 4.49 basis points. Everything else in this section is a measurement pointing at a hypothesis.</p>
+        <h2>The effect that grew</h2>
+        <p>Every number in this post so far is shrinking. Here is the one that is not.</p>
+        <p>Quote activity during the auction window (15:16–15:29), as a ratio of each group's own activity in the fifteen minutes before the halt:</p>
+        <table>
+        <thead>
+        <tr>
+        <th>date</th>
+        <th>auction-eligible</th>
+        <th>control</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+        <td>27–31 Jul</td>
+        <td>0.93–1.00</td>
+        <td>0.95–1.07</td>
+        </tr>
+        <tr>
+        <td><strong>3 Aug</strong></td>
+        <td><strong>0.22</strong></td>
+        <td><strong>1.30</strong></td>
+        </tr>
+        <tr>
+        <td><strong>4 Aug</strong></td>
+        <td><strong>0.19</strong></td>
+        <td><strong>1.18</strong></td>
+        </tr>
+        <tr>
+        <td><strong>5 Aug</strong></td>
+        <td><strong>0.22</strong></td>
+        <td><strong>1.39</strong></td>
+        </tr>
+        </tbody>
+        </table>
+        <p>The left column is the auction working as designed: eligible names lose about eighty percent of their quote activity while their book is closed. Stable and structural.</p>
+        <p>The right column is the one I did not expect. Non-eligible stocks — which have no auction, whose mechanism did not change in any way — get <strong>eighteen to thirty-nine percent busier</strong> during the auction window, against a pre-change baseline that never left 0.95–1.07. And day three shows the largest spillover of the three.</p>
+        <p>Attention and liquidity migrate to whatever is still trading. A rule change that formally touches two hundred stocks is measurably changing the microstructure of seven hundred others that it does not cover. Three sessions in, that migration is getting <em>stronger</em> while every headline effect gets weaker.</p>
+        <p>I have not tested whether it is harvestable and I am not going to speculate here. But it is the most under-examined thing in this dataset and it is the direction I would look next.</p>
+        <h2>Expiry is a separate story from the auction</h2>
+        <p>Day two was a weekly NIFTY expiry, which conflated two effects that day-three data separates.</p>
+        <p>What belongs to the auction, present on non-expiry days too: options reprice continuously through the window in which the cash index that references them is frozen. On day two the 24600 put fell from 129.05 to 39.45 — a 69% collapse — <em>before</em> the cross, while the index it references had not moved at all. Options were tracking the futures and the auction's indicative price, both live; the index print was the only stale number on the screen. The same structure is visible on day three.</p>
+        <p>That is the honest explanation of the manipulation complaint. For about thirteen minutes the most-watched number on a retail screen is frozen and stale while the instruments priced off it keep moving. A trader watching spot sees nothing happening and their option position moving anyway. That is a real grievance about information display and market design. It is not, on this evidence, proof of price manipulation.</p>
+        <p>What belongs to expiry, and is absent otherwise: on day two, open interest at the 24600 put — the strike the auction close landed just above — rose <strong>160.7%</strong>, while the calls the restatement moved through lost roughly half their open interest (24500 CE −59.3%, 24550 CE −58.2%, 24400 CE −54.8%). On day three the largest OI change anywhere in the chain is <strong>+2.1%</strong>, with everything else drifting −5% to −34%. Ordinary position runoff. No pin, no spike.</p>
+        <p>India VIX, meanwhile, was flat or slightly <em>falling</em> across the close on all three days (11.97→11.98, 12.19→12.14, 12.12→12.09). Whatever this is, it is not a volatility event. It is a spot and delta effect. Any account reaching for "volatility spike" is contradicted by the data.</p>
+        <p>The practical consequence for anyone selling near-the-money premium into a Tuesday expiry is structural rather than statistical: for thirteen minutes the underlying cannot be hedged in the cash market, and then it gaps in a single tick. Positions that were out-of-the-money at 15:14 can finish in-the-money with no opportunity to do anything about it. That risk is unhedgeable by construction, not merely large, and it does not require a single day's P&amp;L figure to establish.</p>
+        <p>This is the one place where I will state something close to a recommendation, because it does not depend on a measured average — it depends on the mechanism, which is visible in three sessions out of three. <strong>Do not hold short naked premium through the auction window on an expiry day.</strong> The hedge instrument is unavailable precisely when the gap occurs. On non-expiry days the directional risk is still there but the terminal-payoff risk is not, which is a materially safer situation without being a safe one.</p>
+        <p>The mirror-image trade — buying gamma into a structurally near-certain single-tick jump while implied volatility sits flat — is more interesting and I want to be careful not to oversell it. Costs are genuinely not the obstacle: a round-trip on two lots of a ₹50 option breaks even on a 0.99% move, against observed moves that were multiples of that. The obstacle is that the jump is <strong>shrinking fast</strong>. Two hundred index points, then one hundred fifty, then fifty-two. A straddle pays theta into the most expensive hours of expiry day to capture a move that has lost three quarters of its size in three sessions. I have not backtested it, the decay is running against it, and I would not put it on based on this post.</p>
+        <h2>What three days cannot tell you</h2>
+        <p>I have been careful about this throughout and want to collect it in one place, because the temptation to over-read a new market structure is strong and the first week is when every claim is cheapest to make.</p>
+        <p>Three sessions is not a sample. The decay from +46.9 to +16.0 basis points is a direction, not a trend, and day three's intraday range was smaller than day two's — so some of what I am calling decay could be a quiet day. Two overnight transitions cannot distinguish a stable cross-sectional effect from two draws that happened to tilt the same way. I have no observation of a genuinely violent close, or a large index rebalance, or a stressed market, and those are exactly the conditions under which a thin auction is most likely to behave differently.</p>
+        <p>And the central mechanism question — why the clearing price has been biased upward on all three sessions, twice against the day's own direction — is not answerable with a retail feed. It needs the auction book.</p>
+        <p>What I would defend: the freeze is real and total, the restatement arrives in a single tick, the cross fires before the published window and at a different time every day, the futures market does not ratify the auction, the effect is concentrated in large caps, the magnitudes are falling, and liquidity migrates to the stocks that keep trading.</p>
+        <p>What I would not defend: any claim that either the overnight fade or the cash/futures spread is an established edge, any claim about why the auction clears where it does, and any suggestion that three up-closes establish a permanent upward bias. The one thing in the trading direction I will state without hedging is negative — do not carry short naked premium through the window on an expiry day — because it rests on the structure of the mechanism rather than on an average I have measured three times.</p>
+        <h2>The opinion</h2>
+        <p><strong>The loudest complaint about the closing auction — that the close is being manipulated — is the one the data can least support, and the quietest observation is the one that turned out to matter.</strong></p>
+        <p>The manipulation claim requires the auction order book to evaluate, and nobody making it on social media has that book any more than I do. What the data does support is narrower and, I think, more interesting: for thirteen minutes a day the number most retail traders treat as <em>the</em> price is stale, while every instrument that references it keeps moving. The grievance is real. Its object is information display, not manipulation. Those get conflated because the experience of watching a position move against a frozen screen feels identical either way.</p>
+        <p>Meanwhile the thing nobody wrote a thread about — that several hundred stocks with no auction at all are measurably busier during the auction window, and increasingly so — got no attention whatsoever, because it does not produce a dramatic candle on a chart anyone was watching.</p>
+        <p>That asymmetry is the general lesson, and it is not specific to Indian market structure. The visible artifact of a change attracts all the analysis. The second-order effect on the population that the change formally excluded is where the unexploited information usually is, precisely because measuring it requires you to have set up a control group before you knew what you were looking for.</p>
+        <p>I set that control group up to answer a different question. It answered this one better.</p>
+      </article>
+
+    </main>
+  </div>
+
+</body>
+</html>
