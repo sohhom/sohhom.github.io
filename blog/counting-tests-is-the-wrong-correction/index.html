@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Correcting for how many strategies you tested is a correction to your biography — Sohhom Bandyopadhyay</title>
+  <link rel="stylesheet" href="../../styles.css" />
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="site-header__inner">
+      <a class="brand" href="../../">Sohhom Bandyopadhyay <small>sohhom.github.io</small></a>
+      <nav class="nav" aria-label="primary">
+        <a href="../../cv/">cv</a>
+        <a href="../../project/">projects</a>
+        <a href="../" aria-current="page">blog</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="page">
+    <main data-screen-label="Post: counting-tests-is-the-wrong-correction">
+
+      <article>
+        <header class="project-hero">
+          <div class="project-hero__kicker">Essay · Jul 2026 · 8 min</div>
+          <h1>Correcting for how many strategies you tested is a correction to your biography</h1>
+          <p class="project-hero__lede">The standard warning about backtesting is that testing enough strategies guarantees one passes by luck, so you should adjust your significance threshold by the number of things you tried. The mathematics is right and the correction variable is wrong — it is a fact about the researcher&#x27;s stamina, not about the strategy. Automating the search made this impossible to keep ignoring.</p>
+        </header>
+
+        <p>There is a warning that circulates in quantitative trading, and it is basically correct. Test enough strategies and one passes by chance. A 5% significance level means each test has a 5% chance of flagging an edge that is not there; run a hundred tests on noise and expect five to pass. So the winner pulled from a large search is not the same object as a strategy that was tested once and passed. Same p-value, different meaning. Adjust accordingly.</p>
+        <p>I agree with the diagnosis. I have come to think the prescription — correct by the number of tests you ran — is incoherent, and building a machine that runs the tests for me is what made that impossible to ignore.</p>
+        <h2>The correction variable is a fact about you</h2>
+        <p>"How many strategies did I test" is a fact about the search process, not about the hypothesis space or the data. It depends on how many ideas occurred to you, how much compute you had, whether you got lucky on attempt three and stopped or unlucky and ground on to attempt two hundred.</p>
+        <p>Two people can test the <em>identical</em> strategy on the <em>identical</em> data and get the <em>identical</em> p-value, and be instructed to correct differently — one because she tried five variants, the other because he tried five hundred. The object in front of them is the same. The adjustment is being applied to a psychological and historical fact layered on top of a statistical one.</p>
+        <p>It is also gameable in both directions. Undercount your trials and look rigorous. Or, more insidiously, <em>fail to know</em> your true trial count, because your brain does not log the half-formed ideas you discarded before formalising one. This is Gelman and Loken's garden of forking paths: you can be running implicit multiple comparisons without ever having executed a hundred backtests. The researcher who "only tested one thing" selected that one thing from an unlogged mental search, and no honest trial count exists for that process.</p>
+        <p>Automation is what made this vivid for me. My search logged 163 experiments in one session. A literal Bonferroni correction on 163 tests sets a threshold so brutal that nothing survives — but the 163 were not 163 independent hypotheses. They were 41 seed signals and 122 mutations <em>of those seeds</em>, so a large fraction were near-copies of each other: the same z-score construction with a window of 20 versus 22 versus 29. Correlated hypotheses do not each consume a fresh roll of the dice. Meanwhile a human who tested six genuinely different structural ideas has explored far more of the hypothesis space than my machine did with 163, and would be told to correct far less.</p>
+        <p><strong>The count tracks effort. It does not track how much of the space was searched, and the space is what determines the false-discovery risk.</strong></p>
+        <h2>What the correction should track instead</h2>
+        <p>If the trial count is the wrong variable, three better ones exist, none of which are about the researcher.</p>
+        <p><strong>Effective degrees of freedom, not headcount.</strong> A grid over a hundred moving-average lengths has far less effective multiplicity than a hundred qualitatively distinct strategies, because the hundred lengths produce highly correlated return streams. What matters is the effective number of independent hypotheses, and that is estimable from the correlation structure of the returns the search actually produced. This is the logic behind the Deflated Sharpe Ratio. It captures multiplicity through the structure of the search rather than its headcount, which is the actual repair.</p>
+        <p><strong>Whether there is a mechanism independent of the fit.</strong> Did you have a reason to expect this pattern before you saw it confirmed in sample? A momentum effect tied to a story about underreaction has prior content. A rule that fires when RSI crosses 37.2 on Tuesdays has none — its only support is the fit itself, which makes it a search artifact almost by construction, whether you tried one variant or a thousand.</p>
+        <p><strong>Survival across contexts the idea did not come from.</strong> If a signal holds, untouched and un-retuned, on a different universe or a different regime, that is evidence of structure. Noise overfitting is dataset-specific nearly by definition, so this is a far stronger multiplicity-robust signal than any corrected p-value.</p>
+        <p>Notice that all three are properties of the strategy and the data. None require me to remember how hard I was working.</p>
+        <h2>The discipline that follows</h2>
+        <p>The practical version, which I now try to hold myself to and do not always manage:</p>
+        <p><strong>Mechanism first, fit second.</strong> Start from a structural story for why a pattern should exist — hedging flows, funding constraints, calendar effects from institutional mandates, compensation for liquidity provision — and search only inside the space that story licenses. This bounds the hypothesis space <em>before</em> the data is touched, which is the only moment at which bounding it controls anything. Searching first and rationalising after is the trap, and it is a trap you can fall into while testing exactly one thing.</p>
+        <p><strong>Pre-register the test, not just the strategy.</strong> What data, what window, which parameter, what counts as success. A dated note to yourself is sufficient. The function is to force the implicit search to become explicit and small.</p>
+        <p><strong>Spend the holdout once.</strong> Train, validation, holdout — and the holdout gets one look, at the end, never used to choose among variants. The moment you check holdout performance and go back to adjust, you have consumed it. My holdout split is defined in the configuration and has never been read, because nothing has earned the look.</p>
+        <p><strong>Treat every backtest Sharpe as biased upward.</strong> Independent of all the above. By the time a number reaches your eyes, selection has already happened, consciously or not. Discount it on attempt one.</p>
+        <h2>The part I could not automate</h2>
+        <p>Which brings me to what this project has actually taught me, as distinct from what I hoped it would.</p>
+        <p>The search is good at pattern-finding. Navigation in a well-mapped space is precisely what these systems do: propose an expression, score it, mutate the survivors, repeat. Mine did that competently and found 89 signals meeting its criteria.</p>
+        <p>It was useless at mechanism-finding. Not weak — absent. It could not tell me <em>why</em> a signal should predict anything, and without that, every survivor was a curve fit that happened to clear a threshold. When I checked them against the quantity my strategies actually consumed, most had the wrong sign.</p>
+        <p>Vishal Misra puts the general version well: more data does not turn Shannon entropy into Kolmogorov complexity. A better curve fit is not a mechanism, and a longer context window is not a proof. The illustrative case is Knuth's, working with a coding agent on a mathematics problem — the model found the construction, and then Knuth sat down and <em>proved</em> it, with an induction reasoning forward from the algorithm's structure to a guarantee that it holds for all odd m rather than just the tested cases. <strong>The model found the pattern. The human found the mechanism.</strong></p>
+        <p>I do not think that division of labour is a temporary artifact of current systems, and I have stopped trying to engineer around it. Every time I have let the search select on fit alone, it has produced things that looked excellent in training and inverted in validation — Sharpe of 3.4 becoming Sharpe of −20, which is not decay but a sign flip, the signature of having fitted a period rather than a mechanism.</p>
+        <p>So the division I now work with: the machine generates and eliminates, and I supply the reason a survivor should be expected to work. That is slower than I wanted. It is also the only configuration in which I have gotten results I believed.</p>
+        <h2>The obligation this creates</h2>
+        <p>If verdicts are the researcher's job, then the machine's job is producing evidence strong enough to force one, and a null result has to meet the same standard as a positive.</p>
+        <p>That cuts against the temptation this whole essay could otherwise license. It would be very comfortable to conclude "the search found nothing, markets are efficient, multiple testing explains any apparent edge" — comfortable because it is unfalsifiable and sounds sophisticated. But a null I have not tried to break is not a finding, it is an untested hypothesis. My search returning zero surviving strategies is, on inspection, mostly explained by a measurement error in the scoring metric rather than by the absence of structure in the data. The efficient-markets reading was available and would have been wrong.</p>
+        <p>Grossman and Stiglitz settled long ago that some inefficiency must persist in equilibrium, or nobody would pay to gather information. Whether a specific formulation clears the cost wall on a specific feed is empirical and is the only live question. Reasoning from the prior to the verdict is the same error as reasoning from the backtest to the verdict, just in the direction that feels more respectable.</p>
+        <p>The honest position, which is where I am: one search, one metric since established to be the wrong one, one universe, one sample period, zero strategies traded. That constrains the wider question hardly at all — and saying so is not modesty, it is the only claim the evidence supports.</p>
+      </article>
+
+    </main>
+  </div>
+
+</body>
+</html>

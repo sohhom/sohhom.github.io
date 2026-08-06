@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Meta Quant — a machine that searches for trading strategies — Sohhom Bandyopadhyay</title>
+  <link rel="stylesheet" href="../../styles.css" />
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="site-header__inner">
+      <a class="brand" href="../../">Sohhom Bandyopadhyay <small>sohhom.github.io</small></a>
+      <nav class="nav" aria-label="primary">
+        <a href="../../cv/">cv</a>
+        <a href="../" aria-current="page">projects</a>
+        <a href="../../blog/">blog</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="page">
+    <main data-screen-label="Project: meta-quant-strategy-search">
+
+      <article>
+        <header class="project-hero">
+          <div class="project-hero__kicker">Project · started Jan 2026 · in progress</div>
+          <h1>Meta Quant — a machine that searches for trading strategies</h1>
+          <p class="project-hero__lede">Most quant research spends its time writing code to test an idea rather than deciding which ideas are worth testing. Meta Quant is my attempt to move the human up one level — to specifying the space of admissible strategies and the standard of evidence, and letting a machine search inside it. It is unfinished, and the first end-to-end run produced zero strategies that survived validation.</p>
+
+          <dl class="project-meta">
+            <div><dt>Role</dt><dd>Sole designer and implementer</dd></div>
+            <div><dt>Methods</dt><dd>DSL design, formal validation, automated hypothesis search, walk-forward validation, exact transaction-cost modelling, information-coefficient analysis</dd></div>
+            <div><dt>Stack</dt><dd>Python, Polars, Lark, YAML, LLM coding agents, NSE tick and depth data</dd></div>
+            <div><dt>Output</dt><dd>Two prototype implementations, a language specification, a written null result</dd></div>
+          </dl>
+        </header>
+
+        <h2>The problem this is meant to solve</h2>
+        <p>A quantitative researcher's day divides into three activities: deciding what to test, writing the code that tests it, and interpreting what came back. The middle one takes most of the time and is the least interesting. It is also where most errors enter — a label misaligned by one bar, a cost applied to the wrong base, a universe filter that silently drops the names the signal was about.</p>
+        <p>The obvious response is to automate the middle step, and that is now genuinely possible: a coding agent will write a backtest faster than I will. The problem is that this makes things worse before it makes them better. If generating a strategy costs nothing, I will generate hundreds, and the binding constraint moves from <em>can I implement this</em> to <em>can I tell which of these is real</em>. Cheap hypothesis generation without a matching increase in the standard of evidence is a machine for producing false positives.</p>
+        <p>So Meta Quant is not "an AI that finds alphas." It is an attempt to build the filter first: a constrained space in which strategies can be expressed, a set of checks that reject nonsense before any data is loaded, and an evaluation harness ruthless enough that surviving it means something.</p>
+        <p><strong>The name is aspirational. As of this writing the search does not produce anything I would trade.</strong> What it has produced is a clear account of why not, which is the part worth writing down.</p>
+        <h2>The architecture, in three pieces</h2>
+        <h3>1. A language that cannot express nonsense</h3>
+        <p>The first component is a domain-specific language for intraday strategies. A strategy is a YAML document with declared blocks: <code>universe</code>, <code>params</code>, <code>signals</code>, <code>conditions</code>, <code>positions</code>, <code>global</code>. Expressions are parsed with a formal grammar rather than evaluated as Python.</p>
+        <p>The important design decision is a negative one. <strong>The language is deliberately not Turing-complete</strong> — no loops, no assignments, no function definitions. This costs expressive power and buys three things. Generation becomes reliable, because the target is small enough that a language model produces valid output most of the time rather than plausible-looking Python with a subtle indexing bug. Every strategy becomes comparable to every other, because they are all built from the same primitives. And static analysis becomes possible: with no arbitrary control flow, the validator can actually reason about what a strategy does.</p>
+        <p>The validator rejects a specification outright for, among other things: circular dependencies between signals; references to undefined parameters; an entry expression that reads <code>position.*</code> fields, which is a look-ahead bug wearing a disguise; a <code>no_entry_after</code> time later than <code>flatten_by</code>; a non-positive stop loss; or the absence of any stop-loss or time exit. That last pair is the one I care about most. <strong>Risk management is not something the author remembers to add — a strategy without an exit does not parse.</strong></p>
+        <p>Time is a first-class entity in the ontology for the same reason. The design distinguishes a <code>DataStream</code> (values with timestamps, irregularly sampled) from a <code>Value</code> (no time component), and an <code>Epoch</code> divides a stream into a <code>past</code> and a <code>future</code>. Look-ahead leakage is the single most common way a backtest lies, and the type system is where I want it caught, not the code review.</p>
+        <p>The specification has been through three revisions. Version 0.3 added anchored window functions and a <code>snapshot()</code> primitive, because it turned out the language could not express a frozen opening range — signals recompute on every tick, so "the high between 09:15 and 09:30" kept updating after 09:30. Working through that in the spec, in prose, before implementing it, is the kind of error the whole approach is designed to surface early.</p>
+        <h3>2. A search that runs without me</h3>
+        <p>The second component is the search loop, prompted by Andrej Karpathy's "autoresearch" framing: an agent that proposes, tests, records, and mutates, keeping what survives.</p>
+        <p>It runs in two layers. Layer 1 searches for <em>signals</em> — expressions over bars, built from primitives (<code>open</code>, <code>high</code>, <code>low</code>, <code>close</code>, <code>volume</code>, <code>vwap</code>, <code>bid</code>, <code>ask</code>, <code>tick_count</code>), operators (rolling statistics, z-scores, momentum, microstructure transforms), and combinators. Each candidate is scored on multiple forward horizons, and survivors are mutated to produce the next generation. Layer 2 takes the surviving signals and composes them into <em>strategies</em> by attaching entry rules, exit rules, sizing, and instrument selection as semi-independent parts.</p>
+        <p>Every experiment, including the discarded ones, is appended to a JSONL log with its full specification, metrics, parent, and mutation type. That log is the actual deliverable of a run. It is what lets the next session start from what the last one established rather than rediscovering it, and it is what makes a claim of the form "this does not work" checkable by someone who was not there.</p>
+        <h3>3. Costs as a gate, not a footnote</h3>
+        <p>Every net P&amp;L figure passes through a validated transaction-cost library that computes brokerage, STT, stamp duty, exchange charges and GST exactly, with the rounding the exchange actually applies. This is not fastidiousness. NSE intraday round-trip costs sit at roughly 4.5 basis points of notional, and typical 1-minute bar returns have a standard deviation around 0.11%. The gap between an idea that clears that wall and one that does not is usually smaller than the error in a hand-estimate, so hand-estimates are not permitted anywhere in the pipeline.</p>
+        <p>There is a real failure mode here I have hit: the backtester falls back to an approximate 0.1%-of-turnover cost model if the exact library cannot be imported. That fallback keeps the pipeline running and silently changes every metric. Any comparison across runs has to confirm which cost path executed.</p>
+        <h2>What the first full run actually produced</h2>
+        <p>The first end-to-end session ran 163 experiments in Layer 1 — 41 seed signals and 122 mutations — and kept 89 that passed both training and validation thresholds. The dominant surviving family was the negative z-score of close over various windows, a mean-reversion construction, with median information coefficients around 0.06–0.08.</p>
+        <p>Layer 2 then took those signals and built strategies from them.</p>
+        <p><strong>Strategies that passed both training and validation: zero.</strong></p>
+        <p>That is the headline result, and the reason it is interesting rather than merely disappointing is the diagnosis. Three things went wrong, and only one of them was about the market.</p>
+        <p><strong>The evaluation metric was measuring the wrong quantity.</strong> Layer 1 scored signals by cross-sectional information coefficient — rank correlation across stocks at each timestamp. The surviving signals had positive cross-sectional IC and <em>negative</em> within-stock correlation with forward returns. For RELIANCE the 30-bar within-stock correlation was −0.048, for SBIN −0.090, for INFY −0.109. The signal said "this stock is cheap relative to its peers, buy it," and within almost every individual stock that reading predicted worse subsequent returns. A relative-ranking effect had been mistaken for absolute predictiveness. Since the strategies traded one stock at a time, the number the search was optimising had almost no bearing on the thing it was selecting for.</p>
+        <p><strong>The one signal with genuine within-stock structure was regime-dependent.</strong> VWAP deviation showed real momentum within stocks — RELIANCE correlation +0.228, top quintile forward return +0.158% against −0.002% for the bottom. Strategies built on it reached training Sharpe as high as 3.4 and every single one had <em>negative</em> validation Sharpe, in the range −16 to −22. That is not marginal decay. That is a signal whose sign is not stable across the split.</p>
+        <p><strong>Costs ate what was left.</strong> Most surviving signal edges were worth 0.01–0.05% per trade against a break-even of roughly 0.106% round-trip. This is not a tuning problem. A signal that resolves over 5–30 bars with an edge one-tenth the size of the cost wall is structurally cost-bound: no threshold adjustment recovers a factor of ten.</p>
+        <p>A fourth result is worth recording because it contradicts a folk belief I went in with. The 9:15–10:00 hour shows a large positive average return in the sample (SBIN +0.445% over 30 minutes). But following the direction of the first 15-minute move produced <em>negative</em> continuation over 60+ bars. The opening hour's positive average is unconditional drift in this sample period, not directional continuation — so "trade the opening range breakout" and "the opening hour has a positive bias" are both true and cannot be combined the way they invite you to combine them.</p>
+        <h2>What I think is actually wrong, and what I am not claiming</h2>
+        <p>The honest summary is that I built a search that optimised a proxy which was not correlated with the objective, and it dutifully found the best available answers to the wrong question. That is the classic failure of automated search, and having it happen on the first run is more useful than a marginal positive result would have been, because a marginal positive would have been indistinguishable from the same bug producing a luckier number.</p>
+        <p>The specific repairs the run implies: score signals on within-stock predictiveness before anything else; treat cross-sectional metrics as valid only for strategies that are actually cross-sectional; and require any surviving signal to hold its <em>sign</em> across splits, not merely its magnitude.</p>
+        <p>What I am not claiming, and want to be explicit about:</p>
+        <ul>
+        <li><strong>I am not claiming this approach works.</strong> No strategy from this pipeline has been traded. Nothing has cleared validation, let alone a holdout.</li>
+        <li><strong>I am not claiming the null is final.</strong> A null result is a claim that requires evidence just as a positive does. The diagnosis above identifies a measurement error serious enough that the negative result is best read as "this search, with this metric, found nothing" rather than "there is nothing here."</li>
+        <li><strong>The holdout split has never been touched.</strong> It is defined in the configuration and deliberately unused, because it is worth exactly one look and that look has not been earned yet.</li>
+        <li><strong>The two prototypes are separate.</strong> The DSL implementation and the autoresearch loop were built independently and are not yet joined. Connecting them — so the search emits validated DSL rather than Python — is the current work.</li>
+        </ul>
+        <h2>Where this is going</h2>
+        <p>The next structural change is formal verification. The plan is to translate candidate strategy specifications into Lean 4 and discharge proof obligations about their behaviour before any data is loaded — that position limits cannot be breached under any execution path, that a strategy cannot hold opposing positions in the same instrument, that the flatten-by guarantee is unconditional. Testing gives confidence; proof forces every assumption to become explicit, and wrong assumptions surface as obligations that cannot be discharged. Whether this is worth the cost for a strategy language this small is an open question I have not answered.</p>
+        <p>The larger open question is the one I keep circling. A search over a fixed grammar is pattern-finding: navigation in a well-mapped space, which is exactly what these systems are good at. Deciding <em>why</em> a pattern should exist — the mechanism, the causal story that makes an out-of-sample bet reasonable — is a different activity, and I have not found a way to automate it. The current division of labour is that the machine proposes and the human supplies mechanism, and every attempt I have made to skip the second half has produced results that looked good in training and inverted in validation.</p>
+        <p>That is not a limitation I expect to engineer around. It is more likely the actual shape of the problem.</p>
+      </article>
+
+    </main>
+  </div>
+
+</body>
+</html>

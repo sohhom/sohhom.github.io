@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>My search found 89 good signals and zero good strategies — Sohhom Bandyopadhyay</title>
+  <link rel="stylesheet" href="../../styles.css" />
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="site-header__inner">
+      <a class="brand" href="../../">Sohhom Bandyopadhyay <small>sohhom.github.io</small></a>
+      <nav class="nav" aria-label="primary">
+        <a href="../../cv/">cv</a>
+        <a href="../../project/">projects</a>
+        <a href="../" aria-current="page">blog</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="page">
+    <main data-screen-label="Post: the-metric-the-search-optimised">
+
+      <article>
+        <header class="project-hero">
+          <div class="project-hero__kicker">Essay · Jun 2026 · 8 min</div>
+          <h1>My search found 89 good signals and zero good strategies</h1>
+          <p class="project-hero__lede">An automated signal search kept 89 candidates out of 163 experiments, with respectable information coefficients. The strategy layer built on top of them produced nothing that survived validation. The gap between those two numbers turned out to be a single measurement error, and it is one that any cross-sectional metric invites.</p>
+        </header>
+
+        <p>I ran an automated search over intraday trading signals on NSE equities. Layer one proposes signal expressions, scores them, keeps the survivors, mutates them, repeats. Layer two takes the surviving signals and wires them into strategies with entry rules, exits and sizing, then backtests those.</p>
+        <p>Layer one worked, in the sense that it did what it was told. 163 experiments, 89 signals kept. The dominant family was a negative z-score of close over a rolling window — a mean-reversion construction — with median information coefficients between 0.06 and 0.08. For intraday equity signals those are not embarrassing numbers.</p>
+        <p>Layer two produced zero strategies that passed both training and validation.</p>
+        <p>Not "a few marginal ones." Zero. When a filter that permissive returns nothing, the first hypothesis should not be that the market is efficient. It should be that the two layers were not measuring the same thing.</p>
+        <h2>The metric and the objective were different quantities</h2>
+        <p>Layer one scored signals by <strong>cross-sectional information coefficient</strong>: at each timestamp, rank all the stocks by signal value, rank them by subsequent forward return, and correlate the two rankings. Average that over the sample. It is the standard metric and there is nothing wrong with it.</p>
+        <p>Layer two built strategies that traded <strong>one stock at a time</strong>. Entry condition on that stock's signal, exit on that stock's price, one position per symbol.</p>
+        <p>Those are different questions, and I had not noticed. Cross-sectional IC asks: <em>given a basket, does this signal sort the winners from the losers?</em> A single-stock strategy asks: <em>given this stock right now, does a high signal value mean the price is about to rise?</em> A signal can answer the first affirmatively and the second negatively, and mine did.</p>
+        <p>When I went back and computed the within-stock correlation between signal and forward return — the quantity the strategies actually depended on — it was negative almost everywhere:</p>
+        <table>
+        <thead>
+        <tr>
+        <th>Stock</th>
+        <th>30-bar correlation</th>
+        <th>60-bar correlation</th>
+        <th>Top-quintile return</th>
+        <th>Bottom-quintile return</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+        <td>RELIANCE</td>
+        <td>−0.048</td>
+        <td>−0.057</td>
+        <td>+0.01%</td>
+        <td>+0.09%</td>
+        </tr>
+        <tr>
+        <td>SBIN</td>
+        <td>−0.090</td>
+        <td>−0.086</td>
+        <td>+0.07%</td>
+        <td>+0.18%</td>
+        </tr>
+        <tr>
+        <td>HDFCBANK</td>
+        <td>+0.018</td>
+        <td>+0.033</td>
+        <td>+0.04%</td>
+        <td>+0.01%</td>
+        </tr>
+        <tr>
+        <td>TCS</td>
+        <td>−0.023</td>
+        <td>−0.018</td>
+        <td>−0.07%</td>
+        <td>−0.05%</td>
+        </tr>
+        <tr>
+        <td>INFY</td>
+        <td>−0.109</td>
+        <td>−0.104</td>
+        <td>−0.18%</td>
+        <td>+0.07%</td>
+        </tr>
+        </tbody>
+        </table>
+        <p>Read the last two columns. For four of five stocks, the periods when the signal was <em>most</em> enthusiastic were followed by <em>worse</em> returns than the periods when it was least enthusiastic. The signal said "this stock has fallen below its recent average, buy the dip," and within individual stocks that reading was mildly contrarian in the wrong direction.</p>
+        <p>The cross-sectional IC was not fabricated. It was real, and it was measuring a relative ranking effect — at any moment, the stock that has fallen furthest relative to its peers tends to be ranked correctly against them — which is a genuine property that a long-short basket could potentially harvest and a single-stock long-only strategy cannot touch. <strong>The search was optimising a proxy that had nearly no relationship to the thing it was selecting for, and it optimised it well.</strong> 89 survivors is what competent optimisation of the wrong objective looks like.</p>
+        <h2>Why this is worse than it sounds</h2>
+        <p>The uncomfortable part is not that I used a wrong metric. It is that the wrong metric produced <em>plausible</em> numbers.</p>
+        <p>Had layer one returned ICs of 0.5, I would have gone looking for a leak immediately. Had it returned 0.001, I would have concluded there was nothing there. It returned 0.06 to 0.08 — precisely the range where an experienced person nods and moves on. The failure was invisible at the level of the summary statistic and only became visible when I computed a different statistic that I had no particular reason to compute, because the pipeline appeared to be working.</p>
+        <p>This generalises past trading. <strong>A proxy metric that is uncorrelated with your objective does not produce obviously broken results. It produces results in the normal range, because the optimiser is competent and the proxy has its own honest structure to find.</strong> The pathology only shows up at the point where the proxy hands off to the real objective, and if those two stages are owned by different code, different sessions, or different people, nobody is looking at the seam.</p>
+        <p>The automated search made this sharper rather than causing it. A human testing signals by hand would have tested maybe five, and would probably have eyeballed a single stock's scatter plot along the way and noticed the slope was wrong. The machine tested 163, never plotted anything, and reported a clean summary table. <strong>Scale removes the incidental sanity checks that manual work smuggles in for free</strong>, and nothing in the automated pipeline replaced them.</p>
+        <h2>The one signal that had real structure, and what it did instead</h2>
+        <p>One family did show genuine within-stock predictiveness. VWAP deviation — where price sits relative to the volume-weighted average — behaved as a momentum signal within stocks. RELIANCE correlation +0.228, top quintile forward return +0.158% against −0.002% for the bottom quintile. SBIN +0.083, top quintile +0.215%. That is the structure the mean-reversion family lacked.</p>
+        <p>Strategies built on it reached training Sharpe up to 3.4.</p>
+        <p>Every one of them had negative validation Sharpe. Not slightly negative — the range was roughly −16 to −22.</p>
+        <p>A Sharpe that goes from +3.4 to −20 across a chronological split has not decayed. It has <em>inverted</em>. Decay is what you see when an edge is real and crowded; inversion is what you see when the training period had a directional character that the validation period did not, and the strategy learned the period rather than the mechanism. The training window's market direction was the actual thing being fitted.</p>
+        <p>This is why I now think magnitude stability is the wrong robustness check and <strong>sign stability is the right one</strong>. An edge that halves out of sample is interesting. An edge that flips is not a weaker version of the same finding — it is evidence that the fitted quantity was not the one named.</p>
+        <h2>The cost wall, stated properly</h2>
+        <p>There is a third finding, and it is the one that constrains everything above.</p>
+        <p>NSE intraday round-trip costs come to roughly 0.106% of notional once brokerage, STT, stamp duty, exchange charges and GST are computed exactly. The standard deviation of 1-minute bar returns in this sample is about 0.11%. Most of the signal edges the search found were worth 0.01% to 0.05% per trade.</p>
+        <p>That is not a tuning problem. An edge one-tenth the size of the cost wall does not become profitable through a better threshold, a smarter exit, or tighter position sizing — those are multiplicative adjustments to a quantity with the wrong exponent. The specific structural fact is that a signal resolving over 5 to 30 one-minute bars produces average favourable excursions well below the fixed cost of entering and leaving. It is cost-bound by its horizon, not by its implementation.</p>
+        <p>The version of this that would clear the wall has to change the horizon, the selectivity, or both: fewer trades with larger expected moves, or a holding period long enough that the cost is amortised over a bigger excursion. That is a different search, not a re-parameterisation of this one. I have not run it yet.</p>
+        <h2>What I would tell someone building the same thing</h2>
+        <p>Compute the metric your strategy actually consumes, before you compute the one the literature uses. If the strategy trades one instrument at a time, cross-sectional rank correlation is not evidence about it, however standard the metric is and however reasonable the number looks. This sounds obvious written down. It was not obvious while the pipeline was reporting healthy numbers.</p>
+        <p>And check the sign across splits before you look at anything else. Every strategy I built on a signal with unstable sign died in validation, and every one of them looked excellent in training first. The training Sharpe of 3.4 was not a near-miss. It was the failure announcing itself in the only register I was equipped to hear as success.</p>
+        <p>I should be clear about what this is and is not. This is one search, on one universe, over one sample period, with a metric I have since established was the wrong one. It is not evidence that intraday mean reversion does not exist on NSE. It is evidence that <em>this</em> search could not have found it, which is a much narrower claim and the only one the data supports. The rerun with within-stock scoring is the experiment that would speak to the wider question, and until it is done the honest position is that I do not know.</p>
+      </article>
+
+    </main>
+  </div>
+
+</body>
+</html>

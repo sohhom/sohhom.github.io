@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>If the agent can write Python, give it something worse — Sohhom Bandyopadhyay</title>
+  <link rel="stylesheet" href="../../styles.css" />
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="site-header__inner">
+      <a class="brand" href="../../">Sohhom Bandyopadhyay <small>sohhom.github.io</small></a>
+      <nav class="nav" aria-label="primary">
+        <a href="../../cv/">cv</a>
+        <a href="../../project/">projects</a>
+        <a href="../" aria-current="page">blog</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="page">
+    <main data-screen-label="Post: a-language-that-cannot-express-the-bug">
+
+      <article>
+        <header class="project-hero">
+          <div class="project-hero__kicker">Essay · May 2026 · 7 min</div>
+          <h1>If the agent can write Python, give it something worse</h1>
+          <p class="project-hero__lede">A coding agent will happily write you a backtest. The trouble is that reviewing a hundred generated backtests is harder than writing one, and the errors that matter do not look like errors. The fix I settled on was to stop generating code and start generating documents in a language too weak to express the failure.</p>
+        </header>
+
+        <p>Ask a competent coding agent for a backtest of a mean-reversion strategy on Indian equities and you will get one. It will run, it will produce an equity curve, and the equity curve will be wrong in a way you cannot localise without reading every line.</p>
+        <p>That is tolerable once. The plan was to test hundreds of strategies, and at that volume it stops being tolerable, because reviewing generated backtests is slower than writing them yourself. Worse, the errors that matter in this domain are not the errors code review catches. A crash is free — you see it immediately. The expensive bugs are the ones that produce a <em>plausible</em> equity curve: a label offset by one bar, a stop-loss checked against the wrong side of the spread, a universe filter that quietly excludes exactly the names the signal was about. Every one of those compiles, runs, and returns a number that looks like a result.</p>
+        <p>So the question is not how to review generated code faster. It is how to stop generating the class of artefact whose defects are invisible.</p>
+        <h2>Take away the expressive power</h2>
+        <p>What I settled on was a domain-specific language for strategies. A strategy is a YAML document with a fixed set of blocks — <code>universe</code>, <code>params</code>, <code>signals</code>, <code>conditions</code>, <code>positions</code>, <code>global</code> — and expressions parsed against a formal grammar rather than handed to a Python interpreter.</p>
+        <p>The central design decision is subtractive. <strong>The language is deliberately not Turing-complete.</strong> No loops. No assignments. No function definitions. No arbitrary control flow.</p>
+        <p>This is a real cost. There are strategies I cannot express, and every time I hit one I have to decide whether to extend the language or abandon the idea. That friction is the feature, but it is genuinely friction and I want to be honest that it bites.</p>
+        <p>What it buys is three things.</p>
+        <p><strong>Generation gets reliable.</strong> The target is small enough that a language model produces valid output most of the time. When it fails, it fails loudly at the parser rather than quietly at runtime. Compare this to generating Python, where the model's output is <em>always</em> syntactically fine and the question of whether it is semantically right is exactly the question you cannot answer cheaply.</p>
+        <p><strong>Strategies become comparable.</strong> Every strategy is assembled from the same primitives, which means two strategies that look different can be checked for equivalence, and a strategy can be diffed against its own previous version in a way that means something. A lot of trading ideas circulating publicly are the same idea in different notation, and you cannot see that when each one arrives as a thousand lines of bespoke Python.</p>
+        <p><strong>Static analysis becomes possible.</strong> This is the one that matters most, and it is only available because of what was given up. With no arbitrary control flow, a validator can actually reason about what a strategy does before it runs.</p>
+        <h2>Making the bug a parse error</h2>
+        <p>The validator refuses a strategy specification for a list of conditions. Some are ordinary hygiene — circular dependencies among signals, references to undefined parameters, expressions that fail to parse. Three are the ones I care about.</p>
+        <p><strong>An entry condition may not reference <code>position.*</code> fields.</strong> In a language where entry logic can read properties of the position it is about to open, look-ahead leakage is a natural thing to write and a hard thing to spot in review — it reads perfectly sensibly. Here it is a validation failure with a line number.</p>
+        <p><strong>A strategy with no stop-loss and no time exit does not parse.</strong> Not a warning. Not a lint. The document is rejected. Risk management stops being something the author remembers and becomes a property of the artefact being well-formed at all. This one has caught me personally more than once, which is the point: I am not more disciplined than the machine, I am just the one who wrote the rule down while calm.</p>
+        <p><strong><code>no_entry_after</code> may not be later than <code>flatten_by</code>.</strong> A small, stupid, entirely mechanical inconsistency that produces a strategy which opens positions it has already committed to closing. Trivial to write, tedious to notice, free to check.</p>
+        <p>The general move is to <strong>relocate a class of bug from something a reviewer must catch to something the artefact cannot represent.</strong> Everything on that list was, in the previous setup, a thing I was supposed to be careful about. Care does not scale to hundreds of strategies a day; grammar does.</p>
+        <h2>Time as a type, not a convention</h2>
+        <p>The part of the design I spent longest on, and am least finished with, is time.</p>
+        <p>Look-ahead is the single most common way a backtest lies, and it is usually not introduced by anyone being careless. It arrives through an innocuous-looking aggregate computed over a window whose right edge is one observation further along than intended. The ontology therefore separates a <code>DataStream</code> — values with timestamps, irregularly sampled, no promise about the gap between consecutive points — from a <code>Value</code>, which has no time component at all. An <code>Epoch</code> is a moment that divides a stream into a <code>past</code> and a <code>future</code>. The intent is that operations which reach into the future are ill-typed rather than merely discouraged.</p>
+        <p>Working through this in specification prose, before implementation, found a real problem. I wanted a frozen opening range: the high between 09:15 and 09:30, fixed at 09:30, used as a breakout level for the rest of the day. The language could not express it. Signals recompute on every tick, so "the high since market open" keeps updating after 09:30 and the breakout level rises to meet the price — a strategy that can never trigger, backtesting cleanly, reporting no trades, indistinguishable from a strategy with no opportunities.</p>
+        <p>That is a beautiful bug. There is no error, no exception, no anomalous number. Just a quiet zero. In Python I might have chased it for an afternoon or, more likely, concluded the idea did not work.</p>
+        <p>The fix was a <code>snapshot(signal, anchor)</code> primitive that freezes a value at a time and never updates it after. <strong>The specification found the bug because writing down what the language could express forced me to notice what it could not.</strong> That is the argument for specifying before implementing, in one example.</p>
+        <h2>The obvious objection</h2>
+        <p>The objection is that a restricted language cannot express the strategy that would actually have made money, and by constraining the space I have guaranteed I will not find it.</p>
+        <p>I think this is right in principle and mostly irrelevant in practice, for a reason that is empirical rather than philosophical. The binding constraint on this work has never been that I could not express an idea. It has been that I could not tell which expressed ideas were real. Adding expressive power makes the first problem easier and the second harder, and the second is the one killing me.</p>
+        <p>There is also a version of the objection that is simply correct, and I have hit it. Version 0.3 of the specification exists because 0.2 could not express anchored windows, per-stock conflict rules, or what happens when a limit exit fails to fill. Each of those was a real strategy idea that the grammar refused. The language grows when it must — but growth is a deliberate, versioned, reviewed act rather than something that happens because a generated script needed one more <code>for</code> loop.</p>
+        <p>The honest framing is that this is a bet: that a searchable space of mediocre-but-verifiable strategies beats an unsearchable space of arbitrary ones. <strong>I have not yet demonstrated the bet pays.</strong> Nothing from this pipeline has cleared validation. What I can say is narrower — the class of bug that used to consume my review time now fails at parse, and the strategies I reject I reject for stated reasons rather than a vague feeling that something is off.</p>
+        <p>The next step is heavier and I am not sure it is justified: translating specifications into Lean 4 and discharging proofs about them before any data is loaded — that position limits hold under every execution path, that opposing positions in one instrument are unreachable, that the flatten-by guarantee is unconditional. Testing gives confidence; proof forces every assumption to become explicit, and the wrong ones surface as obligations that cannot be discharged. Whether that is worth it for a language this small is exactly the sort of question I would rather answer with an experiment than an opinion, and I have not run it.</p>
+      </article>
+
+    </main>
+  </div>
+
+</body>
+</html>
