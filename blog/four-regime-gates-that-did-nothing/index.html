@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Four ways of asking &quot;is this a bad day to trade&quot; all failed. A fifth worked. — Sohhom Bandyopadhyay</title>
+  <link rel="stylesheet" href="../../styles.css" />
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="site-header__inner">
+      <a class="brand" href="../../">Sohhom Bandyopadhyay <small>sohhom.github.io</small></a>
+      <nav class="nav" aria-label="primary">
+        <a href="../../cv/">cv</a>
+        <a href="../../project/">projects</a>
+        <a href="../" aria-current="page">blog</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="page">
+    <main data-screen-label="Post: four-regime-gates-that-did-nothing">
+
+      <article>
+        <header class="project-hero">
+          <div class="project-hero__kicker">Essay · Jul 2026 · 9 min</div>
+          <h1>Four ways of asking &quot;is this a bad day to trade&quot; all failed. A fifth worked.</h1>
+          <p class="project-hero__lede">Trade less in bad conditions&quot; is standard advice and I believe it. Four separate attempts to implement it by measuring market conditions produced nothing. The one filter that worked ignored the market entirely and looked at the strategy&#x27;s own recent losses. That difference is not a detail — it changes what a filter can be built from.</p>
+        </header>
+
+        <p>Almost every systematic trader believes some version of "do less when conditions are bad." I believe it. The hard part is not the principle. It is that "conditions" has to become a number, and the number has to actually separate the good days from the bad ones.</p>
+        <p>Across several months of separate research sessions I built four filters on that principle. All four measured something about the market. None of them worked.</p>
+        <p>A fifth filter worked. It did not measure the market at all.</p>
+        <h2>The four that failed</h2>
+        <p><strong>A volatility gate.</strong> Restrict trading to the calmest 70% of days, ranked by mean absolute return. The intuition is that wild days are where a mean-reversion strategy gets run over.</p>
+        <p>Gross Sharpe went <strong>down</strong>: 16.62 to 14.10 in one window, 12.0 to 10.4 in another. The mean spread captured per bar also fell, 0.028 to 0.020 bps in the first window. The calm days were not merely less risky. They were less <em>profitable</em>, and by more. The gate removed more return than risk.</p>
+        <p>This is the failure I find most instructive, because the gate did exactly what it promised. It correctly identified calm days. Calm days simply were not where the money was, and nothing about the volatility measurement could have told me that in advance.</p>
+        <p><strong>A correlation throttle.</strong> Halve position size when the average cross-sectional correlation sits in its trailing top quintile — the standard "everything is moving together, be careful" signal.</p>
+        <p>Approximately mean-neutral. It did reduce dispersion across random seeds, from 37,025 to 25,636, which is a real benefit. But out-of-sample it was weaker than the simple binary gate it was meant to improve on: 1,154 per day in training against 643 per day out-of-sample.</p>
+        <p><strong>A meta-learner over a pool of strategies.</strong> Put 24 strategy configurations plus a "sit flat" arm into a 25-arm pool and let a discounted Hedge algorithm allocate weight. In principle it should learn to sit out.</p>
+        <p>The flat arm attracted a mean weight of <strong>0.013</strong>. Essentially zero. The reason is structural and, in hindsight, obvious: with 24 arms, <em>some</em> arm has always run hot recently, so the flat arm never looks attractive by comparison. The meta layer did reduce loss against a uniform allocation — a mixture losing ₹1,158 a day against uniform's ₹1,676 — but it could not rescue a pool where no arm was net-positive. <strong>A meta-learner over losing strategies allocates between losses.</strong></p>
+        <p><strong>A market-regime classifier.</strong> The general form of the above. Mean-neutral, out-of-sample weaker than the thing it was gating.</p>
+        <p>Four attempts. Four different research sessions. Four different measurement families — volatility, correlation, algorithmic allocation, regime labels. Nothing.</p>
+        <h2>The one that worked</h2>
+        <p>The fifth filter did something different. It vetoed new trades in a cohort only after <strong>the strategy's own trailing realised PnL in that cohort</strong> dropped below a threshold.</p>
+        <p>It never looks at volatility. It never looks at correlation. It never asks what regime we are in. It asks: <em>has this thing been losing money lately?</em></p>
+        <p>Results, holding the base signal fixed: <strong>+₹149,101, a 13.8% improvement.</strong> Win rate 61.7% to 62.8%. Zero cost on the training set. It was robust to where the threshold sat, adding between ₹99,000 and ₹149,000 across a grid from −₹10,000 to −₹80,000. That robustness matters — a filter that only works at one threshold value is usually a fitted artifact.</p>
+        <p>Decomposing where the gain came from: about <strong>40% from avoided losses</strong> and about <strong>60% from better slot reallocation</strong>. That second number is the interesting one, and I nearly missed it. Most of the benefit was not from <em>not trading</em>. It was from freeing up a limited position slot so a better trade could take it. The strategy runs at most four concurrent positions, so a slot occupied by a deteriorating cohort has an opportunity cost, and the veto was mostly harvesting that.</p>
+        <p>For contrast, in the same set of experiments a <strong>static</strong> high-beta veto added ₹383,000 on the validation window and cost ₹464,000 on training. That is not a filter. That is a coin landing well once, and it is not walk-forward defensible.</p>
+        <h2>Why the self-referential one is different</h2>
+        <p>The four failures share a structure. Each says: <em>here is a market property; when it takes a certain value, conditions are bad.</em> That requires the market property to be stably related to your strategy's profitability. On this data, none of them were. The relationship existed in training and did not survive.</p>
+        <p>The one that worked says something weaker and much more robust: <em>whatever is currently making this strategy lose money, it is still happening.</em></p>
+        <p>It does not need to know what the bad condition <strong>is</strong>. It does not need that condition to be measurable, or to have a name, or to be one of the axes I thought to include. It only needs the condition to have <strong>persistence</strong> — to last longer than the measurement window.</p>
+        <p>That is a far lower bar. And it explains the four failures neatly: they all required me to have correctly guessed, in advance, which market variable indexes the bad state. <strong>The self-referential filter does not require that guess.</strong> It detects the bad state by its consequences.</p>
+        <p>There is a real cost, and I want to be honest about it. A self-referential filter is always late. It cannot warn you about a bad stretch — it can only notice you are already in one, after you have paid for the information. It is a persistence detector, not a predictor. If bad stretches arrive and end quickly, it will be wrong on both ends: late to stop, late to restart.</p>
+        <h2>Selectivity, not abstention</h2>
+        <p>A separate result sharpened what these filters are actually doing.</p>
+        <p>An expected-value gate cut an out-of-sample net loss by <strong>10.3×</strong> — from −₹206,418 to −₹20,085 — while taking <strong>5.1× fewer trades</strong>. The obvious reading is "it traded less, so it lost less."</p>
+        <p>That reading is wrong, and one number rules it out. The hit rate was <strong>essentially unchanged: 41.2% to 41.3%.</strong></p>
+        <p>If the gate were simply trading less, the hit rate would move — you would expect the remaining trades to be the better ones, and the win rate to rise. It did not. The gate was not picking trades that were more <em>likely</em> to win. It was picking trades that were <strong>worth more when they won</strong>, and skipping ones whose payoff did not justify the cost of entry.</p>
+        <p>That is selectivity, and it is a different mechanism from abstention. Abstention reduces exposure. Selectivity improves the payoff profile at whatever exposure you keep. Both reduce trade count, so they look identical if you only watch the trade count. The hit rate is what separates them.</p>
+        <p>The position-limit caps — at most 4 concurrent, at most 100 trades a day — never bound in that test. The gate was doing the work, not the risk limits.</p>
+        <h2>The layer the signal enters matters more than the signal</h2>
+        <p>One more result belongs here, because it reframes all of the above.</p>
+        <p>I had ten cross-sectional features. I appended them to an existing 41-feature model as inputs and retrained. Out-of-sample net went <strong>down</strong>: +₹1.08M to +₹713k. The honest reading at the time was that across a regime shift, the extra features added variance rather than signal.</p>
+        <p>Then the same information was used differently — not as model inputs, but as an <strong>admission overlay</strong> deciding which trades were allowed through. It helped, by about ₹149k.</p>
+        <p>Same information. Opposite sign, depending on which part of the system consumed it.</p>
+        <p>This is why I now keep strict layers, and why I think the layer assignment is often a more important decision than the feature choice. A signal that fails as a model input can work as a filter. It gets a smaller job — a yes-or-no on trades the model already wants — instead of being asked to contribute to a prediction, where it mostly adds noise the model then has to learn around.</p>
+        <p>The practical consequence: <strong>before concluding a signal does not work, test it in every role it could occupy</strong> — entry trigger, regime filter, size multiplier, exit modifier, universe screen. In my experience this axis gets skipped more than any other, and it is the one that most often converts a dead idea into a live one. The most reusable artifact I have produced created no edge whatsoever as a signal and is genuinely useful as a filter.</p>
+        <h2>What I would not conclude</h2>
+        <p>I want to scope this properly, because the tempting generalisation is wider than the evidence.</p>
+        <p>This is one strategy family, on Indian intraday equities, over a few months. Four failures of market-regime gating do not establish that market-regime gating fails in general. Plenty of people trade regime models successfully. What I can say is narrower: <strong>on this data, four independent market-conditioning attempts failed to bind, and one self-referential rule worked, and the asymmetry was consistent enough to change where I look first.</strong></p>
+        <p>There is also a specific reason to hold the positive result loosely. The self-referential gate's improvement is a training-set figure with a threshold sweep behind it. Threshold robustness is meaningful evidence, but it is not walk-forward validation, and I have not run that yet. Its grade is C, and by my own rule a grade C claim does not gate a live decision.</p>
+        <p>So the honest statement is not "self-referential gating works." It is: four market-regime formulations are dead on this data, one self-referential formulation is the most promising surviving candidate, and the next task is to try to kill it properly rather than to deploy it.</p>
+        <p>That is a smaller claim than I wanted when I started. It is also the first time the question has been narrow enough to answer.</p>
+      </article>
+
+    </main>
+  </div>
+
+</body>
+</html>

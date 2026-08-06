@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Dropping 0.61% of the data destroyed 96% of the profit — Sohhom Bandyopadhyay</title>
+  <link rel="stylesheet" href="../../styles.css" />
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="site-header__inner">
+      <a class="brand" href="../../">Sohhom Bandyopadhyay <small>sohhom.github.io</small></a>
+      <nav class="nav" aria-label="primary">
+        <a href="../../cv/">cv</a>
+        <a href="../../project/">projects</a>
+        <a href="../" aria-current="page">blog</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="page">
+    <main data-screen-label="Post: point-six-percent-of-the-data">
+
+      <article>
+        <header class="project-hero">
+          <div class="project-hero__kicker">Essay · Aug 2026 · 9 min</div>
+          <h1>Dropping 0.61% of the data destroyed 96% of the profit</h1>
+          <p class="project-hero__lede">A backtest showed ₹3.53M of profit. Three data-cleaning rules, written before looking at the results, removed 84 symbol-days out of 13,732 — and with them almost all of the profit. The rules caught a stock split recorded as a 90% crash. This is the cheapest and most transferable thing I have built.</p>
+        </header>
+
+        <p>A backtest of mine reported about <strong>₹3.53M</strong> of profit. It was not a silly backtest. The logic was reasonable, the costs went through a validated library, the code did what it was supposed to.</p>
+        <p>Then I applied three data-integrity rules. They dropped <strong>84 symbol-days out of 13,732 — 0.61% of the data.</strong> Roughly <strong>96% of the profit disappeared</strong> with them.</p>
+        <p>The strategy had been trading almost entirely on broken prices.</p>
+        <h2>The three rules</h2>
+        <p>They were written before I looked at what they would remove, which matters — a cleaning rule invented after seeing the results is just a way of choosing your answer.</p>
+        <p><strong>One: drop the day if the mid price escapes the feed's own circuit band.</strong> Exchanges publish upper and lower circuit limits per stock per day. A price outside that band is not a price. It is a data error, and the feed itself tells you the bounds.</p>
+        <p><strong>Two: drop the day if coverage is bad.</strong> Specifically, a gap of more than 30 minutes, or fewer than 200 bars with actual ticks before the 15:15 square-off. A day with holes is a day where your backtest fills gaps with assumptions and then reports the assumptions as profit.</p>
+        <p><strong>Three: drop the day if any one-minute mid move exceeds 800 basis points.</strong> An 8% move inside a single minute on a liquid name is almost always a corporate action or a bad print, not a trade you could have made.</p>
+        <h2>What they caught</h2>
+        <p>The clearest catch was <strong>TATAMOTORS, 14 October 2025: a price recorded as ₹991 becoming ₹99.</strong></p>
+        <p>That is a stock split. The company divides each share into ten, so the price divides by ten. Every holder is exactly as wealthy as before. Nothing happened economically.</p>
+        <p>To a backtester reading raw prices, a 90% overnight crash happened. And if the strategy has any mean-reversion or dip-buying instinct, it just found the greatest opportunity in the dataset. It buys with everything it has, the price "recovers" — meaning the data goes back to normal on some later day, or the strategy exits against a price on the pre-split scale — and it books an enormous fictional profit.</p>
+        <p>The other catches had the same character. A Muhurat session — the ceremonial hour-long trading session on Diwali — which is a real session with real prints, but its shape is nothing like a normal day, and 200 bars of coverage do not exist. Two more single-day price anomalies on other names.</p>
+        <p>None of these are bugs in the strategy. The code was correct throughout. <strong>The code was correctly processing prices that did not mean what the code assumed they meant.</strong></p>
+        <h2>Why this ratio is the whole point</h2>
+        <p>The number I keep returning to is the ratio: <strong>0.61% of the data carried 96% of the profit.</strong></p>
+        <p>That asymmetry is not a coincidence, and it is not specific to my data. It is what you should <em>expect</em>, for a reason worth stating plainly.</p>
+        <p>A backtest is an optimiser. Not formally — but it searches over parameters and picks what performed best, and that search is drawn to the largest returns in the sample. Broken data produces the largest returns in the sample, because a 90% price move dwarfs anything the market actually did. So a corrupted day is not diluted by the 99.4% of clean data around it. <strong>It dominates, precisely because it is extreme.</strong></p>
+        <p>This means the usual intuition — a bit of dirty data adds a bit of noise — is exactly backwards. Dirty data does not add noise proportional to its frequency. It adds <em>bias</em> proportional to its extremity, and the extremity is why it survived into your results.</p>
+        <p>Which leads to the practical rule I now follow: <strong>a data-integrity layer is not optional hygiene to do when there is time. It is the first filter, before any signal work.</strong> It is also the cheapest thing in my whole research stack — three rules, a few dozen lines, no modelling, no tuning — and the most transferable, because it depends on the feed rather than the strategy. Every strategy I test now sits behind it.</p>
+        <h2>Four other ways correct code produces a wrong answer</h2>
+        <p>Merging the folders surfaced a family of related failures. What unites them is that in every case the code ran without error and produced a plausible number.</p>
+        <p><strong>The universe you selected on.</strong> A breakout configuration was best on a 400-symbol training sample, at <strong>+₹17,201</strong>. Re-scored on the full <strong>1,091-symbol</strong> universe, identical logic, it went <strong>negative — both net and gross — in both windows.</strong> Expanding the symbol set, changing nothing else, reversed the sign. The configuration had not found a pattern. It had found the 400 symbols. This is cheap to check and I now treat it as mandatory: a configuration selected on a subset must be re-scored on the full universe before I believe it.</p>
+        <p><strong>A metric that fires on pure noise.</strong> I used pooled information coefficient as a screen for a while. Then I ran it on permuted data — same values, shuffled so any real relationship is destroyed — and it manufactured <strong>t-statistics up to 4.9</strong>. Meanwhile, on real data, the configuration that actually netted the most money carried a <strong>negative</strong> pooled IC. The metric and the outcome had come apart completely. A t-statistic near 5 that a permutation null also produces is not evidence of anything. The correct procedure is the one another folder used: it produced in-sample |t| up to 5.02 across 40 symbols and then reported <strong>50.3% held-out sign accuracy</strong> — chance — and rejected the idea on the split rather than on the t-statistic.</p>
+        <p><strong>A benchmark that harvests noise.</strong> I built a foresight benchmark — the best achievable profit with perfect knowledge, subject to my real position limits — to measure what fraction of the available money a strategy captures. It yields <strong>₹392,748 a day on real data.</strong> On martingale surrogates, which are random walks with no predictable structure whatsoever, it yields <strong>₹424,226 a day.</strong> More. The benchmark was measuring how much a price path wanders, not how much of it is predictable. Capture ratio against it is a progress metric at best, and never evidence of edge.</p>
+        <p><strong>Regime drift wearing a model's clothes.</strong> A direction model reported AUC 0.53, modestly better than chance. Day-neutralising it — removing cross-day drift so the model has to discriminate <em>within</em> each day rather than across days — dropped it to <strong>0.506.</strong> Chance. It had learned that some days trend up and some trend down, which is true, and useless, because you have to trade inside a day without knowing which kind it is.</p>
+        <h2>The unit errors that manufacture nulls</h2>
+        <p>There is a mirror-image failure that I think gets far less attention than it deserves, because its output is a negative result and negative results do not attract scrutiny.</p>
+        <p>A cost library took <code>quantity</code> in <strong>lots</strong>. A folder passed <code>quantity=1</code>, correctly documented as lots — and then computed gross P&amp;L as though it had traded one <strong>share</strong>. Against a flat brokerage cap, that is a trade whose costs are enormous relative to a one-share position. Every result comes out negative.</p>
+        <p>That bug <strong>manufactures nulls.</strong> It cannot produce a false positive. It can only kill ideas that might have worked.</p>
+        <p>I found this trap twice across the folders. One session caught it in a predecessor's code; another still had it. Which means an unknown number of "this does not work" conclusions in my own archive may be arithmetic rather than findings.</p>
+        <p>A related one: a cost call wrapped in a bare <code>try/except</code>, silently falling back to a hand-estimate of 0.1% of notional with no log line. An unknown subset of that folder's "net" figures never touched the cost library at all. There is no way to tell from the output which ones.</p>
+        <p>The general lesson has changed how I read my own negative results. <strong>A null is a claim and it needs defending like any other.</strong> Before I accept "this does not work," I now check the specific errors that produce exactly that outcome: units and lots, a cost path that silently fell back, a universe filter that dropped the names the signal was about, a label misaligned against the feature. A null I have not tried to break is not a finding. It is an untested hypothesis with a discouraging shape.</p>
+        <h2>Where the honesty has to sit</h2>
+        <p>I should be clear about the status of all this.</p>
+        <p>The data-integrity rules are the strongest thing here. They are pre-registered, the catches are named and verifiable, and the mechanism is obvious once stated. I would defend that one.</p>
+        <p>The rest are single measurements from single folders, mostly not independently re-run. The 96% figure comes from one uncontrolled backtest, and a different strategy on the same feed would lose a different fraction. The point is not the number. The point is that the number can be that large at all, from a fraction of a percent of the data.</p>
+        <p>And there is a limit I cannot argue past. When I checked whether reported figures had supporting artifacts on disk, <strong>five of fourteen folders cited results directories that no longer existed.</strong> Scratch directories had not survived the copying. Methodological quality did not predict which — one folder used the cost library correctly, documented everything, and still had nothing to verify against.</p>
+        <p>So about a third of these numbers are reproducible in principle and not citable in practice. I have written them down at the grade the evidence supports, which for several is low, rather than rounding up because they are interesting.</p>
+        <p>The reason I would still build the integrity layer first, before any of the modelling: it is the only item on this list that is cheap, mechanical, strategy-independent, and impossible to fool yourself with. Everything else here is a lesson about how a specific number misled me. The three rules are a permanent reduction in how often that can happen again.</p>
+      </article>
+
+    </main>
+  </div>
+
+</body>
+</html>

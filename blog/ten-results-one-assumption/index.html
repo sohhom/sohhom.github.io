@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Ten independent results, one shared assumption, zero surviving evidence — Sohhom Bandyopadhyay</title>
+  <link rel="stylesheet" href="../../styles.css" />
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="site-header__inner">
+      <a class="brand" href="../../">Sohhom Bandyopadhyay <small>sohhom.github.io</small></a>
+      <nav class="nav" aria-label="primary">
+        <a href="../../cv/">cv</a>
+        <a href="../../project/">projects</a>
+        <a href="../" aria-current="page">blog</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="page">
+    <main data-screen-label="Post: ten-results-one-assumption">
+
+      <article>
+        <header class="project-hero">
+          <div class="project-hero__kicker">Essay · Jul 2026 · 9 min</div>
+          <h1>Ten independent results, one shared assumption, zero surviving evidence</h1>
+          <p class="project-hero__lede">I had about thirty folders of trading research, each grading its own evidence honestly. Merging them and propagating each claim&#x27;s grade through its dependencies dropped ten positive results from A and B down to D. Nothing was wrong with any individual folder. The problem only existed in the space between them.</p>
+        </header>
+
+        <p>Over several months I accumulated around thirty folders of quantitative research. Each was a separate session on a separate question: a cost measurement, a signal, a regime filter, a feed-reconstruction method. Each folder had a report. Each report graded its own evidence, and graded it honestly.</p>
+        <p>Then I merged them, and did one thing that no individual folder could do: I wrote down what each result <em>depended on</em>, and propagated the grades through the dependency graph.</p>
+        <p>Ten positive results collapsed.</p>
+        <h2>Two grades, not one</h2>
+        <p>The mechanism is a distinction between two numbers.</p>
+        <p><strong>Asserted grade</strong> is what a claim's own evidence supports, judged in isolation. I used a four-level scale. Grade A means walk-forward tested, multiple seeds, exact costs through the validated cost library, and a controlled confound. Grade B means out-of-sample, but a single window or a single seed. Grade C means in-sample, or hand-estimated costs, or a denominator that was never stated. Grade D means somebody asserted it in a report with no artifact behind it.</p>
+        <p><strong>Effective grade</strong> is what the claim is actually worth. It is the weakest link in everything the claim rests on. It is computed on demand, never stored, because it changes whenever anything upstream changes.</p>
+        <p>That distinction sounds like bookkeeping. Here is what it did.</p>
+        <table>
+        <thead>
+        <tr>
+        <th>Claim</th>
+        <th>Asserted</th>
+        <th>Effective</th>
+        <th>Held down by</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+        <td>Merged-config net edge</td>
+        <td>A</td>
+        <td><strong>D</strong></td>
+        <td>fill-model assumption</td>
+        </tr>
+        <tr>
+        <td>Neural net, walk-forward, multi-seed</td>
+        <td>B</td>
+        <td><strong>D</strong></td>
+        <td>fill-model assumption</td>
+        </tr>
+        <tr>
+        <td>Correlation entry gate</td>
+        <td>B</td>
+        <td><strong>D</strong></td>
+        <td>fill-model assumption</td>
+        </tr>
+        <tr>
+        <td>Gate replicates on a second base signal</td>
+        <td>B</td>
+        <td><strong>D</strong></td>
+        <td>fill-model assumption</td>
+        </tr>
+        <tr>
+        <td>Six others</td>
+        <td>B/C</td>
+        <td><strong>D</strong></td>
+        <td>fill-model assumption</td>
+        </tr>
+        </tbody>
+        </table>
+        <p>Ten claims. Every one a positive net result. Every one collapsing to D on the same root cause.</p>
+        <p>The root cause was a single unvalidated assumption: that a trade fills at the <strong>midpoint</strong> between bid and ask. One folder had made that assumption, recorded it honestly as a low-grade claim, and moved on. Nine other folders, written in other sessions, inherited it without ever naming it.</p>
+        <h2>Why a mid fill is not a small assumption</h2>
+        <p>If you assume you buy and sell at the mid, you are assuming you never pay the spread. Real orders do not work that way. A buy that needs to happen crosses to the ask. A sell that needs to happen crosses to the bid. You pay half the spread on entry and half on exit, and the exchange charges arrive on top.</p>
+        <p>The size of that error, measured later on the actual instrument: <strong>a round-trip toll of 7.09 basis points at ₹550,000 notional</strong>, measured over 40,000 matched controls with fills at bid and ask rather than mid.</p>
+        <p>Now put that beside the headline. The merged configuration reported a gross edge of <strong>8.25 bps per trade</strong> against a <strong>4.34 bps</strong> statutory wall. That leaves roughly 3.9 bps of net margin, which reads like a working strategy.</p>
+        <p>Charge the spread that the folder's <em>own</em> spread-crossing run implied — about 2.5 bps per round trip — and the margin falls to about 1.4 bps. That is a <strong>64% cut to the headline</strong>: roughly ₹580 a day rather than ₹1,600 a day. Charge the 3.3 bps per leg that a different folder's harness assumed, and the margin goes to approximately zero.</p>
+        <p>The strategy is not obviously dead. It is also not obviously alive. It sits entirely inside the error bar of an assumption nobody had measured, and every claim standing on it inherits that.</p>
+        <h2>The part I keep coming back to</h2>
+        <p>No individual folder could have found this.</p>
+        <p>Each folder was internally honest. The one that made the mid-fill assumption wrote it down and graded it low, exactly as it should have. The problem is that a low-grade assumption in one folder became an invisible foundation in nine others, and the only place that fact exists is in the relationships between folders. Read any single report and it looks fine. Read them together and one assumption is underwriting the entire positive record.</p>
+        <p><strong>This is a structural property of doing research in sessions.</strong> Every session starts by taking something from a previous session as given. Nobody re-derives the fill model when they are working on a regime filter — that would be absurd, and you would never finish anything. So assumptions propagate silently, and they propagate <em>fastest</em> when they are convenient.</p>
+        <p>The mid-fill assumption is maximally convenient. It makes every strategy look better. There was no adversarial pressure on it at any point, because at no point was it the thing being studied.</p>
+        <p>I now think the honest summary is this: <strong>the estate's entire positive record sat inside the error bar of its own unmeasured fill model, and no report said so, because saying so required reading all the reports at once.</strong></p>
+        <h2>The refinement that stops it being merely pessimistic</h2>
+        <p>A naive version of this ratchet is useless, because it drags everything to D and you learn nothing.</p>
+        <p>The fix is that dependency edges carry a direction of effect. I ended up with two kinds.</p>
+        <p>A <strong>support</strong> edge is the default. The claim rests on the dependency. If the dependency is weak, the claim is capped.</p>
+        <p>A <strong>conservative</strong> edge is different. Here the dependency's weakness makes the result <em>harder</em> to obtain, not easier. A pessimistic fill model cannot manufacture a losing result. If you assumed you always pay the full spread and the strategy still lost money, then discovering your fill model was too harsh does not rescue the finding — it strengthens it. No cap applies.</p>
+        <p>That distinction rescued the two best-evidenced findings in the whole estate, both of them negative results:</p>
+        <ul>
+        <li>A pair-reversion strategy that was <strong>net-negative across 13 walk-forward windows and 62 out-of-sample days</strong>.</li>
+        <li>The finding that <strong>in-sample PnL is uncorrelated to anticorrelated with out-of-sample PnL</strong> across those windows — meaning a selector that picks pairs on recent performance cannot time the profitable stretches. Corroborated separately: under one fixed configuration across 30 pairs and 72 days with no selection at all, only <strong>44%</strong> of pair-days were net-positive.</li>
+        </ul>
+        <p>Both survive at effective grade A. A ratchet without edge polarity would have buried them under a caveat that could only ever have helped them, and those two findings are more useful than anything positive in the estate.</p>
+        <p><strong>A pessimistic assumption is a problem for your wins and a gift to your nulls.</strong> Treating all uncertainty as uniformly bad throws away that asymmetry.</p>
+        <p>There is a related asymmetry I found useful for triage. A look-ahead leak can manufacture a positive result but cannot manufacture a null. When I discovered that one folder used a retrospective peak-finding function, that leak inflated its positive event study while leaving its negative results untouched or strengthened. So a newly-found leak does not invalidate a whole folder. It invalidates the folder's <em>positive</em> half. That saved me from discarding real work.</p>
+        <h2>What this costs, and what it is worth</h2>
+        <p>I want to be clear about what this apparatus is and is not.</p>
+        <p>It is not a test. Merging the folders re-ran nothing. Of about a hundred claims, exactly two were independently reconciled against their artifacts. The grades are transcribed self-assessments, propagated rigorously through a dependency graph. The propagation is sound; the inputs are taken on trust. <strong>A grade A claim here means "the source report presents A-grade evidence", not "I checked it."</strong></p>
+        <p>That distinction matters more than it sounds, because trust turned out to be misplaced about a third of the time. When I checked whether reported figures had artifacts behind them, <strong>five of fourteen folders cited a results directory that no longer existed.</strong> Scratch directories had not survived whatever copied the folders around. Methodological quality did not predict it — one folder used the cost library correctly, documented everything, and still had nothing on disk to verify.</p>
+        <p>So roughly a third of the headline numbers are regenerable in principle and not citable in practice. The ledger faithfully transcribes some of them.</p>
+        <p>It also produced no strategy, no component, and no validated number. Nothing in it is above the second rung of a five-rung ladder that runs idea, node, component, candidate, live. Its value is entirely <strong>subtractive</strong>: it establishes what the work does <em>not</em> know, precisely enough that the next session can query it in a minute rather than rediscovering it over a week.</p>
+        <p>I have gone back and forth on whether that is worth the effort, and I have landed on yes, for one reason. Before the merge I had ten positive results and a vague sense that something was off. After the merge I had <strong>one blocker</strong> — measure the fill model properly — with the specific consequence attached: one re-run either raises ten claims at once or kills the entire positive record. Nothing else on the board has that leverage.</p>
+        <p>Ten scattered caveats are noise. One root blocker is a work item.</p>
+        <h2>The uncomfortable generalisation</h2>
+        <p>The lesson transfers past trading, and it is not the one about being careful.</p>
+        <p><strong>Any research programme that runs in sessions will accumulate load-bearing assumptions that no session owns.</strong> The assumption gets made once, in a context where it is peripheral and honestly graded. Then it becomes infrastructure. Nobody attacks it, because attacking it is never anybody's actual task.</p>
+        <p>The defence is not vigilance, which does not scale. It is mechanical: write down what each result depends on, propagate the weakest link, and look at what the propagation drops. The exercise takes an afternoon. It found, in my case, that the thing standing between me and knowing whether I had an edge was not another signal. It was one measurement I had never made.</p>
+      </article>
+
+    </main>
+  </div>
+
+</body>
+</html>
