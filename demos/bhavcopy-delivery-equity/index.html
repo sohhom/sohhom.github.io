@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Delivery vs Traded Volume — NSE bhavcopy showcase</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="viz-root">
+    <h1 id="chart-title">Traded volume vs. delivered shares</h1>
+    <p class="subtitle" id="chart-subtitle">Loading…</p>
+
+    <div class="controls">
+      <label for="symbol-select">Symbol</label>
+      <select id="symbol-select"></select>
+
+      <div class="view-toggle" role="group" aria-label="Chart view">
+        <button class="view-btn active" id="view-lines" data-view="lines">Two series</button>
+        <button class="view-btn" id="view-diff" data-view="diff">Difference (traded − delivered)</button>
+      </div>
+
+      <button class="toggle-table" id="toggle-table">Show table</button>
+    </div>
+
+    <div class="legend" id="legend"></div>
+
+    <div class="chart-wrap">
+      <svg id="chart" viewBox="0 0 900 380" preserveAspectRatio="xMidYMid meet"></svg>
+      <div class="tooltip" id="tooltip"></div>
+    </div>
+
+    <table class="data-table" id="data-table">
+      <thead>
+        <tr><th>Date</th><th>Traded volume</th><th>Delivered shares</th><th>Delivery %</th><th>Diff</th></tr>
+      </thead>
+      <tbody id="table-body"></tbody>
+    </table>
+
+    <p class="footer-note">Data: NSE bhavcopy (delivery %) and tickstore (traded volume). Static showcase, generated offline.</p>
+  </div>
+
+  <script src="chart.js"></script>
+</body>
+</html>
