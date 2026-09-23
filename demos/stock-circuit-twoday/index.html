@@ -1,0 +1,688 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Two Circuit Days on the NSE</title>
+<meta name="description" content="What 22 and 23 September 2026 on the NSE teach a  trader about upper circuits, listing day and the closing auction.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Condensed:wght@500;600&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+<style>
+:root {
+  color-scheme: light;
+  --ground: #f4f6f4;
+  --surface: #fcfcfb;
+  --ink: #17201d;
+  --ink-2: #4b5752;
+  --muted: #6f7a75;
+  --rule: #d6ddd8;
+  --rule-soft: #e6ebe7;
+  --day-a: #2a78d6;
+  --day-b: #eb6834;
+  --day-a-soft: #e3eefb;
+  --day-b-soft: #fdebe3;
+  --up: #1c7a4c;
+  --down: #b0352f;
+  --new: #7a4fb8;
+  --new-soft: #efe8f8;
+  --focus: #2a78d6;
+  --sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --cond: "IBM Plex Sans Condensed", "IBM Plex Sans", "Arial Narrow", system-ui, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --ground: #121514;
+    --surface: #1a1a19;
+    --ink: #e9eeeb;
+    --ink-2: #bcc6c1;
+    --muted: #8f9a95;
+    --rule: #333a37;
+    --rule-soft: #262b29;
+    --day-a: #3987e5;
+    --day-b: #d95926;
+    --day-a-soft: #1b2a3d;
+    --day-b-soft: #3a2219;
+    --up: #4fbf85;
+    --down: #ef7a72;
+    --new: #b394e6;
+    --new-soft: #2a2138;
+    --focus: #6da7ec;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --ground: #121514;
+  --surface: #1a1a19;
+  --ink: #e9eeeb;
+  --ink-2: #bcc6c1;
+  --muted: #8f9a95;
+  --rule: #333a37;
+  --rule-soft: #262b29;
+  --day-a: #3987e5;
+  --day-b: #d95926;
+  --day-a-soft: #1b2a3d;
+  --day-b-soft: #3a2219;
+  --up: #4fbf85;
+  --down: #ef7a72;
+  --new: #b394e6;
+  --new-soft: #2a2138;
+  --focus: #6da7ec;
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--ground);
+  color: var(--ink);
+  font: 15px/1.6 var(--sans);
+  padding-inline: 16px;
+  padding-block: 0 64px;
+}
+.wrap { max-width: 1040px; margin: 0 auto; }
+a { color: inherit; }
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+/* type scale: 12 / 13 / 15 / 18 / 24 / 34 */
+h1, h2, h3 { font-family: var(--cond); text-wrap: balance; margin: 0; letter-spacing: -0.005em; }
+h1 { font-size: 34px; line-height: 1.15; font-weight: 600; }
+h2 { font-size: 24px; line-height: 1.25; font-weight: 600; }
+h3 { font-size: 18px; line-height: 1.3; font-weight: 600; }
+p { margin: 0; max-width: 68ch; }
+.label {
+  font: 500 12px/1.3 var(--mono);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+.num, td.n, th.n { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+code { font: 13px var(--mono); background: var(--rule-soft); padding: 1px 5px; border-radius: 3px; }
+
+/* header */
+header.top {
+  display: grid;
+  gap: 20px;
+  padding-block: 40px 28px;
+  border-bottom: 1px solid var(--rule);
+}
+.sessions { display: flex; flex-wrap: wrap; gap: 10px; }
+.chip {
+  display: inline-flex; align-items: center; gap: 8px;
+  font: 500 13px/1 var(--mono);
+  padding: 7px 10px;
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  background: var(--surface);
+}
+.swatch { width: 10px; height: 10px; border-radius: 2px; flex: none; }
+.sw-a { background: var(--day-a); }
+.sw-b { background: var(--day-b); }
+.lede { font-size: 17px; line-height: 1.55; color: var(--ink-2); max-width: 66ch; }
+
+nav.toc {
+  display: flex; flex-wrap: wrap; gap: 6px 18px;
+  padding-block: 14px;
+  border-bottom: 1px solid var(--rule);
+  font-size: 13px;
+}
+nav.toc a { color: var(--ink-2); text-decoration: none; }
+nav.toc a:hover { color: var(--ink); text-decoration: underline; }
+
+section { display: grid; gap: 18px; padding-block: 40px 8px; }
+section > header { display: grid; gap: 6px; }
+.stack { display: grid; gap: 12px; }
+.cols { display: grid; gap: 28px; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+
+/* verdict */
+.verdict { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); }
+.verdict > div {
+  display: grid; gap: 6px; align-content: start;
+  padding: 14px 16px;
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+}
+.verdict .big { font: 600 20px/1.2 var(--cond); }
+
+/* tags */
+.tag {
+  display: inline-block;
+  font: 500 11px/1 var(--mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 4px 6px;
+  border-radius: 3px;
+  white-space: nowrap;
+  vertical-align: 1px;
+}
+.tag.same { background: var(--rule-soft); color: var(--ink-2); }
+.tag.new { background: var(--new-soft); color: var(--new); }
+.tag.a { background: var(--day-a-soft); color: var(--ink); }
+.tag.b { background: var(--day-b-soft); color: var(--ink); }
+
+/* tables */
+.tbl { overflow-x: auto; background: var(--surface); border: 1px solid var(--rule); border-radius: 6px; }
+table { border-collapse: collapse; width: 100%; font-size: 14px; }
+caption { text-align: left; padding: 12px 14px 4px; font: 600 15px/1.3 var(--cond); }
+th, td { padding: 8px 14px; text-align: left; vertical-align: top; border-bottom: 1px solid var(--rule-soft); }
+thead th { font: 500 12px/1.3 var(--mono); text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); border-bottom: 1px solid var(--rule); white-space: nowrap; }
+tbody tr:last-child td, tbody tr:last-child th { border-bottom: 0; }
+td.n, th.n { text-align: right; white-space: nowrap; }
+tbody th { font-weight: 500; }
+tr.group th { font: 600 12px/1.3 var(--mono); text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); background: var(--ground); padding-block: 6px; }
+th.da { box-shadow: inset 0 -2px 0 var(--day-a); }
+th.db { box-shadow: inset 0 -2px 0 var(--day-b); }
+td.note { color: var(--ink-2); font-size: 13px; min-width: 220px; }
+.up { color: var(--up); }
+.down { color: var(--down); }
+
+/* lists */
+ul.plain, ol.plain { margin: 0; padding-left: 20px; display: grid; gap: 6px; max-width: 72ch; }
+.finding { display: grid; gap: 4px; padding-block: 12px; border-bottom: 1px solid var(--rule-soft); }
+.finding:last-child { border-bottom: 0; }
+.finding h3 { font-size: 16px; display: flex; flex-wrap: wrap; gap: 8px; align-items: baseline; }
+.findings { background: var(--surface); border: 1px solid var(--rule); border-radius: 6px; padding: 4px 16px; }
+
+/* chart */
+figure { margin: 0; }
+.chart-card { background: var(--surface); border: 1px solid var(--rule); border-radius: 6px; padding: 16px; display: grid; gap: 10px; }
+.legend { display: flex; flex-wrap: wrap; gap: 16px; font-size: 13px; color: var(--ink-2); }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.legend i { width: 18px; height: 2px; display: inline-block; }
+.chart-box { position: relative; }
+.chart-box svg { display: block; width: 100%; height: auto; overflow: visible; }
+.tip {
+  position: absolute; pointer-events: none;
+  background: var(--surface); color: var(--ink);
+  border: 1px solid var(--rule); border-radius: 4px;
+  padding: 8px 10px; font: 12px/1.45 var(--mono);
+  box-shadow: 0 4px 14px rgba(0,0,0,0.12);
+  white-space: nowrap;
+}
+figcaption { font-size: 13px; color: var(--muted); max-width: 72ch; }
+
+/* gallery */
+.seg { display: inline-flex; border: 1px solid var(--rule); border-radius: 5px; overflow: hidden; background: var(--surface); }
+.seg button {
+  font: 500 13px/1 var(--mono); color: var(--ink-2);
+  background: transparent; border: 0; padding: 9px 14px; cursor: pointer;
+  display: inline-flex; gap: 8px; align-items: center;
+}
+.seg button + button { border-left: 1px solid var(--rule); }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--surface); }
+.gallery { display: grid; gap: 14px; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
+.gallery a {
+  display: grid; gap: 6px; text-decoration: none;
+  background: var(--surface); border: 1px solid var(--rule); border-radius: 6px; padding: 8px;
+}
+.gallery a:hover { border-color: var(--ink-2); }
+.gallery img { width: 100%; height: auto; border-radius: 3px; background: #fafafa; }
+.gallery .cap { display: flex; justify-content: space-between; gap: 8px; font: 500 13px/1.3 var(--mono); padding-inline: 2px; }
+.gallery .cap span:last-child { color: var(--muted); }
+
+footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--rule); font-size: 13px; color: var(--muted); display: grid; gap: 6px; }
+
+@media (max-width: 560px) {
+  h1 { font-size: 28px; }
+  th, td { padding: 7px 10px; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+
+.explain { background: var(--surface); border: 1px solid var(--rule); border-left: 3px solid var(--ink-2); border-radius: 4px; padding: 14px 16px; display: grid; gap: 8px; }
+.explain h3 { font-size: 16px; }
+.takeaway { display: grid; gap: 6px; padding: 14px 16px; background: var(--day-b-soft); border-radius: 4px; }
+.takeaway .label { color: var(--ink-2); }
+dl.gloss { display: grid; grid-template-columns: minmax(140px, 200px) 1fr; gap: 10px 20px; margin: 0; background: var(--surface); border: 1px solid var(--rule); border-radius: 6px; padding: 16px; }
+dl.gloss dt { font-weight: 600; }
+dl.gloss dd { margin: 0; color: var(--ink-2); }
+@media (max-width: 560px) { dl.gloss { grid-template-columns: 1fr; gap: 2px 0; } dl.gloss dd { margin-bottom: 10px; } }
+</style>
+
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <div class="label">Market notes · NSE cash market</div>
+  <h1>Two circuit days on the NSE: what a  trader can learn</h1>
+  <div class="sessions" aria-label="Days covered">
+    <span class="chip"><span class="swatch sw-a"></span>Tue, 22 Sep 2026</span>
+    <span class="chip"><span class="swatch sw-b"></span>Wed, 23 Sep 2026</span>
+  </div>
+  <p class="lede">We went through every tick-by-tick quote for NSE stocks on two back-to-back days. The questions were simple. Which stocks moved most? How does a stock get stuck at its upper circuit, and can you see it coming? What should you know about listing day and the last 15 minutes of the session?</p>
+</header>
+
+<nav class="toc" aria-label="Sections">
+  <a href="#short">The short version</a>
+  <a href="#market">The market</a>
+  <a href="#circuit">Upper circuits</a>
+  <a href="#warning">Warning signs</a>
+  <a href="#who">Who gets stuck</a>
+  <a href="#listing">Listing day</a>
+  <a href="#close">The last 15 minutes</a>
+  <a href="#basics">Price steps and leverage</a>
+  <a href="#charts">Charts</a>
+  <a href="#glossary">Glossary</a>
+</nav>
+
+<section id="short">
+  <header>
+    <div class="label">The short version</div>
+    <h2>Three things worth knowing</h2>
+  </header>
+  <div class="verdict">
+    <div>
+      <div class="label">Upper circuits</div>
+      <div class="big">Sellers vanish first</div>
+      <p>In the minutes before a stock locks at its upper circuit, the sell orders dry up. The buy orders hardly grow until the lock itself. Often the warning comes only seconds before.</p>
+    </div>
+    <div>
+      <div class="label">Listing day</div>
+      <div class="big">The band follows the listing price</div>
+      <p>Two stocks listed on 23 September. Both closed exactly 20% above their listing price, not their issue price. That is where their upper circuit sat.</p>
+    </div>
+    <div>
+      <div class="label">The last 15 minutes</div>
+      <div class="big">The last trade is not the close</div>
+      <p>About a quarter of busy stocks stop trading at 3:15 pm. Their closing price is set in an auction just before 3:30 pm. It can differ from the last trade you saw.</p>
+    </div>
+  </div>
+</section>
+
+<section id="market">
+  <header>
+    <div class="label">The market</div>
+    <h2>A small dip, then a small bounce</h2>
+    <p>Nifty and Sensex fell a little on Tuesday and recovered on Wednesday. On Wednesday Nifty opened above Tuesday's close and never went below it.</p>
+  </header>
+  <div class="tbl">
+    <table>
+      <thead><tr><th scope="col">Index</th><th scope="col">Day</th><th scope="col" class="n">Previous close</th><th scope="col" class="n">Close</th><th scope="col" class="n">Change</th><th scope="col" class="n">Day's range</th></tr></thead>
+      <tbody>
+        <tr><th scope="row" rowspan="2">Nifty 50</th><td><span class="tag a">22 Sep</span></td><td class="n">23,414.30</td><td class="n">23,329.00</td><td class="n down">−0.36%</td><td class="n">23,285.95 to 23,489.00</td></tr>
+        <tr><td><span class="tag b">23 Sep</span></td><td class="n">23,329.00</td><td class="n">23,446.80</td><td class="n up">+0.50%</td><td class="n">23,349.70 to 23,466.90</td></tr>
+        <tr><th scope="row" rowspan="2">Sensex</th><td><span class="tag a">22 Sep</span></td><td class="n">74,858.99</td><td class="n">74,529.08</td><td class="n down">−0.44%</td><td class="n">74,423.71 to 75,034.16</td></tr>
+        <tr><td><span class="tag b">23 Sep</span></td><td class="n">74,529.08</td><td class="n">74,828.25</td><td class="n up">+0.40%</td><td class="n">74,604.92 to 74,973.66</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>The tables below list the top five stocks each day. We counted only stocks that traded at least ₹10 crore that day, about 850 to 880 stocks. "Range" is the gap between the day's high and low, as a share of the previous close.</p>
+  <div class="cols">
+    <div class="tbl">
+      <table>
+        <caption><span class="swatch sw-a" style="display:inline-block;margin-right:6px"></span>Tuesday, 22 Sep</caption>
+        <thead><tr><th scope="col">Top gainers</th><th scope="col">Top losers</th><th scope="col">Widest range</th></tr></thead>
+        <tbody>
+          <tr><td>OPTIEMUS <span class="num up">+20.0%</span></td><td>GOCLCORP <span class="num down">−9.9%</span></td><td>FEDDERSHOL <span class="num">21.8%</span></td></tr>
+          <tr><td>CUBEXTUB <span class="num up">+20.0%</span></td><td>RAMBHAJO <span class="num down">−6.6%</span></td><td>TCC <span class="num">21.7%</span></td></tr>
+          <tr><td>REGAAL <span class="num up">+16.5%</span></td><td>JISLJALEQS <span class="num down">−6.4%</span></td><td>REGAAL <span class="num">21.0%</span></td></tr>
+          <tr><td>TRANSRAILL <span class="num up">+15.2%</span></td><td>HEGAM <span class="num down">−6.3%</span></td><td>OPTIEMUS <span class="num">20.1%</span></td></tr>
+          <tr><td>TANAA <span class="num up">+14.8%</span></td><td>ACUTAAS <span class="num down">−6.2%</span></td><td>CUBEXTUB <span class="num">19.4%</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="tbl">
+      <table>
+        <caption><span class="swatch sw-b" style="display:inline-block;margin-right:6px"></span>Wednesday, 23 Sep</caption>
+        <thead><tr><th scope="col">Top gainers</th><th scope="col">Top losers</th><th scope="col">Widest range</th></tr></thead>
+        <tbody>
+          <tr><td>CUBEXTUB <span class="num up">+20.0%</span></td><td>BLUESTONE <span class="num down">−8.6%</span></td><td>HEROMOTORS <span class="num">21.3%</span></td></tr>
+          <tr><td>WHIRLPOOL <span class="num up">+20.0%</span></td><td>GLASSWALL <span class="num down">−8.6%</span></td><td>MPIMANIPAL <span class="num">20.2%</span></td></tr>
+          <tr><td>FRONTSP <span class="num up">+20.0%</span></td><td>TAALTECH <span class="num down">−8.6%</span></td><td>PRIORITY <span class="num">19.9%</span></td></tr>
+          <tr><td>PREMIERPOL <span class="num up">+19.4%</span></td><td>PFOCUS <span class="num down">−6.5%</span></td><td>PREMIERPOL <span class="num">19.8%</span></td></tr>
+          <tr><td>PRIORITY <span class="num up">+19.2%</span></td><td>GAJA <span class="num down">−5.8%</span></td><td>WHIRLPOOL <span class="num">19.8%</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <ul class="plain">
+    <li><strong>CUBEXTUB</strong> hit its 20% upper circuit on both days. On Wednesday it was stuck at the limit from the opening bell.</li>
+    <li><strong>OPTIEMUS</strong> closed at its upper circuit on Tuesday. On Wednesday it hit the limit again for about 4 minutes after the open. It then slipped back and closed up 16.8%.</li>
+    <li><strong>SS</strong> is not in the gainers list. It listed on Wednesday, so its gain against the issue price (+77%) is not comparable to a normal day's move. See <a href="#listing">Listing day</a>.</li>
+  </ul>
+</section>
+
+<section id="circuit">
+  <header>
+    <div class="label">Upper circuits</div>
+    <h2>What happens when a stock hits its upper circuit</h2>
+  </header>
+  <div class="explain">
+    <h3>The basics</h3>
+    <p>Every NSE stock has a price band for the day, such as ±5%, ±10% or ±20% of the previous close. The price cannot trade outside it. When buyers push the price to the top of the band and no sellers remain, the stock is <strong>locked at the upper circuit</strong>. Buy orders pile up at that one price. A new buy order joins the back of the queue and is unlikely to be filled.</p>
+  </div>
+
+  <div class="cols">
+    <div class="stack">
+      <h3>WHIRLPOOL on 23 Sep: a large stock hits the limit</h3>
+      <ol class="plain">
+        <li>Until about 1 pm it traded quietly between ₹722 and ₹740.</li>
+        <li>From 1 pm to 2:54 pm it climbed steadily to about ₹859. Trading volume grew sharply.</li>
+        <li>At 2:54:12 pm one burst of buying took about 1.7 lakh shares. The price jumped to ₹865.25, its 20% limit. Every sell order was gone.</li>
+        <li>Sellers came back three times in the next 90 seconds. Each time the price dipped a little and returned to the limit.</li>
+        <li>From 2:55:40 pm it stayed locked. At the close about 6.8 lakh shares were waiting to buy.</li>
+      </ol>
+    </div>
+    <div class="stack">
+      <h3>FRONTSP on 23 Sep: a lock in the morning</h3>
+      <ol class="plain">
+        <li>It traded between ₹1,176 and ₹1,363 in the first hour.</li>
+        <li>At 10:17:16 am one burst took about 13,700 shares. The price reached ₹1,394.60, its 20% limit, and sellers disappeared.</li>
+        <li>Sellers returned for about 5 seconds and the price dipped to ₹1,381.30.</li>
+        <li>From 10:17:46 am it stayed locked until the close, more than 5 hours.</li>
+      </ol>
+    </div>
+  </div>
+  <p>Both stocks allow 5x intraday leverage and have a ±20% band. The two locks on Tuesday looked the same. CUBEXTUB locked at noon after a 10-minute rally. OPTIEMUS jumped from ₹694 to its ₹708.90 limit in two seconds, then locked for good about 30 seconds later.</p>
+</section>
+
+<section id="warning">
+  <header>
+    <div class="label">Warning signs</div>
+    <h2>Before a lock, the sell orders dry up</h2>
+    <p>We took every stock that hit its upper circuit during the day and stayed there for at least a minute. There were 33 such stocks on Tuesday and 45 on Wednesday. For each one we tracked the total sell orders waiting in the order book before the lock. The chart shows the typical stock. A value of 1.0 means as many sell orders as 30 minutes before the lock.</p>
+  </header>
+  <figure class="chart-card">
+    <div class="legend" aria-hidden="true">
+      <span><i style="background:var(--day-a)"></i>Tue, 22 Sep (33 stocks)</span>
+      <span><i style="background:var(--day-b)"></i>Wed, 23 Sep (45 stocks)</span>
+    </div>
+    <div class="chart-box" id="drain"></div>
+    <figcaption>Sell orders left, as a share of the level 30 minutes before the lock. The points are not evenly spaced in time. On Wednesday many locks came in the first half hour, so the 30-minute and 15-minute points cover fewer stocks.</figcaption>
+  </figure>
+  <ul class="plain">
+    <li><strong>The sell side does the moving.</strong> The total of buy orders barely changed until the lock itself. On both days it grew by about a fifth at most.</li>
+    <li><strong>Tuesday gave more warning.</strong> Five minutes before the lock, the typical stock had lost half its sell orders. Thirty seconds before, only 5% were left.</li>
+    <li><strong>Wednesday gave less.</strong> Five minutes before, 82% of sell orders were still there. Thirty seconds before, 36% were left.</li>
+    <li><strong>Lower circuits mirror this.</strong> Before a stock locks at its lower circuit, the buy orders dry up while the sell orders stay steady.</li>
+  </ul>
+  <p>Individual stocks fell into three groups on both days:</p>
+  <ol class="plain">
+    <li><strong>Slow drain.</strong> Sell orders shrank over several minutes. Examples: SAKUMA, DSFCL, KABRAEXTRU and AASTHA.</li>
+    <li><strong>Sellers gone early.</strong> The sell side emptied while the price was still below the limit. Buyers then walked the price up. Example: PEARLPOLY had no sellers 2 minutes before its lock.</li>
+    <li><strong>No warning.</strong> Nothing changed until the last few seconds. One large burst of buying cleared every seller at once. Examples: VISL, PREMIERPOL and FRONTSP.</li>
+  </ol>
+  <div class="takeaway">
+    <div class="label">What this means for you</div>
+    <p>A sell side that thins out fast near the upper limit is the clearest sign of a coming lock. It often shows up only seconds before, too late to act on by hand. If a stock is already locked, a new buy order is unlikely to be filled.</p>
+  </div>
+</section>
+
+<section id="who">
+  <header>
+    <div class="label">Who gets stuck</div>
+    <h2>Circuit locks hit cheap, narrow-band stocks most</h2>
+    <p>This table compares stocks that were locked at the upper circuit for a good part of the day with all other stocks.</p>
+  </header>
+  <div class="tbl">
+    <table>
+      <thead><tr><th scope="col">Group</th><th scope="col">Day</th><th scope="col" class="n">Stocks</th><th scope="col" class="n">Typical price</th><th scope="col" class="n">Band of ±5%</th><th scope="col" class="n">Band of ±20%</th><th scope="col" class="n">5x intraday leverage</th></tr></thead>
+      <tbody>
+        <tr><th scope="row" rowspan="2">Locked at upper circuit</th><td><span class="tag a">22 Sep</span></td><td class="n">42</td><td class="n">₹75</td><td class="n">71%</td><td class="n">17%</td><td class="n">21%</td></tr>
+        <tr><td><span class="tag b">23 Sep</span></td><td class="n">48</td><td class="n">₹75</td><td class="n">60%</td><td class="n">13%</td><td class="n">33%</td></tr>
+        <tr><th scope="row" rowspan="2">All other stocks</th><td><span class="tag a">22 Sep</span></td><td class="n">2,261</td><td class="n">₹262</td><td class="n">5%</td><td class="n">79%</td><td class="n">71%</td></tr>
+        <tr><td><span class="tag b">23 Sep</span></td><td class="n">2,259</td><td class="n">₹268</td><td class="n">5%</td><td class="n">79%</td><td class="n">71%</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <ul class="plain">
+    <li>The main link is the band. A ±5% band is easy to reach in one strong move. Only 5% of other stocks have such a narrow band, but most locked stocks do.</li>
+    <li>Locked stocks are usually cheap. The typical one traded near ₹75, against ₹265 for the rest.</li>
+    <li>Most locked stocks offer no intraday leverage. Larger 5x names like WHIRLPOOL and FRONTSP do lock too, but less often.</li>
+    <li>Some names locked on both days: CUBEXTUB, STLNETWORK, CPPLUS and AASTHA at the upper circuit, RHETAN at the lower circuit.</li>
+  </ul>
+  <div class="explain">
+    <h3>Bands change</h3>
+    <p>The exchange can narrow a stock's band overnight. On 23 September, GLASSWALL and ALKALI went from ±20% to ±10%. INDOMIM went from ±10% to ±5% and hit its new upper limit the same day. GLASSWALL fell 8.6%. Check a stock's band each morning, not only once.</p>
+  </div>
+</section>
+
+<section id="listing">
+  <header>
+    <div class="label">Listing day</div>
+    <h2>Two new listings, two upper circuits</h2>
+    <p>HEROMOTORS and SS listed on 23 September. Both closed locked at their upper circuit.</p>
+  </header>
+  <div class="tbl">
+    <table>
+      <thead><tr><th scope="col">Stock</th><th scope="col" class="n">Issue price</th><th scope="col" class="n">Listing price</th><th scope="col" class="n">Listing gain</th><th scope="col" class="n">Close</th><th scope="col" class="n">Close vs listing</th><th scope="col" class="n">Close vs issue</th></tr></thead>
+      <tbody>
+        <tr><th scope="row">HEROMOTORS</th><td class="n">₹84</td><td class="n">₹82.00</td><td class="n down">−2.4%</td><td class="n">₹98.40</td><td class="n up">+20%</td><td class="n up">+17.1%</td></tr>
+        <tr><th scope="row">SS</th><td class="n">₹424</td><td class="n">₹624.00</td><td class="n up">+47.2%</td><td class="n">₹748.80</td><td class="n up">+20%</td><td class="n up">+76.6%</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="cols">
+    <div class="stack">
+      <h3>How listing day works</h3>
+      <ul class="plain">
+        <li>A new listing does not open at 9:15 am. It goes through a special pre-open auction first. Both stocks found their listing price at about 9:41 am.</li>
+        <li>Normal trading in both started at 10:00 am.</li>
+        <li>Before the listing price is found, the quotes on screen are placeholders. We saw bids at 2x the issue price and offers far below it. They are not real trades.</li>
+      </ul>
+    </div>
+    <div class="stack">
+      <h3>Where the circuit really was</h3>
+      <ul class="plain">
+        <li>Before listing, the stocks carried a very wide band of 0.5x to 2x the issue price. For SS that was ₹212 to ₹848.</li>
+        <li>Once listed, the band became ±20% around the listing price. For SS that was ₹499.20 to ₹748.80.</li>
+        <li>HEROMOTORS hit ₹98.40 at 11:12 am and stayed locked all afternoon. More than 1.3 crore shares were waiting to buy at the close.</li>
+        <li>SS hit ₹748.80 at 1:40 pm. It opened up briefly twice, then stayed locked from 2:12 pm.</li>
+      </ul>
+    </div>
+  </div>
+  <div class="takeaway">
+    <div class="label">What this means for you</div>
+    <p>On listing day, work out the circuit from the listing price, not the issue price. A screen that still shows the wide pre-listing band will mislead you about how far the stock can run.</p>
+  </div>
+</section>
+
+<section id="close">
+  <header>
+    <div class="label">The last 15 minutes</div>
+    <h2>Many large stocks go quiet at 3:15 pm</h2>
+    <p>On both days, 210 of the busiest stocks stopped trading from about 3:15 pm until just before 3:30 pm. RELIANCE, SBIN, TITAN, SUNPHARMA and SHRIRAMFIN were among them. This is not a glitch. It is the closing auction.</p>
+  </header>
+  <div class="explain">
+    <h3>How the closing auction works</h3>
+    <p>For stocks in the closing auction, normal trading ends at about 3:15 pm. Orders are then collected and matched once, just before 3:30 pm. That single match sets the official closing price. The match came at about 3:28 pm on Tuesday and 3:29 pm on Wednesday.</p>
+  </div>
+  <ul class="plain">
+    <li><strong>The last trade you saw may not be the close.</strong> On Tuesday, FEDDERSHOL's last trade was ₹60.80, but its official close was ₹64.80.</li>
+    <li><strong>Index charts go flat.</strong> Nifty drew two almost flat 5-minute candles between 3:15 and 3:25 pm on Tuesday. Many of its stocks were not trading.</li>
+    <li><strong>Volume and quotes look odd during the auction.</strong> Some apps may briefly show zero volume, or a best buy price above the best sell price. It settles after the match.</li>
+    <li><strong>Previous close means the official close.</strong> The previous close shown the next morning is the auction price, not the last trade.</li>
+  </ul>
+</section>
+
+<section id="basics">
+  <header>
+    <div class="label">Price steps and leverage</div>
+    <h2>How far a price can move in one step</h2>
+    <p>Prices move in fixed steps called the tick size. The step depends on the share price. We checked every stock against the prices it actually traded at, and the steps held exactly on both days.</p>
+  </header>
+  <div class="cols">
+    <div class="tbl">
+      <table>
+        <caption>Tick size by share price</caption>
+        <thead><tr><th scope="col">Share price</th><th scope="col" class="n">Smallest step</th><th scope="col" class="n">Stocks</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">up to ₹250</th><td class="n">₹0.01</td><td class="n">~1,080</td></tr>
+          <tr><th scope="row">₹250 to ₹1,000</th><td class="n">₹0.05</td><td class="n">~680</td></tr>
+          <tr><th scope="row">₹1,000 to ₹5,000</th><td class="n">₹0.10</td><td class="n">368</td></tr>
+          <tr><th scope="row">₹5,000 to ₹10,000</th><td class="n">₹0.50</td><td class="n">~38</td></tr>
+          <tr><th scope="row">₹10,000 to ₹20,000</th><td class="n">₹1.00</td><td class="n">~20</td></tr>
+          <tr><th scope="row">above ₹20,000</th><td class="n">₹5.00</td><td class="n">11</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="tbl">
+      <table>
+        <caption>Intraday leverage by price band</caption>
+        <thead><tr><th scope="col">Band</th><th scope="col" class="n">Stocks</th><th scope="col" class="n">5x leverage</th><th scope="col" class="n">No leverage (1x)</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">±5%</th><td class="n">~125</td><td class="n">28%</td><td class="n">64%</td></tr>
+          <tr><th scope="row">±10%</th><td class="n">~365</td><td class="n">81%</td><td class="n">15%</td></tr>
+          <tr><th scope="row">±20%</th><td class="n">~1,750</td><td class="n">71%</td><td class="n">25%</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <ul class="plain">
+    <li>About 70 stocks sit one step off this table. Their price has likely crossed a boundary since the step was last set.</li>
+    <li>About two-thirds of NSE stocks allow 5x intraday leverage. A quarter allow none. A small group sits at 2x or 3x.</li>
+    <li>Narrow-band stocks rarely get leverage. That is the same group that locks at circuits most often.</li>
+  </ul>
+</section>
+
+<section id="charts">
+  <header>
+    <div class="label">Charts</div>
+    <h2>Five-minute charts of the indices and top movers</h2>
+    <p>Each chart shows 5-minute candles from 9:15 am to 3:30 pm. Stock charts include a volume panel. A flat line at the top of a chart is a stock locked at its upper circuit. Tap a chart to open it at full size.</p>
+  </header>
+  <div class="seg" role="group" aria-label="Choose day">
+    <button type="button" id="btn-22" aria-pressed="false" data-day="2026-09-22"><span class="swatch sw-a"></span>Tue, 22 Sep</button>
+    <button type="button" id="btn-23" aria-pressed="true" data-day="2026-09-23"><span class="swatch sw-b"></span>Wed, 23 Sep</button>
+  </div>
+  <div class="gallery" id="gallery"></div>
+</section>
+
+<section id="glossary">
+  <header>
+    <div class="label">Glossary</div>
+    <h2>Terms used in this post</h2>
+  </header>
+  <dl class="gloss">
+    <dt>Price band (circuit)</dt><dd>The highest and lowest price a stock may trade at today, set by the exchange as a percentage of the previous close.</dd>
+    <dt>Upper circuit lock</dt><dd>The price sits at the top of the band and no sell orders remain. Only buy orders are waiting.</dd>
+    <dt>Lower circuit lock</dt><dd>The price sits at the bottom of the band and no buy orders remain. Only sell orders are waiting.</dd>
+    <dt>Order book</dt><dd>The list of buy and sell orders waiting to be filled, with their prices and quantities.</dd>
+    <dt>Issue price</dt><dd>The price at which shares were allotted in the IPO.</dd>
+    <dt>Listing price</dt><dd>The price found in the pre-open auction on listing day. It is the base for that day's circuit.</dd>
+    <dt>Closing auction</dt><dd>The final few minutes of the session, when orders in some stocks are matched once to set the official close.</dd>
+    <dt>Tick size</dt><dd>The smallest step by which a price can change, such as ₹0.05.</dd>
+    <dt>Intraday leverage</dt><dd>How many times your margin you can trade within the day. At 5x, ₹10,000 of margin buys ₹50,000 of stock that must be closed the same day.</dd>
+    <dt>Turnover</dt><dd>The value of shares traded in a day. ₹10 crore is ₹10,00,00,000.</dd>
+  </dl>
+</section>
+
+<footer>
+  <div>Based on tick-by-tick quotes for NSE cash-market stocks on 22 and 23 September 2026. Prices are in rupees. Times are IST.</div>
+  <div>This post is for education only. It is not investment advice. Stocks that hit circuits are often illiquid and carry high risk.</div>
+</footer>
+
+</div>
+
+<script>
+(function () {
+  // Typical (median) share of sell orders left before an upper circuit lock.
+  var rows = [
+    { t: "30 min", a: 1.00, b: 1.00 },
+    { t: "15 min", a: 0.97, b: 1.00 },
+    { t: "10 min", a: 0.90, b: 0.99 },
+    { t: "5 min",  a: 0.51, b: 0.82 },
+    { t: "2 min",  a: 0.17, b: 0.66 },
+    { t: "1 min",  a: 0.12, b: 0.49 },
+    { t: "30 s",   a: 0.05, b: 0.36 },
+    { t: "lock",   a: 0.00, b: 0.00 }
+  ];
+  var pct = function (v) { return Math.round(v * 100) + "%"; };
+
+  var NS = "http://www.w3.org/2000/svg";
+  var box = document.getElementById("drain");
+  var W = 760, H = 300, m = { l: 48, r: 96, t: 14, b: 38 };
+  var iw = W - m.l - m.r, ih = H - m.t - m.b;
+  var x = function (i) { return m.l + i * iw / (rows.length - 1); };
+  var y = function (v) { return m.t + (1 - v) * ih; };
+  var svg = document.createElementNS(NS, "svg");
+  function el(name, attrs) {
+    var e = document.createElementNS(NS, name);
+    for (var k in attrs) e.setAttribute(k, attrs[k]);
+    svg.appendChild(e);
+    return e;
+  }
+  svg.setAttribute("viewBox", "0 0 " + W + " " + H);
+  svg.setAttribute("role", "img");
+  svg.setAttribute("aria-label", "Sell orders left before an upper circuit lock. On 22 September, 51% were left 5 minutes before and 5% at 30 seconds. On 23 September, 82% were left 5 minutes before and 36% at 30 seconds.");
+  box.appendChild(svg);
+
+  var mono = "IBM Plex Mono, monospace";
+  [0, 0.25, 0.5, 0.75, 1].forEach(function (v) {
+    el("line", { x1: m.l, x2: m.l + iw, y1: y(v), y2: y(v), stroke: v === 0 ? "var(--rule)" : "var(--rule-soft)", "stroke-width": 1, fill: "none" });
+    el("text", { x: m.l - 8, y: y(v) + 4, "text-anchor": "end", fill: "var(--muted)", "font-size": 12, "font-family": mono }).textContent = pct(v);
+  });
+  rows.forEach(function (r, i) {
+    el("text", { x: x(i), y: H - m.b + 20, "text-anchor": "middle", fill: "var(--muted)", "font-size": 12, "font-family": mono }).textContent = r.t;
+  });
+  var cross = el("line", { x1: 0, x2: 0, y1: m.t, y2: m.t + ih, stroke: "var(--ink-2)", "stroke-width": 1, "stroke-dasharray": "3 3", fill: "none", visibility: "hidden" });
+  [["a", "var(--day-a)"], ["b", "var(--day-b)"]].forEach(function (s) {
+    var d = rows.map(function (r, i) { return (i ? "L" : "M") + x(i).toFixed(1) + " " + y(r[s[0]]).toFixed(1); }).join(" ");
+    el("path", { d: d, fill: "none", stroke: s[1], "stroke-width": 2, "stroke-linejoin": "round", "stroke-linecap": "round" });
+    rows.forEach(function (r, i) { el("circle", { cx: x(i), cy: y(r[s[0]]), r: 4, fill: s[1], stroke: "var(--surface)", "stroke-width": 2 }); });
+  });
+  var i30 = 6;
+  el("text", { x: x(i30) + 10, y: y(rows[i30].a) + 4, fill: "var(--ink)", "font-size": 12, "font-family": mono }).textContent = "22 Sep · 5%";
+  el("text", { x: x(i30) + 10, y: y(rows[i30].b) - 6, fill: "var(--ink)", "font-size": 12, "font-family": mono }).textContent = "23 Sep · 36%";
+
+  var tip = document.createElement("div");
+  tip.className = "tip";
+  tip.hidden = true;
+  box.appendChild(tip);
+  var hit = el("rect", { x: m.l - 20, y: 0, width: iw + 40, height: H, fill: "transparent" });
+  hit.style.cursor = "crosshair";
+  hit.addEventListener("mousemove", function (evt) {
+    var rect = svg.getBoundingClientRect();
+    var px = (evt.clientX - rect.left) * W / rect.width;
+    var i = Math.max(0, Math.min(rows.length - 1, Math.round((px - m.l) / (iw / (rows.length - 1)))));
+    var r = rows[i];
+    cross.setAttribute("x1", x(i)); cross.setAttribute("x2", x(i)); cross.setAttribute("visibility", "visible");
+    tip.innerHTML = "<strong>" + (r.t === "lock" ? "At the lock" : r.t + " before the lock") + "</strong><br>" +
+      "<span style=\"color:var(--day-a)\">■</span> 22 Sep: " + pct(r.a) + " of sell orders left<br>" +
+      "<span style=\"color:var(--day-b)\">■</span> 23 Sep: " + pct(r.b) + " of sell orders left";
+    tip.hidden = false;
+    var left = x(i) * rect.width / W + 12;
+    if (left + tip.offsetWidth > rect.width) left = x(i) * rect.width / W - tip.offsetWidth - 12;
+    tip.style.left = Math.max(0, left) + "px";
+    tip.style.top = "8px";
+  });
+  hit.addEventListener("mouseleave", function () { tip.hidden = true; cross.setAttribute("visibility", "hidden"); });
+
+  var charts = {
+    "2026-09-22": [
+      ["NIFTY", "index"], ["SENSEX", "index"],
+      ["OPTIEMUS", "gainer"], ["CUBEXTUB", "gainer"], ["REGAAL", "gainer"], ["TRANSRAILL", "gainer"], ["TANAA", "gainer"],
+      ["GOCLCORP", "loser"], ["RAMBHAJO", "loser"], ["JISLJALEQS", "loser"], ["HEGAM", "loser"], ["ACUTAAS", "loser"],
+      ["FEDDERSHOL", "wide range"], ["TCC", "wide range"]
+    ],
+    "2026-09-23": [
+      ["NIFTY", "index"], ["SENSEX", "index"],
+      ["CUBEXTUB", "gainer"], ["WHIRLPOOL", "gainer"], ["FRONTSP", "gainer"], ["PREMIERPOL", "gainer"], ["PRIORITY", "gainer"],
+      ["BLUESTONE", "loser"], ["GLASSWALL", "loser"], ["TAALTECH", "loser"], ["PFOCUS", "loser"], ["GAJA", "loser"],
+      ["HEROMOTORS", "new listing"], ["MPIMANIPAL", "wide range"]
+    ]
+  };
+  var gal = document.getElementById("gallery");
+  var btns = document.querySelectorAll(".seg button");
+  function render(day) {
+    gal.innerHTML = "";
+    charts[day].forEach(function (c) {
+      var src = "assets/candles_5m_" + day + "_" + c[0] + ".png";
+      var a = document.createElement("a");
+      a.href = src; a.target = "_blank"; a.rel = "noopener";
+      a.innerHTML = "<img loading=\"lazy\" width=\"1160\" height=\"643\" src=\"" + src + "\" alt=\"" + c[0] + " five-minute candles on " + day + "\">" +
+        "<span class=\"cap\"><span>" + c[0] + "</span><span>" + c[1] + "</span></span>";
+      gal.appendChild(a);
+    });
+    btns.forEach(function (b) { b.setAttribute("aria-pressed", b.dataset.day === day ? "true" : "false"); });
+  }
+  btns.forEach(function (b) { b.addEventListener("click", function () { render(b.dataset.day); }); });
+  render("2026-09-23");
+})();
+</script>
+</body>
+</html>
